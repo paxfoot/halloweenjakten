@@ -122,14 +122,48 @@ button.s:active{transform:scale(.97)}
 .warn{background:#ffe08a;color:#3a2a00;border-radius:12px;padding:12px;margin:12px 0}
 .row{display:flex;gap:10px}
 .row .btn{margin-top:0}
+/* posters */
+.poster-wrap{container-type:inline-size;max-width:520px;margin:0 auto 22px}
+.poster{position:relative;aspect-ratio:210/297;overflow:hidden;border-radius:3cqw;border:1.2cqw solid var(--c);color:var(--ink);display:flex;flex-direction:column;align-items:center;text-align:center;padding:6cqw 6cqw 5cqw;background:linear-gradient(180deg,#2b1442 0%,#160d22 58%,#2a1208 100%);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.poster::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 26%,var(--c),transparent 58%);opacity:.22}
+.poster>*{position:relative;flex-shrink:0}
+.pkick{font-size:2.9cqw;letter-spacing:.35cqw;padding:0 8cqw;text-transform:uppercase;color:var(--orange2);font-weight:600;margin:0}
+.pmoon{position:absolute!important;top:5cqw;right:6cqw;width:11cqw;height:11cqw;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff6d6,#ffd98a 55%,#e8a94a);box-shadow:0 0 8cqw 2cqw rgba(255,200,110,.35)}
+.ptitle{font-family:'Creepster',cursive;font-weight:400;font-size:13cqw;line-height:1;margin:5cqw 0 0;color:var(--orange);text-shadow:0 .8cqw 0 #5a2600}
+.poster.mission .ptitle{font-size:10.5cqw;margin-top:1cqw;color:var(--c);text-shadow:0 .8cqw 0 rgba(0,0,0,.55)}
+.psub{font-size:5cqw;font-weight:600;margin:1cqw 0 0;opacity:.9}
+.ptext{font-size:3.7cqw;margin:2.5cqw 0 0;line-height:1.35}
+.ptext i{color:var(--muted);font-style:normal}
+.pbig{font-size:22cqw;line-height:1;margin:2cqw 0 0}
+.pmissions{display:flex;gap:3cqw;margin-top:4cqw;width:100%}
+.pmissions div{flex:1;border:.6cqw solid var(--c);border-radius:3cqw;padding:2.5cqw 1cqw;background:rgba(255,255,255,.05)}
+.pmissions span{display:block;font-size:7.5cqw;line-height:1.15}
+.pmissions b{display:block;font-size:3.4cqw;line-height:1.2}
+.pmissions small{display:block;font-size:2.8cqw;color:var(--muted)}
+.pinfo{font-size:3.8cqw;margin:2.5cqw 0 0;font-weight:600}
+.pqr{margin-top:auto;background:#fff;color:#2a1200;border-radius:4cqw;padding:2.5cqw 2.5cqw 2cqw;width:40cqw}
+.pqr .qr img,.pqr .qr canvas{width:100%!important;height:auto!important}
+.pqr b{display:block;font-size:2.9cqw;margin-top:1.5cqw;line-height:1.2}
+.pdeco{position:absolute!important;font-size:7cqw;opacity:.85}
+.poster.main .ptitle{margin-top:4cqw}
+.ptitle{width:100%;white-space:nowrap}
+.poster.main .ptext{font-size:3.4cqw}
+.poster.main .pmissions{margin-top:3cqw}
+.poster.main .pmissions div{padding:2cqw 1cqw}
+.poster.main .pmissions b{font-size:3.1cqw}
+.poster.main .pqr{width:36cqw}
+@page{size:A4;margin:8mm}
 @media print{
+  body[data-print=posters] .signs,body[data-print=signs] .posters{display:none!important}
+  .poster-wrap{max-width:none;width:194mm;margin:0 auto;break-after:page;page-break-after:always}
+  .poster-wrap:last-child{break-after:auto;page-break-after:auto}
   body{background:#fff!important;color:#000}
   .top,.no-print{display:none!important}
   main{max-width:none;padding:0}
   .qr-grid{grid-template-columns:repeat(2,1fr);gap:8mm}
   .qr-card{border:2px dashed #999;page-break-inside:avoid}
-  .org h2{color:#000;page-break-before:always}
-  .org h2:first-of-type{page-break-before:auto}
+  .signs h2{color:#000;page-break-before:always}
+  .signs h2:first-of-type{page-break-before:auto}
 }
 </style>
 </head>
@@ -324,7 +358,11 @@ const T = {
     orgTitle: "Arrangörssidan",
     orgIntro: "Här är alla QR-koder. Skriv ut sidan och sätt upp varje lapp vid rätt spöke, katt eller bevis. Startlappen kan sitta där uppdraget börjar.",
     orgFileWarn: "Sidan är öppnad som en fil på datorn. Lägg upp den på nätet först – annars pekar QR-koderna fel.",
-    print: "Skriv ut",
+    printPosters: "Skriv ut affischer",
+    printSigns: "Skriv ut QR-lappar",
+    posters: "Affischer",
+    postersIntro: "En stor affisch för hela jakten och en för varje uppdrag. Sätt upp dem där uppdragen börjar.",
+    signs: "QR-lappar",
     reset: "Nollställ den här mobilen",
     resetConfirm: "Ta bort allt den här mobilen har hittat och hämtat?",
     resetDone: "Nollställt!",
@@ -387,7 +425,11 @@ const T = {
     orgTitle: "Organizer page",
     orgIntro: "Here are all the QR codes. Print this page and put each sign next to the right ghost, cat or clue. The start sign can go where the mission begins.",
     orgFileWarn: "This page is opened as a file on your computer. Put it online first – otherwise the QR codes will point to the wrong place.",
-    print: "Print",
+    printPosters: "Print posters",
+    printSigns: "Print QR signs",
+    posters: "Posters",
+    postersIntro: "One big poster for the whole hunt and one for each mission. Put them up where each mission starts.",
+    signs: "QR signs",
     reset: "Reset this phone",
     resetConfirm: "Remove everything this phone has found and collected?",
     resetDone: "Reset done!",
@@ -688,22 +730,32 @@ function organizer() {
   app.innerHTML = `
     <div class="org">
       <a class="back no-print" href="#/">${t("back")}</a>
-      <h1>${t("orgTitle")}</h1>
+      <h1 class="no-print">${t("orgTitle")}</h1>
       <p class="muted no-print">${t("orgIntro")}</p>
       ${location.protocol === "file:" ? `<div class="warn no-print">⚠️ ${t("orgFileWarn")}</div>` : ""}
-      <div class="row no-print" style="margin:14px 0 20px">
-        <button class="btn" type="button" data-act="print">🖨️ ${t("print")}</button>
-        <button class="btn ghost" type="button" data-act="reset">${t("reset")}</button>
+      <div class="row no-print" style="margin:14px 0 10px">
+        <button class="btn" type="button" data-act="print" data-what="posters">🖨️ ${t("printPosters")}</button>
+        <button class="btn" type="button" data-act="print" data-what="signs">🖨️ ${t("printSigns")}</button>
       </div>
+      <button class="btn ghost no-print" type="button" data-act="reset" style="margin-bottom:24px">${t("reset")}</button>
+      <div class="posters">
+        <h2 class="no-print">🖼️ ${t("posters")}</h2>
+        <p class="muted no-print">${t("postersIntro")}</p>
+        ${posters(base)}
+      </div>
+      <div class="signs">
+      <h2 class="no-print" style="page-break-before:auto">🏷️ ${t("signs")}</h2>
       ${MISSIONS.map(m => `
         <h2>${m.emoji} ${m.title.sv} / ${m.title.en}</h2>
         <div class="qr-grid">
-          ${card(base + "#/m/" + m.id, m.emoji, `${t("startSign")}: ${m.title.sv}`, m.title.en, true, m.id)}
           ${m.items.map(it => card(base + "#/q/" + it.code, itemEmoji(m, it),
               typeof it.name === "string" ? it.name : `${it.name.sv} / ${it.name.en}`,
               `${m.title.sv} · ${m.title.en}`, false, m.id)).join("")}
         </div>`).join("")}
+      </div>
     </div>`;
+  fitTitles();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitles);
   document.querySelectorAll("[data-qr]").forEach(el => {
     if (window.QRCode) {
       new QRCode(el, { text: el.dataset.qr, width: 380, height: 380, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
@@ -711,6 +763,53 @@ function organizer() {
       el.innerHTML = `<small style="word-break:break-all">${el.dataset.qr}</small>`;
     }
   });
+}
+
+/* Shrink poster titles until they fit on one line */
+function fitTitles() {
+  document.querySelectorAll(".ptitle").forEach(el => {
+    el.style.fontSize = "";
+    let size = parseFloat(getComputedStyle(el).fontSize) / el.clientWidth * 100;
+    while (el.scrollWidth > el.clientWidth + 1 && size > 5) { size -= 0.25; el.style.fontSize = size + "cqw"; }
+  });
+}
+
+/* ---------- Posters ---------- */
+function posters(base) {
+  const both = o => (o.sv === o.en ? o.sv : `${o.sv} · ${o.en}`);
+  const deco = (a, b, c, d) => `
+    <span class="pdeco" style="top:3cqw;left:4cqw">${a}</span>
+    <span class="pdeco" style="top:5cqw;right:5cqw;transform:scaleX(-1)">${b}</span>
+    <span class="pdeco" style="bottom:4cqw;left:5cqw">${c}</span>
+    <span class="pdeco" style="bottom:4cqw;right:5cqw">${d}</span>`;
+  const qr = (url, txt) => `<div class="pqr"><div class="qr" data-qr="${url}"></div><b>${txt}</b></div>`;
+  const main = `
+    <div class="poster-wrap"><div class="poster main" style="--c:var(--orange)">
+      ${deco("🦇", "", "🎃", "🕸️")}
+      <div class="pmoon"></div>
+      <p class="pkick">${both(EVENT.date)}</p>
+      <h1 class="ptitle">Halloweenjakten</h1>
+      <p class="psub">The Halloween Hunt</p>
+      <p class="ptext">Tre uppdrag i kvarteret – leta, skanna, vinn!<br><i>Three missions in the neighbourhood – search, scan, win!</i></p>
+      <div class="pmissions">${MISSIONS.map(m => `
+        <div style="--c:${m.color}"><span>${m.emoji}</span><b>${m.title.sv}</b><small>${m.title.en}</small></div>`).join("")}
+      </div>
+      ${EVENT.prizeTimes.length ? `<p class="pinfo">🎁 Belöningar · Prizes: ${EVENT.prizeTimes.map(x => x.sv).join(", ")}</p>` : ""}
+      ${qr(base + "#/", "Skanna och börja! · Scan to start!")}
+    </div></div>`;
+  const decoFor = { spoken: ["👻", "🦇", "🎃", "👻"], katterna: ["🌙", "🧹", "🎃", "🐾"], brottet: ["🔦", "🦉", "🍂", "🍬"] };
+  const missions = MISSIONS.map(m => `
+    <div class="poster-wrap"><div class="poster mission" style="--c:${m.color}">
+      ${deco(...(decoFor[m.id] || ["🦇", "🦇", "🎃", "🎃"]))}
+      <p class="pkick">Halloweenjakten</p>
+      <div class="pbig">${m.emoji}</div>
+      <h1 class="ptitle">${m.title.sv}</h1>
+      <p class="psub">${m.title.en}</p>
+      <p class="ptext">${m.goal.sv}<br><i>${m.goal.en}</i></p>
+      ${m.where && m.where.sv ? `<p class="pinfo">📍 ${both(m.where)}</p>` : ""}
+      ${qr(base + "#/m/" + m.id, "Skanna för berättelsen · Scan for the story")}
+    </div></div>`).join("");
+  return main + missions;
 }
 
 /* ---------- Modal ---------- */
@@ -738,7 +837,7 @@ document.addEventListener("click", e => {
   if (act === "confirmClaim") { S.claimed[el.dataset.m] = Date.now(); save(); closeModal(); render(); window.scrollTo(0, 0); }
   if (act === "closeModal") closeModal();
   if (act === "closeAndRender") { closeModal(); render(); window.scrollTo(0, 0); }
-  if (act === "print") window.print();
+  if (act === "print") { document.body.dataset.print = el.dataset.what || ""; window.print(); }
   if (act === "reset") { if (confirm(t("resetConfirm"))) { S = fresh(S.lang); save(); alert(t("resetDone")); } }
 });
 
