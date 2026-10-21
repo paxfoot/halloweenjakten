@@ -107,6 +107,11 @@ button.s:active{transform:scale(.97)}
 .house small{display:block;color:var(--muted)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:16px;z-index:50}
 .modal .card{max-width:420px;width:100%;margin:0;text-align:center}
+.countdown{display:flex;gap:8px;justify-content:center;margin:12px 0 4px}
+.countdown div{background:var(--card2);border:1px solid var(--line);border-radius:14px;min-width:68px;padding:10px 6px;text-align:center}
+.countdown b{display:block;font-size:30px;line-height:1;color:var(--orange);font-variant-numeric:tabular-nums}
+.countdown span{font-size:13px;color:var(--muted)}
+.mcard.locked{opacity:.85;pointer-events:none}
 /* organizer */
 .org h1{font-size:28px}
 .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:10px 0 24px}
@@ -190,8 +195,11 @@ button.s:active{transform:scale(.97)}
    ========================================================= */
 const EVENT = {
   date:        { sv: "Lördag 31 oktober", en: "Saturday 31 October" },
+  // When the hunt opens. Before this, everyone sees a "Coming soon" page.
+  // (+01:00 = Swedish winter time, which applies on 31 October.)
+  opensAt: "2026-10-31T14:00:00+01:00",
   prizeTimes: [
-    { sv: "17:00–19:00", en: "5:00–7:00 pm" }
+    { sv: "Kl 14–20", en: "2–8 pm" }
   ],
   // PRIZE HOUSE SHEET: paste the link to your Google Sheet here.
   // Column A = house, Column B = open? (checkbox), Column C = note.
@@ -311,6 +319,15 @@ const MISSIONS = [
 const T = {
   sv: {
     appTitle: "Halloweenjakten",
+    soon: "Kommer snart!",
+    soonText: "Lördag 31 oktober kl 14–20 vaknar spökena, katterna rymmer och ett brott begås i skogen. Ta med mobilen och kom ut och jaga!",
+    countdownLabel: "Jakten börjar om",
+    units: ["dagar", "tim", "min", "sek"],
+    locked: "🔒 Öppnar 31 okt kl 14",
+    tooEarly: "För tidigt!",
+    tooEarlyText: "Du hittade en hemlig kod! Men den vaknar inte förrän lördag 31 oktober kl 14. Kom tillbaka då!",
+    previewLocked: "Visa ”Kommer snart”-sidan",
+    unlockedNote: "🔓 Den här mobilen är upplåst så att du kan testa innan jakten börjar.",
     intro: "Tre spännande uppdrag väntar i kvarteret! Välj ett uppdrag, leta upp alla QR-koder och skanna dem med mobilen. Klarar ni ett uppdrag får ni en belöning i ett prishus.",
     howTitle: "Så funkar det",
     steps: ["Välj ett uppdrag och läs berättelsen.", "Leta upp QR-koderna och skanna dem med mobilens kamera.", "Klart? Visa skärmen i ett prishus och hämta er belöning!"],
@@ -379,18 +396,27 @@ const T = {
   },
   en: {
     appTitle: "The Halloween Hunt",
-    intro: "Three spooky missions are waiting in the neighbourhood! Pick a mission, find all the QR codes and scan them with your phone. Finish a mission and collect a prize at a prize house.",
+    soon: "Coming soon!",
+    soonText: "On Saturday 31 October, 2–8 pm, the ghosts wake up, the cats run away and a crime happens in the woods. Bring your phone and come out hunting!",
+    countdownLabel: "The hunt starts in",
+    units: ["days", "hrs", "min", "sec"],
+    locked: "🔒 Opens 31 Oct at 2 pm",
+    tooEarly: "Too early!",
+    tooEarlyText: "You found a secret code! But it won't wake up until Saturday 31 October at 2 pm. Come back then!",
+    previewLocked: "Preview the “Coming soon” page",
+    unlockedNote: "🔓 This phone is unlocked so you can test before the hunt starts.",
+    intro: "Three spooky missions are waiting in the neighbourhood! Pick a mission, find all the QR codes and scan them with your phone. Finish a mission and collect a reward at a reward house.",
     howTitle: "How it works",
-    steps: ["Pick a mission and read the story.", "Find the QR codes and scan them with your phone's camera.", "All done? Show the screen at a prize house and get your prize!"],
+    steps: ["Pick a mission and read the story.", "Find the QR codes and scan them with your phone's camera.", "All done? Show the screen at a reward house and get your reward!"],
     samePhone: "Use the same phone the whole time – the phone is what remembers what you've found.",
     missions: "Missions",
-    prizes: "Prizes",
-    prizeTimes: "Collect your prizes:",
-    prizeHouses: "Prize houses:",
-    openNow: "Prize houses open right now:",
-    noneOpen: "No prize houses are open right now. Check again in a little while!",
-    loadingHouses: "Loading prize houses…",
-    housesError: "Couldn't load the prize house list right now.",
+    rewards: "Rewards",
+    rewardTimes: "Collect your rewards:",
+    rewardHouses: "Reward houses:",
+    openNow: "Reward houses open right now:",
+    noneOpen: "No reward houses are open right now. Check again in a little while!",
+    loadingHouses: "Loading reward houses…",
+    housesError: "Couldn't load the reward house list right now.",
     closed: "closed",
     start: "Start mission",
     yourMission: "Your mission",
@@ -398,8 +424,8 @@ const T = {
     notStarted: "Not started",
     progress: (n, t) => `${n} of ${t} found`,
     readyToSolve: "Time to solve the case!",
-    done: "Done! Collect your prize",
-    claimed: "Prize collected ✓",
+    done: "Done! Collect your reward",
+    claimed: "Reward collected ✓",
     back: "← All missions",
     where: "Where",
     yourHunt: "Your hunt",
@@ -408,7 +434,7 @@ const T = {
     toMission: "Go to mission",
     alreadyFound: "You already found this one!",
     allFound: "You found them all!",
-    seePrize: "See your prize",
+    seeReward: "See your reward",
     solveCase: "Solve the case!",
     clue: "Clue",
     unknownCode: "Hmm… we don't recognise this code.",
@@ -421,14 +447,14 @@ const T = {
     tapSuspect: "Read the clues and tap the one you think did it.",
     wrong: name => `No, it wasn't ${name}! Read the clues again.`,
     missionComplete: "Mission complete!",
-    showAtHouse: "Show this screen at a prize house to get your prize.",
+    showAtHouse: "Show this screen at a reward house to get your reward.",
     clockLabel: "The time is",
-    claimBtn: "Prize has been collected",
-    confirmTitle: "Did you get your prize?",
-    confirmText: "Only tap yes once the prize house has given you your prize. This can't be undone.",
+    claimBtn: "Reward has been collected",
+    confirmTitle: "Did you get your reward?",
+    confirmText: "Only tap yes once the reward house has given you your reward. This can't be undone.",
     yes: "Yes, we got it!",
     cancel: "Not yet",
-    claimedTitle: "Prize collected 🎉",
+    claimedTitle: "Reward collected 🎉",
     claimedText: "Great job! Why not try another mission?",
     orgTitle: "Organizer page",
     orgIntro: "Here are all the QR codes. Print this page and put each sign next to the right ghost, cat or clue. The start sign can go where the mission begins.",
@@ -452,9 +478,11 @@ const T = {
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
-function fresh(keepLang) { return { lang: keepLang, found: {}, started: {}, solved: {}, wrong: {}, claimed: {} }; }
+function fresh(keepLang, keepOrg) { return { lang: keepLang, organizer: keepOrg, found: {}, started: {}, solved: {}, wrong: {}, claimed: {} }; }
 S = Object.assign(fresh(S.lang), S);
 if (!S.lang) S.lang = (navigator.language || "").toLowerCase().startsWith("sv") ? "sv" : "en";
+const OPENS = new Date(EVENT.opensAt).getTime();
+const isOpen = () => Date.now() >= OPENS || !!S.organizer;
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
 const app = document.getElementById("app");
@@ -515,6 +543,43 @@ function home() {
       ${houses ? `<div style="margin-top:12px" data-houses>${housesHTML()}</div>` : ""}
     </section>` : ""}
   `;
+}
+
+/* ---------- Before the hunt opens ---------- */
+function comingSoon() {
+  app.innerHTML = `
+    <section class="hero">
+      <div class="moon"></div>
+      <p class="kicker">${L(EVENT.date)}</p>
+      <h1 class="spooky">${t("appTitle")}</h1>
+      <h2>${t("soon")}</h2>
+      <p class="lead">${t("soonText")}</p>
+    </section>
+    <section class="card" style="text-align:center">
+      <p class="muted">${t("countdownLabel")}</p>
+      <div class="countdown" id="countdown"></div>
+    </section>
+    <h2 class="section-h">${t("missions")}</h2>
+    <div class="missions">
+      ${MISSIONS.map(m => `
+        <div class="mcard locked" style="--c:${m.color}">
+          <div class="mrow">
+            <div class="mem">${m.emoji}</div>
+            <div><h3>${L(m.title)}</h3><p>${L(m.tagline)}</p></div>
+          </div>
+          <div style="margin-top:12px"><span class="chip">${t("locked")}</span></div>
+        </div>`).join("")}
+    </div>`;
+  tick();
+}
+function tooEarly() {
+  app.innerHTML = `
+    <section class="found-screen">
+      <div class="pop">😴</div>
+      <h1>${t("tooEarly")}</h1>
+      <p class="speech">${t("tooEarlyText")}</p>
+      <a class="btn" href="#/">${t("toHome")}</a>
+    </section>`;
 }
 
 /* ---------- Mission ---------- */
@@ -637,6 +702,13 @@ function claimView(m) {
 }
 
 function tick() {
+  const cd = document.getElementById("countdown");
+  if (cd) {
+    let left = Math.max(0, Math.floor((OPENS - Date.now()) / 1000));
+    if (left === 0) { render(); return; }
+    const parts = [Math.floor(left / 86400), Math.floor(left % 86400 / 3600), Math.floor(left % 3600 / 60), left % 60];
+    cd.innerHTML = parts.map((n, i) => `<div><b>${String(n).padStart(2, "0")}</b><span>${t("units")[i]}</span></div>`).join("");
+  }
   const el = document.getElementById("clock");
   if (el) el.textContent = new Date().toLocaleTimeString(S.lang === "sv" ? "sv-SE" : "en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
@@ -725,6 +797,7 @@ function scan(code) {
 
 /* ---------- Organizer page (#/arrangor) ---------- */
 function organizer() {
+  if (!S.organizer) { S.organizer = true; save(); }
   const base = location.href.split("#")[0];
   const card = (url, em, title, sub, start, mid, where) => `
     <div class="qr-card m-${mid}${start ? " start" : ""}">
@@ -745,7 +818,11 @@ function organizer() {
         <button class="btn" type="button" data-act="print" data-what="posters">🖨️ ${t("printPosters")}</button>
         <button class="btn" type="button" data-act="print" data-what="signs">🖨️ ${t("printSigns")}</button>
       </div>
-      <button class="btn ghost no-print" type="button" data-act="reset" style="margin-bottom:24px">${t("reset")}</button>
+      <p class="tip no-print">${t("unlockedNote")}</p>
+      <div class="row no-print" style="margin:12px 0 24px">
+        <button class="btn ghost" type="button" data-act="lockPreview">${t("previewLocked")}</button>
+        <button class="btn ghost" type="button" data-act="reset">${t("reset")}</button>
+      </div>
       <div class="posters">
         <h2 class="no-print">🖼️ ${t("posters")}</h2>
         <p class="muted no-print">${t("postersIntro")}</p>
@@ -802,7 +879,7 @@ function posters(base) {
       <div class="pmissions">${MISSIONS.map(m => `
         <div style="--c:${m.color}"><span>${m.emoji}</span><b>${m.title.sv}</b><small>${m.title.en}</small></div>`).join("")}
       </div>
-      ${EVENT.prizeTimes.length ? `<p class="pinfo">🎁 Belöningar · Prizes: ${EVENT.prizeTimes.map(x => x.sv).join(", ")}</p>` : ""}
+      ${EVENT.prizeTimes.length ? `<p class="pinfo">🎁 Belöningar · Rewards: ${EVENT.prizeTimes.map(x => x.sv).join(", ")}</p>` : ""}
       ${qr(base + "#/", "Skanna och börja! · Scan to start!")}
     </div></div>`;
   const decoFor = { spoken: ["👻", "🦇", "🎃", "👻"], katterna: ["🌙", "🧹", "🎃", "🐾"], brottet: ["🔦", "🦉", "🍂", "🍬"] };
@@ -863,8 +940,9 @@ document.addEventListener("click", e => {
   if (act === "confirmClaim") { S.claimed[el.dataset.m] = Date.now(); save(); closeModal(); render(); window.scrollTo(0, 0); }
   if (act === "closeModal") closeModal();
   if (act === "closeAndRender") { closeModal(); render(); window.scrollTo(0, 0); }
+  if (act === "lockPreview") { S.organizer = false; save(); go("#/"); }
   if (act === "print") { document.body.dataset.print = el.dataset.what || ""; window.print(); }
-  if (act === "reset") { if (confirm(t("resetConfirm"))) { S = fresh(S.lang); save(); alert(t("resetDone")); } }
+  if (act === "reset") { if (confirm(t("resetConfirm"))) { S = fresh(S.lang, S.organizer); save(); alert(t("resetDone")); } }
 });
 
 document.getElementById("langBtn").addEventListener("click", () => {
@@ -878,6 +956,8 @@ function render() {
   document.getElementById("brandName").textContent = t("appTitle");
   document.title = t("appTitle");
   const parts = ROUTE.replace(/^#\/?/, "").split("/");
+  if (parts[0] === "arrangor" || parts[0] === "organizer") return organizer();
+  if (!isOpen()) return parts[0] === "q" ? tooEarly() : comingSoon();
   if (parts[0] === "q" && parts[1]) return scan(parts[1]);
   if (parts[0] === "m" && parts[1]) return missionPage(parts[1]);
   if (parts[0] === "arrangor" || parts[0] === "organizer") return organizer();
