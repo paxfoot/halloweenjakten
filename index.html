@@ -107,6 +107,8 @@ button.s:active{transform:scale(.97)}
 .house small{display:block;color:var(--muted)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:16px;z-index:50}
 .modal .card{max-width:420px;width:100%;margin:0;text-align:center}
+.hurry{background:rgba(255,179,71,.18);border:1px solid var(--orange2);border-radius:12px;padding:10px 12px;margin:4px 0 12px;font-weight:600}
+.hurry.last{background:rgba(255,107,107,.22);border-color:var(--red);animation:pulse 1.6s ease-in-out infinite}
 .countdown{display:flex;gap:8px;justify-content:center;margin:12px 0 4px}
 .countdown div{background:var(--card2);border:1px solid var(--line);border-radius:14px;min-width:68px;padding:10px 6px;text-align:center}
 .countdown b{display:block;font-size:30px;line-height:1;color:var(--orange);font-variant-numeric:tabular-nums}
@@ -198,6 +200,9 @@ const EVENT = {
   // When the hunt opens. Before this, everyone sees a "Coming soon" page.
   // (+01:00 = Swedish winter time, which applies on 31 October.)
   opensAt: "2026-10-31T14:00:00+01:00",
+  // When the hunt closes. Reward screens stay usable a few extra minutes.
+  closesAt: "2026-10-31T20:00:00+01:00",
+  graceMinutes: 5,
   prizeTimes: [
     { sv: "Kl 14–20", en: "2–8 pm" }
   ],
@@ -324,22 +329,29 @@ const T = {
     countdownLabel: "Jakten börjar om",
     units: ["dagar", "tim", "min", "sek"],
     locked: "🔒 Öppnar 31 okt kl 14",
+    timeLeft: "Tid kvar att hämta belöningen",
+    hurry: "⏰ Mindre än 15 minuter kvar! Skynda er till ett belöningshus.",
+    lastChance: "⏰ Belöningshusen stänger! Sista chansen att visa skärmen.",
+    closedTitle: "Tack för i år!",
+    closedText: "Halloweenjakten är slut för i år. Tack till alla spökjägare, katthjälpare och detektiver – vi ses nästa Halloween! 🎃",
+    closedMine: "Era uppdrag",
+    showReward: "Visa belöningsskärmen",
     tooEarly: "För tidigt!",
     tooEarlyText: "Du hittade en hemlig kod! Men den vaknar inte förrän lördag 31 oktober kl 14. Kom tillbaka då!",
     previewLocked: "Visa ”Kommer snart”-sidan",
     unlockedNote: "🔓 Den här mobilen är upplåst så att du kan testa innan jakten börjar.",
-    intro: "Tre spännande uppdrag väntar i kvarteret! Välj ett uppdrag, leta upp alla QR-koder och skanna dem med mobilen. Klarar ni ett uppdrag får ni en belöning i ett prishus.",
+    intro: "Tre spännande uppdrag väntar i kvarteret! Välj ett uppdrag, leta upp alla QR-koder och skanna dem med mobilen. Klarar ni ett uppdrag får ni en belöning i ett belöningshus.",
     howTitle: "Så funkar det",
-    steps: ["Välj ett uppdrag och läs berättelsen.", "Leta upp QR-koderna och skanna dem med mobilens kamera.", "Klart? Visa skärmen i ett prishus och hämta er belöning!"],
+    steps: ["Välj ett uppdrag och läs berättelsen.", "Leta upp QR-koderna och skanna dem med mobilens kamera.", "Klart? Visa skärmen i ett belöningshus och hämta er belöning!"],
     samePhone: "Använd samma mobil hela tiden – det är mobilen som kommer ihåg vad ni hittat.",
     missions: "Uppdrag",
     prizes: "Belöningar",
     prizeTimes: "Här kan ni hämta belöningar:",
-    prizeHouses: "Prishus:",
-    openNow: "Öppna prishus just nu:",
-    noneOpen: "Inga prishus är öppna just nu. Titta igen om en liten stund!",
-    loadingHouses: "Hämtar prishus…",
-    housesError: "Kunde inte hämta listan med prishus just nu.",
+    prizeHouses: "Belöningshus:",
+    openNow: "Öppna belöningshus just nu:",
+    noneOpen: "Inga belöningshus är öppna just nu. Titta igen om en liten stund!",
+    loadingHouses: "Hämtar belöningshus…",
+    housesError: "Kunde inte hämta listan med belöningshus just nu.",
     closed: "stängt",
     start: "Starta uppdraget",
     yourMission: "Ert uppdrag",
@@ -370,11 +382,11 @@ const T = {
     tapSuspect: "Läs ledtrådarna och tryck på den ni tror gjorde det.",
     wrong: name => `Nej, det var inte ${name}! Läs ledtrådarna igen.`,
     missionComplete: "Uppdrag klart!",
-    showAtHouse: "Visa den här skärmen i ett prishus för att få er belöning.",
+    showAtHouse: "Visa den här skärmen i ett belöningshus för att få er belöning.",
     clockLabel: "Klockan är",
     claimBtn: "Belöningen är hämtad",
     confirmTitle: "Har ni fått er belöning?",
-    confirmText: "Tryck bara på ja när prishuset har gett er belöningen. Det går inte att ångra.",
+    confirmText: "Tryck bara på ja när belöningshuset har gett er belöningen. Det går inte att ångra.",
     yes: "Ja, vi har fått den!",
     cancel: "Inte än",
     claimedTitle: "Belöningen är hämtad 🎉",
@@ -401,6 +413,13 @@ const T = {
     countdownLabel: "The hunt starts in",
     units: ["days", "hrs", "min", "sec"],
     locked: "🔒 Opens 31 Oct at 2 pm",
+    timeLeft: "Time left to collect your reward",
+    hurry: "⏰ Less than 15 minutes left! Hurry to a reward house.",
+    lastChance: "⏰ The reward houses are closing! Last chance to show this screen.",
+    closedTitle: "Thanks for this year!",
+    closedText: "The Halloween Hunt is over for this year. Thank you to all the ghost hunters, cat helpers and detectives – see you next Halloween! 🎃",
+    closedMine: "Your missions",
+    showReward: "Show the reward screen",
     tooEarly: "Too early!",
     tooEarlyText: "You found a secret code! But it won't wake up until Saturday 31 October at 2 pm. Come back then!",
     previewLocked: "Preview the “Coming soon” page",
@@ -482,7 +501,10 @@ function fresh(keepLang, keepOrg) { return { lang: keepLang, organizer: keepOrg,
 S = Object.assign(fresh(S.lang), S);
 if (!S.lang) S.lang = (navigator.language || "").toLowerCase().startsWith("sv") ? "sv" : "en";
 const OPENS = new Date(EVENT.opensAt).getTime();
+const CLOSES = new Date(EVENT.closesAt).getTime();
+const GRACE_END = CLOSES + (EVENT.graceMinutes || 0) * 60000;
 const isOpen = () => Date.now() >= OPENS || !!S.organizer;
+const canClaim = m => isComplete(m) && isSolved(m) && !S.claimed[m.id];
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
 const app = document.getElementById("app");
@@ -571,6 +593,26 @@ function comingSoon() {
         </div>`).join("")}
     </div>`;
   tick();
+}
+function closedPage() {
+  const grace = Date.now() < GRACE_END;
+  const claimable = grace ? MISSIONS.filter(canClaim) : [];
+  app.innerHTML = `
+    <section class="hero">
+      <div class="moon"></div>
+      <p class="kicker">${L(EVENT.date)}</p>
+      <h1 class="spooky">${t("appTitle")}</h1>
+      <h2>${t("closedTitle")}</h2>
+      <p class="lead">${t("closedText")}</p>
+    </section>
+    ${claimable.map(m => `<a class="btn green" href="#/m/${m.id}">${m.emoji} ${t("showReward")}</a>`).join("")}
+    ${MISSIONS.some(m => count(m) > 0) ? `
+    <h2 class="section-h">${t("closedMine")}</h2>
+    <div class="missions">${MISSIONS.filter(m => count(m) > 0).map(m => `
+      <div class="mcard" style="--c:${m.color}">
+        <div class="mrow"><div class="mem">${m.emoji}</div><div><h3>${L(m.title)}</h3></div></div>
+        <div style="margin-top:12px">${statusChip(m)}</div>
+      </div>`).join("")}</div>` : ""}`;
 }
 function tooEarly() {
   app.innerHTML = `
@@ -692,7 +734,8 @@ function claimView(m) {
       <div class="mem pulse">${m.emoji}</div>
       <h1>${t("missionComplete")}</h1>
       <h2>${L(m.title)}</h2>
-      <div class="clock"><span>${t("clockLabel")}</span><b id="clock"></b></div>
+      <div class="clock"><span>${t("timeLeft")}</span><b id="endcd"></b></div>
+      <div id="endwarn"></div>
       <p>${t("showAtHouse")}</p>
       ${EVENT.prizeTimes.length ? `<p class="muted">🕔 ${EVENT.prizeTimes.map(L).join(", ")}</p>` : ""}
       ${EVENT.sheetUrl || EVENT.prizeHouses.length ? `<div class="card" style="margin:12px 0 0" data-houses>${housesHTML()}</div>` : ""}
@@ -701,11 +744,26 @@ function claimView(m) {
   tick();
 }
 
+let RERENDER_AT = 0;
+const fmtTime = sec => {
+  const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+  const mmss = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+  return (d ? d + "d " : "") + (d || h ? h + ":" : "") + mmss;
+};
 function tick() {
+  if (RERENDER_AT && Date.now() >= RERENDER_AT) { RERENDER_AT = 0; render(); return; }
+  const ecd = document.getElementById("endcd");
+  if (ecd) {
+    const now = Date.now(), target = now < CLOSES ? CLOSES : GRACE_END;
+    const left = Math.max(0, Math.floor((target - now) / 1000));
+    ecd.textContent = fmtTime(left);
+    const w = document.getElementById("endwarn");
+    const html = now >= CLOSES ? `<div class="hurry last">${t("lastChance")}</div>` : left <= 900 ? `<div class="hurry">${t("hurry")}</div>` : "";
+    if (w.innerHTML !== html) w.innerHTML = html;
+  }
   const cd = document.getElementById("countdown");
   if (cd) {
     let left = Math.max(0, Math.floor((OPENS - Date.now()) / 1000));
-    if (left === 0) { render(); return; }
     const parts = [Math.floor(left / 86400), Math.floor(left % 86400 / 3600), Math.floor(left % 3600 / 60), left % 60];
     cd.innerHTML = parts.map((n, i) => `<div><b>${String(n).padStart(2, "0")}</b><span>${t("units")[i]}</span></div>`).join("");
   }
@@ -957,7 +1015,14 @@ function render() {
   document.title = t("appTitle");
   const parts = ROUTE.replace(/^#\/?/, "").split("/");
   if (parts[0] === "arrangor" || parts[0] === "organizer") return organizer();
+  const now = Date.now();
+  RERENDER_AT = [OPENS, CLOSES, GRACE_END].find(x => x > now) || 0;
   if (!isOpen()) return parts[0] === "q" ? tooEarly() : comingSoon();
+  if (now >= CLOSES && !S.organizer) {
+    const m = parts[0] === "m" ? byId(parts[1]) : null;
+    if (m && canClaim(m) && now < GRACE_END) return claimView(m);
+    return closedPage();
+  }
   if (parts[0] === "q" && parts[1]) return scan(parts[1]);
   if (parts[0] === "m" && parts[1]) return missionPage(parts[1]);
   if (parts[0] === "arrangor" || parts[0] === "organizer") return organizer();
