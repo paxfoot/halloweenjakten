@@ -868,7 +868,7 @@ function scan(code) {
   }
   const { m, it } = hit;
   const already = !!S.found[code];
-  if (m.scanFx && !already && !scan.animating) return scanAnimation(code, m, it);
+  if (m.scanFx && !scan.animating) return scanAnimation(code, m, it);
   scan.animating = false;
   S.found[code] = true; S.started[m.id] = true; save();
   const n = count(m), total = m.items.length, done = n === total;
