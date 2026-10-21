@@ -382,6 +382,7 @@ const T = {
     closed: "stängt",
     start: "Starta uppdraget",
     yourMission: "Ert uppdrag",
+    seeAll: "Se alla uppdrag",
     readAgain: "Läs berättelsen igen",
     notStarted: "Inte påbörjat",
     progress: (n, t) => `${n} av ${t} hittade`,
@@ -469,6 +470,7 @@ const T = {
     closed: "closed",
     start: "Start mission",
     yourMission: "Your mission",
+    seeAll: "See all missions",
     readAgain: "Read the story again",
     notStarted: "Not started",
     progress: (n, t) => `${n} of ${t} found`,
@@ -773,6 +775,7 @@ function claimView(m) {
       ${EVENT.prizeTimes.length ? `<p class="muted">🕔 ${EVENT.prizeTimes.map(L).join(", ")}</p>` : ""}
       ${EVENT.sheetUrl || EVENT.prizeHouses.length ? `<div class="card" style="margin:12px 0 0" data-houses>${housesHTML()}</div>` : ""}
       <button class="btn green" type="button" data-act="claim" data-m="${m.id}">${t("claimBtn")}</button>
+      <a class="btn ghost" href="#/">${t("seeAll")}</a>
     </section>`;
   tick();
 }
