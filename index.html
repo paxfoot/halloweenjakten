@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#160d22">
+<title>Halloweenjakten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#160d22;--card:#2b1a42;--card2:#35214f;--ink:#f7efe0;--muted:#bba8d4;--orange:#ff8a1f;--orange2:#ffb347;--green:#7ee08a;--red:#ff6b6b;--line:rgba(255,255,255,.12);--r:18px;--c:#ff8a1f}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:'Fredoka',system-ui,sans-serif;color:var(--ink);background:var(--bg);background-image:radial-gradient(1000px 600px at 85% -10%,#3b1d5e 0%,transparent 60%),radial-gradient(800px 500px at -10% 110%,#3a1a10 0%,transparent 60%);background-attachment:fixed;min-height:100vh;line-height:1.45;font-size:17px}
+a{color:inherit}
+.top{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(22,13,34,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{text-decoration:none;font-weight:600}
+.lang{font:inherit;font-weight:600;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+main{max-width:560px;margin:0 auto;padding:12px 16px 60px}
+h1,h2,h3{line-height:1.15;margin:0 0 .4em}
+h2{font-size:22px}
+.hero{text-align:center;padding:26px 0 8px}
+.moon{width:80px;height:80px;margin:0 auto 12px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff6d6,#ffd98a 55%,#e8a94a);box-shadow:0 0 50px 10px rgba(255,200,110,.3)}
+.kicker{text-transform:uppercase;letter-spacing:2px;font-size:13px;color:var(--orange2);margin:0 0 6px;font-weight:600}
+.spooky{font-family:'Creepster',cursive;font-weight:400;font-size:50px;color:var(--orange);letter-spacing:1px;text-shadow:0 3px 0 #5a2600,0 0 24px rgba(255,138,31,.4)}
+.lead{color:var(--muted);font-size:18px;margin:8px 0 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin:16px 0}
+.card p{margin:.3em 0}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;margin:10px 0}
+.steps li::before{content:counter(s);flex:0 0 30px;height:30px;border-radius:50%;background:var(--orange);color:#2a1200;font-weight:700;display:grid;place-items:center}
+.tip{background:rgba(255,138,31,.12);border-radius:12px;padding:10px 12px;margin:12px 0 0;font-size:15px}
+.section-h{margin:26px 0 10px}
+.missions{display:grid;gap:12px}
+.mcard{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:var(--r);padding:16px;transition:transform .15s}
+.mcard:active{transform:scale(.98)}
+.mrow{display:flex;gap:14px;align-items:center}
+.mem{font-size:44px;line-height:1}
+.mcard h3{font-size:21px;margin:0}
+.mcard p{margin:2px 0 0;color:var(--muted);font-size:15px}
+.bar{height:10px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;margin:12px 0 8px}
+.bar i{display:block;height:100%;background:var(--c);border-radius:99px;transition:width .5s}
+.chip{display:inline-block;font-size:14px;font-weight:600;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.08)}
+.chip.done{background:var(--green);color:#0d2a12}
+.chip.claimed{border:1px solid var(--green);color:var(--green);background:transparent}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;font:inherit;font-weight:700;font-size:18px;padding:14px 18px;border-radius:14px;border:0;background:var(--orange);color:#2a1200;cursor:pointer;box-shadow:0 4px 0 #a54d00;margin-top:12px}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #a54d00}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn.green{background:var(--green);color:#0d2a12;box-shadow:0 4px 0 #3a8a45}
+.back{display:inline-block;color:var(--muted);text-decoration:none;margin:6px 0 4px;font-size:15px}
+.mhead{text-align:center;padding:6px 0}
+.mhead .mem{font-size:64px}
+.mhead h1{font-size:30px;margin-top:8px}
+.muted{color:var(--muted)}
+.story p{font-size:18px;margin:0 0 .8em}
+.story p:first-child::first-letter{font-family:'Creepster',cursive;font-size:3em;float:left;line-height:.85;margin:4px 8px 0 0;color:var(--c)}
+.goal{border:2px solid var(--c);border-radius:14px;padding:12px 14px;margin-top:4px;font-weight:600}
+.goal span{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--c)}
+details.again summary{cursor:pointer;color:var(--c);font-weight:600;margin-top:10px}
+details.again[open] summary{margin-bottom:10px}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin-top:8px}
+.slot{background:var(--card2);border:2px dashed var(--line);border-radius:14px;padding:10px 6px;text-align:center;font-size:14px;color:var(--muted)}
+.slot .em{display:block;font-size:34px;line-height:1.25}
+.slot .q{font-weight:700;color:rgba(255,255,255,.28)}
+.slot.found{border:2px solid var(--c);color:var(--ink);background:rgba(255,255,255,.06)}
+.clue{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.clue:first-of-type{border-top:0}
+.clue .em{font-size:30px;line-height:1}
+.clue b{display:block}
+.sus{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.s{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center;font:inherit;color:inherit}
+button.s{cursor:pointer;border:2px solid var(--c)}
+button.s:active{transform:scale(.97)}
+.s .em{font-size:40px;display:block;line-height:1.2}
+.s b{display:block;margin:4px 0 2px}
+.s small{color:var(--muted);font-size:13px;line-height:1.3;display:block}
+.s.out{opacity:.35;text-decoration:line-through;pointer-events:none;border-color:var(--line)}
+.notice{border-radius:12px;padding:10px 12px;margin:12px 0 0;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.4)}
+.reveal{background:rgba(126,224,138,.12);border-color:rgba(126,224,138,.45)}
+.found-screen{text-align:center;padding-top:16px}
+.found-screen h1{font-size:34px}
+.pop{font-size:110px;line-height:1;margin:14px 0;display:inline-block;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both,float 3s ease-in-out .6s infinite}
+@keyframes pop{0%{transform:scale(0) rotate(-25deg)}100%{transform:scale(1)}}
+@keyframes float{50%{transform:translateY(-10px)}}
+.item-name{font-size:26px;color:var(--c)}
+.speech{background:#fff;color:#2a1b3d;border-radius:16px;padding:14px 16px;margin:14px auto;max-width:420px;font-size:18px;text-align:left}
+.speech .lbl{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#8a5a00;font-weight:700;margin-bottom:2px}
+.claim{text-align:center;border:3px solid var(--c);background:linear-gradient(180deg,var(--card2),var(--card));border-radius:24px;padding:26px 18px 20px;margin-top:10px;position:relative;overflow:hidden}
+.claim>*{position:relative}
+.claim h1{font-family:'Creepster',cursive;font-weight:400;font-size:46px;color:var(--orange);margin-top:8px}
+.claim .mem{font-size:80px;display:inline-block}
+.pulse{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.1) rotate(4deg)}}
+.clock{display:inline-flex;gap:8px;align-items:baseline;background:#0e0816;border-radius:12px;padding:8px 14px;margin:8px 0;font-variant-numeric:tabular-nums}
+.clock b{font-size:28px;color:var(--green)}
+.fall{position:absolute!important;top:-40px;font-size:22px;animation:fall linear infinite;opacity:.75;pointer-events:none}
+@keyframes fall{to{transform:translateY(700px) rotate(360deg)}}
+.times{list-style:none;padding:0;margin:6px 0 0}
+.times li{padding:8px 0;border-top:1px solid var(--line)}
+.times li:first-child{border-top:0}
+.house{display:flex;gap:10px;align-items:flex-start;text-align:left}
+.dot{flex:0 0 12px;height:12px;border-radius:50%;margin-top:6px;background:var(--green);box-shadow:0 0 10px var(--green)}
+.house.off{opacity:.45}.house.off .dot{background:#777;box-shadow:none}
+.house small{display:block;color:var(--muted)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:16px;z-index:50}
+.modal .card{max-width:420px;width:100%;margin:0;text-align:center}
+/* organizer */
+.org h1{font-size:28px}
+.qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:10px 0 24px}
+.qr-card{background:#fff;color:#1b1b1b;border-radius:14px;padding:14px;text-align:center;break-inside:avoid}
+.qr-card .qr{display:flex;justify-content:center;margin:8px 0}
+.qr-card .qr img,.qr-card .qr canvas{width:190px!important;height:190px!important}
+.qr-card h3{font-size:22px;margin:2px 0}
+.qr-card .em{font-size:34px;line-height:1}
+.qr-card .scan{font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:13px;color:#a54d00}
+.qr-card small{color:#555;display:block}
+.qr-card.start{border:4px solid #ff8a1f}
+.test{display:block;margin-top:6px;font-size:13px;color:#6b3fa0}
+.warn{background:#ffe08a;color:#3a2a00;border-radius:12px;padding:12px;margin:12px 0}
+.row{display:flex;gap:10px}
+.row .btn{margin-top:0}
+@media print{
+  body{background:#fff!important;color:#000}
+  .top,.no-print{display:none!important}
+  main{max-width:none;padding:0}
+  .qr-grid{grid-template-columns:repeat(2,1fr);gap:8mm}
+  .qr-card{border:2px dashed #999;page-break-inside:avoid}
+  .org h2{color:#000;page-break-before:always}
+  .org h2:first-of-type{page-break-before:auto}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#/">🎃 <span id="brandName">Halloweenjakten</span></a>
+  <button class="lang" id="langBtn" type="button">EN</button>
+</header>
+<main id="app"></main>
+<div id="modalRoot"></div>
+
+<script>
+/* =========================================================
+   EVENT SETTINGS — change these texts to fit your event.
+   Every text has a Swedish (sv) and English (en) version.
+   ========================================================= */
+const EVENT = {
+  date:        { sv: "Lördag 31 oktober", en: "Saturday 31 October" },
+  prizeTimes: [
+    { sv: "17:00–19:00", en: "5:00–7:00 pm" }
+  ],
+  // PRIZE HOUSE SHEET: paste the link to your Google Sheet here.
+  // Column A = house, Column B = open? (checkbox), Column C = note.
+  // The sheet must be shared so "Anyone with the link" can view it.
+  sheetUrl: "https://docs.google.com/spreadsheets/d/1-ih75_cghyeV4l0LNj3S7iDS4vB8MxZ9GbFwelb8y9A/edit",
+  // Only used if there is no sheet. Leave empty [] to hide.
+  prizeHouses: [
+    // { sv: "Ekvägen 4 – gula huset", en: "Ekvägen 4 – the yellow house" }
+  ]
+};
+
+/* Each item's "code" is the secret ending of its QR link.
+   Don't change codes after you have printed the QR codes! */
+const MISSIONS = [
+  {
+    id: "spoken",
+    story: {
+      sv: ["Det är Halloweenkväll på Solbackavägen. Löven prasslar, månen lyser – och plötsligt hörs ett konstigt ljud: ”Buuuu…”",
+           "Fem spöken har smitit ut från ett gammalt vindsförråd och gömt sig i grannarnas trädgårdar. De är inte farliga, bara väldigt busiga. De knuffar omkull pumpor, kittlar katter och skrämmer brevlådor.",
+           "Spökjägarförbundet har skickat ett brådskande meddelande: Vi behöver modiga spökjägare! Er mobil är nu en spökfälla. Hitta alla fem spöken och skanna deras QR-koder för att fånga dem."],
+      en: ["It's Halloween night on Solbackavägen. The leaves rustle, the moon glows – and suddenly there's a strange sound: “Boooo…”",
+           "Five ghosts have slipped out of an old attic and hidden in the neighbours' gardens. They aren't dangerous, just very mischievous. They knock over pumpkins, tickle cats and spook letterboxes.",
+           "The Ghost Hunters' League has sent an urgent message: We need brave ghost hunters! Your phone is now a ghost trap. Find all five ghosts and scan their QR codes to catch them."]
+    },
+    goal: { sv: "Fånga alla 5 spöken på Solbackavägen.", en: "Catch all 5 ghosts on Solbackavägen." }, emoji: "👻", color: "#8fd3ff",
+    where: { sv: "Solbackavägen", en: "Solbackavägen" },
+    title:   { sv: "Spökjägarna", en: "Ghost Hunters" },
+    tagline: { sv: "Fånga alla 5 spöken på gatan", en: "Catch all 5 ghosts on the street" },
+    intro: {
+      sv: "Något spökar i kvarteret! Fem busiga spöken har flyttat in i grannarnas trädgårdar. Som spökjägare ska ni hitta och fånga alla fem. Skanna QR-koden vid varje spöke för att fånga det i er spökfälla.",
+      en: "Something is haunting the neighbourhood! Five mischievous ghosts have moved into the neighbours' gardens. As ghost hunters, your job is to find and catch all five. Scan the QR code by each ghost to trap it in your ghost catcher."
+    },
+    foundVerb: { sv: "Spöke fångat!", en: "Ghost caught!" },
+    items: [
+      { code: "q7fk2m", name: "Berit",  line: { sv: "Buuu! Okej, okej, jag följer med…", en: "Boooo! Okay, okay, I'll come quietly…" } },
+      { code: "w3hx9t", name: "Kasper", line: { sv: "Jag gömde mig så bra! Hur hittade ni mig?", en: "I hid so well! How did you find me?" } },
+      { code: "r8bn4c", name: "Siv",    line: { sv: "Jag var bara ute och svävade lite.", en: "I was just out for a little float." } },
+      { code: "z2vp6e", name: "Otto",   line: { sv: "Akta, jag är kittlig!", en: "Careful, I'm ticklish!" } },
+      { code: "m5tj8a", name: "Mimmi",  line: { sv: "Får jag åtminstone ta med min nalle?", en: "Can I at least bring my teddy?" } }
+    ]
+  },
+  {
+    id: "katterna",
+    story: {
+      sv: ["Häxan Hilda bor i ett snett litet hus med en ännu snettare skorsten. Hon har sju katter, och hon älskar dem mer än något annat – till och med mer än sin flygande kvast.",
+           "I kväll skulle Hilda brygga en trolldryck som får pumpor att lysa. Men precis när hon skulle säga det sista trollordet kom en dammtuss in i näsan. ATJOOO! Det small, det glittrade – och alla sju katterna rusade ut genom dörren.",
+           "Nu gömmer de sig längs Flygarevägen. Hilda är för förkyld för att leta själv. Kan ni hjälpa henne? Hitta alla sju katterna och skanna deras QR-koder, så hittar de hem igen."],
+      en: ["Hilda the Witch lives in a crooked little house with an even more crooked chimney. She has seven cats, and she loves them more than anything – even more than her flying broom.",
+           "Tonight Hilda was brewing a potion to make pumpkins glow. But just as she was about to say the last magic word, a speck of dust got up her nose. ATCHOOO! There was a bang, a sparkle – and all seven cats dashed out the door.",
+           "Now they're hiding along Flygarevägen. Hilda has too much of a cold to search herself. Can you help her? Find all seven cats and scan their QR codes so they can find their way home."]
+    },
+    goal: { sv: "Hitta Hildas 7 katter på Flygarevägen.", en: "Find Hilda's 7 cats on Flygarevägen." }, emoji: "🐈‍⬛", color: "#c08bff",
+    where: { sv: "Flygarevägen", en: "Flygarevägen" },
+    title:   { sv: "Häxans katter", en: "The Witch's Cats" },
+    tagline: { sv: "Hitta Häxan Hildas 7 bortsprungna katter", en: "Find Hilda the Witch's 7 runaway cats" },
+    intro: {
+      sv: "Häxan Hilda är förtvivlad! Hon nös mitt i en trollformel och – poff! – alla hennes sju katter sprang iväg. Nu gömmer de sig längs gatan. Hjälp Hilda att hitta dem före midnatt! Skanna QR-koden vid varje katt.",
+      en: "Hilda the Witch is beside herself! She sneezed in the middle of a spell and – poof! – all seven of her cats ran away. Now they're hiding along the street. Help Hilda find them before midnight! Scan the QR code by each cat."
+    },
+    foundVerb: { sv: "Katt hittad!", en: "Cat found!" },
+    items: [
+      { code: "k4ws7n", name: "Sotis",  line: { sv: "Mjau! Jag var inte borta, jag var på äventyr.", en: "Meow! I wasn't lost, I was on an adventure." } },
+      { code: "h9cq3r", name: "Morris", line: { sv: "Säg inget till Hilda, men jag åt upp hennes fladdermusmuffins.", en: "Don't tell Hilda, but I ate her bat muffins." } },
+      { code: "t6ym2d", name: "Pumpa",  line: { sv: "Jag trodde att jag var en pumpa. Igen.", en: "I thought I was a pumpkin. Again." } },
+      { code: "b8xe5j", name: "Nisse",  line: { sv: "Spinn, spinn. Ni får klappa mig. En gång.", en: "Purr, purr. You may pet me. Once." } },
+      { code: "p3nr7v", name: "Luna",   line: { sv: "Jag satt bara och tittade på månen.", en: "I was just looking at the moon." } },
+      { code: "f2gk9s", name: "Smulan", line: { sv: "Finns det mat hemma? Då följer jag med.", en: "Is there food at home? Then I'll come." } },
+      { code: "y7ad4h", name: "Tiger",  line: { sv: "RAAAWR! …mjau.", en: "RAAAWR! …meow." } }
+    ]
+  },
+  {
+    id: "brottet",
+    story: {
+      sv: ["Varje Halloween ställer grannarna ut en jättestor godisskål vid skogsbrynet. I år var den fylld till brädden med klubbor, chokladbitar och sura maskar.",
+           "Men när ugglan Ugo flög förbi i skymningen var skålen BORTA. Kvar fanns bara konstiga spår som ledde in i skogen.",
+           "Fyra underliga figurer sågs i skogen i kväll: en vampyr, en varulv, ett skelett och en mumie. En av dem är tjuven! Som detektiver ska ni leta upp alla fem bevis, läsa ledtrådarna noga och peka ut den skyldiga."],
+      en: ["Every Halloween, the neighbours put out a giant candy bowl at the edge of the woods. This year it was filled to the brim with lollipops, chocolates and sour worms.",
+           "But when Ugo the Owl flew past at dusk, the bowl was GONE. All that was left were strange tracks leading into the woods.",
+           "Four odd figures were seen in the woods tonight: a vampire, a werewolf, a skeleton and a mummy. One of them is the thief! As detectives, you must find all five clues, read them carefully and point out who did it."]
+    },
+    goal: { sv: "Hitta 5 bevis i skogen och avslöja tjuven.", en: "Find 5 clues in the woods and unmask the thief." }, emoji: "🔍", color: "#ffb347",
+    where: { sv: "Skogen", en: "The woods" },
+    title:   { sv: "Brottet i skogen", en: "The Crime in the Woods" },
+    tagline: { sv: "Hitta 5 bevis och lös mysteriet", en: "Find 5 clues and solve the mystery" },
+    intro: {
+      sv: "Larm i skogen! Kvarterets stora godisskål – fylld till brädden inför Halloween – är borta. Någon har stulit den! Fyra misstänkta var i skogen i kväll. Som detektiver ska ni hitta alla fem bevis, läsa ledtrådarna noga och lista ut vem som är tjuven.",
+      en: "Alarm in the woods! The neighbourhood's giant candy bowl – filled to the brim for Halloween – is gone. Someone has stolen it! Four suspects were in the woods tonight. As detectives, you need to find all five clues, read them carefully and work out who the thief is."
+    },
+    foundVerb: { sv: "Bevis säkrat!", en: "Clue collected!" },
+    items: [
+      { code: "c5mz8w", emoji: "👣", name: { sv: "Fotspår", en: "Footprints" },
+        line: { sv: "Avtryck i leran – av fötter, inte tassar. Tjuven går på två ben.", en: "Prints in the mud – of feet, not paws. The thief walks on two legs." } },
+      { code: "n2tq6b", emoji: "🧄", name: { sv: "Vitlöksmacka", en: "Garlic sandwich" },
+        line: { sv: "En halvt uppäten vitlöksmacka vid stigen. Tjuven har ätit vitlök!", en: "A half-eaten garlic sandwich by the path. The thief has been eating garlic!" } },
+      { code: "e9hv3k", emoji: "👂", name: { sv: "Vittnet", en: "The witness" },
+        line: { sv: "En uggla hörde inget skrammel alls. Det var helt tyst när skålen försvann.", en: "An owl heard no rattling at all. It was completely quiet when the bowl vanished." } },
+      { code: "s4jf7p", emoji: "🧻", name: { sv: "Tygremsa", en: "Strip of cloth" },
+        line: { sv: "En lång, dammig, vit tygremsa har fastnat på en gren.", en: "A long, dusty, white strip of cloth is caught on a branch." } },
+      { code: "x8rb2y", emoji: "⏳", name: { sv: "Ökensand", en: "Desert sand" },
+        line: { sv: "Små högar av gyllene sand på stigen. Sådan sand finns inte här – den kommer från en öken långt borta!", en: "Little piles of golden sand on the path. Sand like this isn't from around here – it comes from a faraway desert!" } }
+    ],
+    suspects: [
+      { id: "vlad",  emoji: "🧛", name: { sv: "Vampyren Vlad", en: "Vlad the Vampire" }, desc: { sv: "Elegant och vaken hela natten. Tål inte vitlök.", en: "Elegant and up all night. Can't stand garlic." } },
+      { id: "ylva",  emoji: "🐺", name: { sv: "Varulven Ylva", en: "Ylva the Werewolf" }, desc: { sv: "Stark och snabb. Springer på stora tassar.", en: "Strong and fast. Runs on big paws." } },
+      { id: "benny", emoji: "💀", name: { sv: "Skelettet Benny", en: "Benny the Skeleton" }, desc: { sv: "Skramlar högt när han går.", en: "Rattles loudly when he walks." } },
+      { id: "mona",  emoji: "🤕", name: { sv: "Mumien Mona", en: "Mona the Mummy" }, desc: { sv: "Har sovit i 3000 år i en pyramid.", en: "Has slept for 3,000 years in a pyramid." } }
+    ],
+    culprit: "mona",
+    reveal: {
+      sv: "Rätt! Det var Mumien Mona! Hon hade sovit i 3000 år och missat varenda Halloween – hon ville bara smaka godis för en gångs skull. Hon lovar att lämna tillbaka skålen (nästan full).",
+      en: "Correct! It was Mona the Mummy! She had slept for 3,000 years and missed every single Halloween – she just wanted to taste candy for once. She promises to give the bowl back (almost full)."
+    }
+  }
+];
+
+/* ---------- Texts for the app itself ---------- */
+const T = {
+  sv: {
+    appTitle: "Halloweenjakten",
+    intro: "Tre spännande uppdrag väntar i kvarteret! Välj ett uppdrag, leta upp alla QR-koder och skanna dem med mobilen. Klarar ni ett uppdrag får ni en belöning i ett prishus.",
+    howTitle: "Så funkar det",
+    steps: ["Välj ett uppdrag och läs berättelsen.", "Leta upp QR-koderna och skanna dem med mobilens kamera.", "Klart? Visa skärmen i ett prishus och hämta er belöning!"],
+    samePhone: "Använd samma mobil hela tiden – det är mobilen som kommer ihåg vad ni hittat.",
+    missions: "Uppdrag",
+    prizes: "Belöningar",
+    prizeTimes: "Här kan ni hämta belöningar:",
+    prizeHouses: "Prishus:",
+    openNow: "Öppna prishus just nu:",
+    noneOpen: "Inga prishus är öppna just nu. Titta igen om en liten stund!",
+    loadingHouses: "Hämtar prishus…",
+    housesError: "Kunde inte hämta listan med prishus just nu.",
+    closed: "stängt",
+    start: "Starta uppdraget",
+    yourMission: "Ert uppdrag",
+    readAgain: "Läs berättelsen igen",
+    notStarted: "Inte påbörjat",
+    progress: (n, t) => `${n} av ${t} hittade`,
+    readyToSolve: "Dags att lösa fallet!",
+    done: "Klart! Hämta belöning",
+    claimed: "Belöning hämtad ✓",
+    back: "← Alla uppdrag",
+    where: "Plats",
+    yourHunt: "Er jakt",
+    howToScan: "Öppna mobilens kamera och rikta den mot QR-koden. Tryck på länken som dyker upp.",
+    notFound: "Inte hittad",
+    toMission: "Till uppdraget",
+    alreadyFound: "Den här har ni redan hittat!",
+    allFound: "Ni har hittat alla!",
+    seePrize: "Se er belöning",
+    solveCase: "Lös fallet!",
+    clue: "Ledtråd",
+    unknownCode: "Hmm… den här koden känner vi inte igen.",
+    toHome: "Till startsidan",
+    clues: "Ledtrådar",
+    noClues: "Inga ledtrådar än. Leta i skogen!",
+    suspects: "De misstänkta",
+    guessLater: "När ni hittat alla bevis får ni gissa vem som är tjuven.",
+    whoDidIt: "Vem är tjuven?",
+    tapSuspect: "Läs ledtrådarna och tryck på den ni tror gjorde det.",
+    wrong: name => `Nej, det var inte ${name}! Läs ledtrådarna igen.`,
+    missionComplete: "Uppdrag klart!",
+    showAtHouse: "Visa den här skärmen i ett prishus för att få er belöning.",
+    clockLabel: "Klockan är",
+    claimBtn: "Belöningen är hämtad",
+    confirmTitle: "Har ni fått er belöning?",
+    confirmText: "Tryck bara på ja när prishuset har gett er belöningen. Det går inte att ångra.",
+    yes: "Ja, vi har fått den!",
+    cancel: "Inte än",
+    claimedTitle: "Belöningen är hämtad 🎉",
+    claimedText: "Bra jobbat! Varför inte testa ett annat uppdrag?",
+    // organizer
+    orgTitle: "Arrangörssidan",
+    orgIntro: "Här är alla QR-koder. Skriv ut sidan och sätt upp varje lapp vid rätt spöke, katt eller bevis. Startlappen kan sitta där uppdraget börjar.",
+    orgFileWarn: "Sidan är öppnad som en fil på datorn. Lägg upp den på nätet först – annars pekar QR-koderna fel.",
+    print: "Skriv ut",
+    reset: "Nollställ den här mobilen",
+    resetConfirm: "Ta bort allt den här mobilen har hittat och hämtat?",
+    resetDone: "Nollställt!",
+    startSign: "Start",
+    test: "Testa länken"
+  },
+  en: {
+    appTitle: "The Halloween Hunt",
+    intro: "Three spooky missions are waiting in the neighbourhood! Pick a mission, find all the QR codes and scan them with your phone. Finish a mission and collect a prize at a prize house.",
+    howTitle: "How it works",
+    steps: ["Pick a mission and read the story.", "Find the QR codes and scan them with your phone's camera.", "All done? Show the screen at a prize house and get your prize!"],
+    samePhone: "Use the same phone the whole time – the phone is what remembers what you've found.",
+    missions: "Missions",
+    prizes: "Prizes",
+    prizeTimes: "Collect your prizes:",
+    prizeHouses: "Prize houses:",
+    openNow: "Prize houses open right now:",
+    noneOpen: "No prize houses are open right now. Check again in a little while!",
+    loadingHouses: "Loading prize houses…",
+    housesError: "Couldn't load the prize house list right now.",
+    closed: "closed",
+    start: "Start mission",
+    yourMission: "Your mission",
+    readAgain: "Read the story again",
+    notStarted: "Not started",
+    progress: (n, t) => `${n} of ${t} found`,
+    readyToSolve: "Time to solve the case!",
+    done: "Done! Collect your prize",
+    claimed: "Prize collected ✓",
+    back: "← All missions",
+    where: "Where",
+    yourHunt: "Your hunt",
+    howToScan: "Open your phone's camera and point it at the QR code. Tap the link that pops up.",
+    notFound: "Not found",
+    toMission: "Go to mission",
+    alreadyFound: "You already found this one!",
+    allFound: "You found them all!",
+    seePrize: "See your prize",
+    solveCase: "Solve the case!",
+    clue: "Clue",
+    unknownCode: "Hmm… we don't recognise this code.",
+    toHome: "Go to start page",
+    clues: "Clues",
+    noClues: "No clues yet. Search the woods!",
+    suspects: "The suspects",
+    guessLater: "Once you've found all the clues, you get to guess who the thief is.",
+    whoDidIt: "Who is the thief?",
+    tapSuspect: "Read the clues and tap the one you think did it.",
+    wrong: name => `No, it wasn't ${name}! Read the clues again.`,
+    missionComplete: "Mission complete!",
+    showAtHouse: "Show this screen at a prize house to get your prize.",
+    clockLabel: "The time is",
+    claimBtn: "Prize has been collected",
+    confirmTitle: "Did you get your prize?",
+    confirmText: "Only tap yes once the prize house has given you your prize. This can't be undone.",
+    yes: "Yes, we got it!",
+    cancel: "Not yet",
+    claimedTitle: "Prize collected 🎉",
+    claimedText: "Great job! Why not try another mission?",
+    orgTitle: "Organizer page",
+    orgIntro: "Here are all the QR codes. Print this page and put each sign next to the right ghost, cat or clue. The start sign can go where the mission begins.",
+    orgFileWarn: "This page is opened as a file on your computer. Put it online first – otherwise the QR codes will point to the wrong place.",
+    print: "Print",
+    reset: "Reset this phone",
+    resetConfirm: "Remove everything this phone has found and collected?",
+    resetDone: "Reset done!",
+    startSign: "Start",
+    test: "Test the link"
+  }
+};
+
+/* =========================================================
+   The app (no need to change anything below)
+   ========================================================= */
+const KEY = "halloweenjakten-2026";
+let S = {};
+try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
+function fresh(keepLang) { return { lang: keepLang, found: {}, started: {}, solved: {}, wrong: {}, claimed: {} }; }
+S = Object.assign(fresh(S.lang), S);
+if (!S.lang) S.lang = (navigator.language || "").toLowerCase().startsWith("sv") ? "sv" : "en";
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+const app = document.getElementById("app");
+const modalRoot = document.getElementById("modalRoot");
+const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === "function" ? v(...a) : v; };
+const L = o => (o == null ? "" : typeof o === "string" ? o : (o[S.lang] || o.sv || ""));
+const byId = id => MISSIONS.find(m => m.id === id);
+const count = m => m.items.filter(i => S.found[i.code]).length;
+const isComplete = m => count(m) === m.items.length;
+const isSolved = m => !m.suspects || !!S.solved[m.id];
+const itemEmoji = (m, it) => it.emoji || m.emoji;
+
+function findCode(code) {
+  for (const m of MISSIONS) for (const it of m.items) if (it.code === code) return { m, it };
+  return null;
+}
+
+function statusChip(m) {
+  if (S.claimed[m.id]) return `<span class="chip claimed">${t("claimed")}</span>`;
+  if (isComplete(m) && isSolved(m)) return `<span class="chip done">${t("done")}</span>`;
+  if (isComplete(m)) return `<span class="chip done">${t("readyToSolve")}</span>`;
+  if (!S.started[m.id] && count(m) === 0) return `<span class="chip">${t("notStarted")}</span>`;
+  return `<span class="chip">${t("progress", count(m), m.items.length)}</span>`;
+}
+
+/* ---------- Home ---------- */
+function home() {
+  const times = EVENT.prizeTimes.map(x => `<li>🕔 ${L(x)}</li>`).join("");
+  const houses = EVENT.sheetUrl ? "sheet" : EVENT.prizeHouses.map(x => `<li>🏠 ${L(x)}</li>`).join("");
+  app.innerHTML = `
+    <section class="hero">
+      <div class="moon"></div>
+      <p class="kicker">${L(EVENT.date)}</p>
+      <h1 class="spooky">${t("appTitle")}</h1>
+      <p class="lead">${t("intro")}</p>
+    </section>
+    <section class="card">
+      <h2>${t("howTitle")}</h2>
+      <ol class="steps">${t("steps").map(s => `<li><span>${s}</span></li>`).join("")}</ol>
+      <p class="tip">📱 ${t("samePhone")}</p>
+    </section>
+    <h2 class="section-h">${t("missions")}</h2>
+    <div class="missions">
+      ${MISSIONS.map(m => `
+        <a class="mcard" href="#/m/${m.id}" style="--c:${m.color}">
+          <div class="mrow">
+            <div class="mem">${m.emoji}</div>
+            <div><h3>${L(m.title)}</h3><p>${L(m.tagline)}</p></div>
+          </div>
+          <div class="bar"><i style="width:${(count(m) / m.items.length) * 100}%"></i></div>
+          ${statusChip(m)}
+        </a>`).join("")}
+    </div>
+    ${times || houses ? `
+    <section class="card">
+      <h2>🎁 ${t("prizes")}</h2>
+      ${times ? `<p class="muted">${t("prizeTimes")}</p><ul class="times">${times}</ul>` : ""}
+      ${houses ? `<div style="margin-top:12px" data-houses>${housesHTML()}</div>` : ""}
+    </section>` : ""}
+  `;
+}
+
+/* ---------- Mission ---------- */
+function missionPage(id) {
+  const m = byId(id);
+  if (!m) return home();
+  const head = `
+    <a class="back" href="#/">${t("back")}</a>
+    <div class="mhead">
+      <div class="mem">${m.emoji}</div>
+      <h1>${L(m.title)}</h1>
+      ${L(m.where) ? `<p class="muted">📍 ${L(m.where)}</p>` : ""}
+    </div>`;
+
+  if (S.claimed[m.id]) {
+    app.innerHTML = head + `
+      <section class="card" style="text-align:center">
+        <h2>${t("claimedTitle")}</h2>
+        <p>${t("claimedText")}</p>
+        <a class="btn" href="#/">${t("back").replace("← ", "")}</a>
+      </section>`;
+    return;
+  }
+  if (isComplete(m) && isSolved(m)) return claimView(m);
+
+  const storyHTML = `<div class="story">${L(m.story).map(p => `<p>${p}</p>`).join("")}</div>`;
+  if (!S.started[m.id] && count(m) === 0) {
+    app.innerHTML = head + `
+      <section class="card" style="--c:${m.color}">
+        ${storyHTML}
+        <div class="goal"><span>${t("yourMission")}</span>${L(m.goal)}</div>
+      </section>
+      <button class="btn" type="button" data-act="start" data-m="${m.id}">${t("start")} ${m.emoji}</button>`;
+    return;
+  }
+
+  const n = count(m), total = m.items.length;
+  let html = head + `
+    <section class="card" style="--c:${m.color}">
+      <div class="goal"><span>${t("yourMission")}</span>${L(m.goal)}</div>
+      ${isComplete(m) ? "" : `<p class="tip">📷 ${t("howToScan")}</p>`}
+      <details class="again"><summary>${t("readAgain")}</summary>${storyHTML}</details>
+    </section>
+    <section class="card" style="--c:${m.color}">
+      <h2>${t("yourHunt")}</h2>
+      <div class="bar"><i style="width:${(n / total) * 100}%"></i></div>
+      <p class="muted">${t("progress", n, total)}</p>
+      <div class="slots">
+        ${m.items.map(it => S.found[it.code]
+          ? `<div class="slot found"><span class="em">${itemEmoji(m, it)}</span>${L(it.name)}</div>`
+          : `<div class="slot"><span class="em q">?</span>${t("notFound")}</div>`).join("")}
+      </div>
+    </section>`;
+
+  if (m.suspects) {
+    const foundClues = m.items.filter(it => S.found[it.code]);
+    html += `
+    <section class="card">
+      <h2>🗒️ ${t("clues")}</h2>
+      ${foundClues.length ? foundClues.map(it => `
+        <div class="clue"><span class="em">${it.emoji}</span><div><b>${L(it.name)}</b>${L(it.line)}</div></div>`).join("")
+        : `<p class="muted">${t("noClues")}</p>`}
+    </section>
+    <section class="card" style="--c:${m.color}">
+      <h2>${isComplete(m) ? "🕵️ " + t("whoDidIt") : t("suspects")}</h2>
+      <p class="muted">${isComplete(m) ? t("tapSuspect") : t("guessLater")}</p>
+      <div class="sus">
+        ${m.suspects.map(s => {
+          const inner = `<span class="em">${s.emoji}</span><b>${L(s.name)}</b><small>${L(s.desc)}</small>`;
+          const out = (S.wrong[m.id] || []).includes(s.id) ? " out" : "";
+          return isComplete(m)
+            ? `<button class="s${out}" type="button" data-act="guess" data-m="${m.id}" data-s="${s.id}">${inner}</button>`
+            : `<div class="s">${inner}</div>`;
+        }).join("")}
+      </div>
+      <div id="guessMsg"></div>
+    </section>`;
+  }
+  app.innerHTML = html;
+}
+
+function guess(mid, sid) {
+  const m = byId(mid);
+  const s = m.suspects.find(x => x.id === sid);
+  if (sid === m.culprit) {
+    S.solved[mid] = true; save();
+    openModal(`
+      <div style="font-size:64px">${s.emoji}</div>
+      <h2>🎉</h2>
+      <p>${L(m.reveal)}</p>
+      <button class="btn" type="button" data-act="closeAndRender">${t("seePrize")}</button>`, true);
+  } else {
+    S.wrong[mid] = (S.wrong[mid] || []).concat(sid); save();
+    missionPage(mid);
+    document.getElementById("guessMsg").innerHTML = `<div class="notice">${t("wrong", L(s.name))}</div>`;
+  }
+}
+
+/* ---------- Claim screen ---------- */
+function claimView(m) {
+  const fx = ["🎃", "🍬", "⭐", "🦇", "🍭", m.emoji];
+  let rain = "";
+  for (let i = 0; i < 14; i++) {
+    rain += `<span class="fall" style="left:${Math.random() * 95}%;animation-duration:${4 + Math.random() * 4}s;animation-delay:${-Math.random() * 8}s">${fx[i % fx.length]}</span>`;
+  }
+  app.innerHTML = `
+    <a class="back" href="#/">${t("back")}</a>
+    <section class="claim" style="--c:${m.color}">
+      ${rain}
+      <div class="mem pulse">${m.emoji}</div>
+      <h1>${t("missionComplete")}</h1>
+      <h2>${L(m.title)}</h2>
+      <div class="clock"><span>${t("clockLabel")}</span><b id="clock"></b></div>
+      <p>${t("showAtHouse")}</p>
+      ${EVENT.prizeTimes.length ? `<p class="muted">🕔 ${EVENT.prizeTimes.map(L).join(", ")}</p>` : ""}
+      ${EVENT.sheetUrl || EVENT.prizeHouses.length ? `<div class="card" style="margin:12px 0 0" data-houses>${housesHTML()}</div>` : ""}
+      <button class="btn green" type="button" data-act="claim" data-m="${m.id}">${t("claimBtn")}</button>
+    </section>`;
+  tick();
+}
+
+function tick() {
+  const el = document.getElementById("clock");
+  if (el) el.textContent = new Date().toLocaleTimeString(S.lang === "sv" ? "sv-SE" : "en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+setInterval(tick, 1000);
+
+/* ---------- Prize houses from Google Sheet ---------- */
+let HOUSES = null; // null = loading, "error", or list of {name, open, note}
+function sheetCsvUrl(u) {
+  const id = (u.match(/\/d\/([a-zA-Z0-9_-]+)/) || [])[1];
+  if (!id) return u;
+  const gid = (u.match(/[#&?]gid=(\d+)/) || [])[1];
+  return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv${gid ? "&gid=" + gid : ""}&t=${Date.now()}`;
+}
+function parseCSV(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ",") { row.push(cell); cell = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += ch;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+const isYes = v => /^(true|ja|yes|x|1|öppet|open|sant)$/i.test((v || "").trim());
+async function loadHouses() {
+  if (!EVENT.sheetUrl) return;
+  try {
+    const res = await fetch(sheetCsvUrl(EVENT.sheetUrl), { cache: "no-store" });
+    if (!res.ok) throw new Error(res.status);
+    HOUSES = parseCSV(await res.text()).slice(1)
+      .map(r => ({ name: (r[0] || "").trim(), open: isYes(r[1]), note: (r[2] || "").trim() }))
+      .filter(h => h.name);
+  } catch (e) { if (HOUSES === null) HOUSES = "error"; }
+  document.querySelectorAll("[data-houses]").forEach(el => el.innerHTML = housesHTML());
+}
+function housesHTML() {
+  if (!EVENT.sheetUrl) {
+    return `<p class="muted">${t("prizeHouses")}</p><ul class="times">${EVENT.prizeHouses.map(x => `<li>🏠 ${L(x)}</li>`).join("")}</ul>`;
+  }
+  if (HOUSES === null) return `<p class="muted">${t("loadingHouses")}</p>`;
+  if (HOUSES === "error") return `<p class="muted">${t("housesError")}</p>`;
+  const open = HOUSES.filter(h => h.open), closed = HOUSES.filter(h => !h.open);
+  const li = h => `<li class="house${h.open ? "" : " off"}"><span class="dot"></span><span>${esc(h.name)}${h.open ? "" : ` (${t("closed")})`}${h.note ? `<small>${esc(h.note)}</small>` : ""}</span></li>`;
+  return `<p class="muted">${t("openNow")}</p>
+    ${open.length ? "" : `<p>${t("noneOpen")}</p>`}
+    <ul class="times">${open.map(li).join("")}${closed.map(li).join("")}</ul>`;
+}
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+loadHouses();
+setInterval(loadHouses, 60000);
+
+/* ---------- Scanning a QR code ---------- */
+function scan(code) {
+  const hit = findCode(code);
+  if (!hit) {
+    app.innerHTML = `
+      <section class="found-screen">
+        <div class="pop">🤔</div>
+        <h1>${t("unknownCode")}</h1>
+        <a class="btn" href="#/">${t("toHome")}</a>
+      </section>`;
+    return;
+  }
+  const { m, it } = hit;
+  const already = !!S.found[code];
+  S.found[code] = true; S.started[m.id] = true; save();
+  const n = count(m), total = m.items.length, done = n === total;
+  let btnText = t("toMission");
+  if (done) btnText = S.claimed[m.id] ? t("toMission") : (isSolved(m) ? t("seePrize") : t("solveCase"));
+  app.innerHTML = `
+    <section class="found-screen" style="--c:${m.color}">
+      <p class="kicker">${L(m.title)}</p>
+      <div class="pop">${itemEmoji(m, it)}</div>
+      <h1>${already ? t("alreadyFound") : L(m.foundVerb)}</h1>
+      <h2 class="item-name">${L(it.name)}</h2>
+      <p class="speech">${m.suspects ? `<span class="lbl">${t("clue")}</span>` : ""}${m.suspects ? "" : "“"}${L(it.line)}${m.suspects ? "" : "”"}</p>
+      <div class="bar"><i style="width:${(n / total) * 100}%"></i></div>
+      <p class="muted">${t("progress", n, total)}</p>
+      ${done ? `<h2>🎉 ${t("allFound")}</h2>` : ""}
+      <a class="btn" href="#/m/${m.id}">${btnText}</a>
+    </section>`;
+}
+
+/* ---------- Organizer page (#/arrangor) ---------- */
+function organizer() {
+  const base = location.href.split("#")[0];
+  const card = (url, em, title, sub, start) => `
+    <div class="qr-card${start ? " start" : ""}">
+      <div class="em">${em}</div>
+      <div class="scan">Skanna mig! · Scan me!</div>
+      <div class="qr" data-qr="${url}"></div>
+      <h3>${title}</h3>
+      <small>${sub}</small>
+      <a class="test no-print" href="${url}">${t("test")} →</a>
+    </div>`;
+  app.innerHTML = `
+    <div class="org">
+      <a class="back no-print" href="#/">${t("back")}</a>
+      <h1>${t("orgTitle")}</h1>
+      <p class="muted no-print">${t("orgIntro")}</p>
+      ${location.protocol === "file:" ? `<div class="warn no-print">⚠️ ${t("orgFileWarn")}</div>` : ""}
+      <div class="row no-print" style="margin:14px 0 20px">
+        <button class="btn" type="button" data-act="print">🖨️ ${t("print")}</button>
+        <button class="btn ghost" type="button" data-act="reset">${t("reset")}</button>
+      </div>
+      ${MISSIONS.map(m => `
+        <h2>${m.emoji} ${m.title.sv} / ${m.title.en}</h2>
+        <div class="qr-grid">
+          ${card(base + "#/m/" + m.id, m.emoji, `${t("startSign")}: ${m.title.sv}`, m.title.en, true)}
+          ${m.items.map(it => card(base + "#/q/" + it.code, itemEmoji(m, it),
+              typeof it.name === "string" ? it.name : `${it.name.sv} / ${it.name.en}`,
+              `${m.title.sv} · ${m.title.en}`)).join("")}
+        </div>`).join("")}
+    </div>`;
+  document.querySelectorAll("[data-qr]").forEach(el => {
+    if (window.QRCode) {
+      new QRCode(el, { text: el.dataset.qr, width: 380, height: 380, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+    } else {
+      el.innerHTML = `<small style="word-break:break-all">${el.dataset.qr}</small>`;
+    }
+  });
+}
+
+/* ---------- Modal ---------- */
+function openModal(inner, noBackdropClose) {
+  modalRoot.innerHTML = `<div class="modal" ${noBackdropClose ? "" : 'data-act="closeModal"'}><div class="card">${inner}</div></div>`;
+}
+function closeModal() { modalRoot.innerHTML = ""; }
+
+/* ---------- Clicks ---------- */
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  const act = el.dataset.act;
+  if (act === "closeModal" && e.target !== el) return; // only backdrop clicks close
+  if (act === "start") { S.started[el.dataset.m] = true; save(); render(); window.scrollTo(0, 0); }
+  if (act === "guess") guess(el.dataset.m, el.dataset.s);
+  if (act === "claim") {
+    openModal(`
+      <div style="font-size:54px">🎁</div>
+      <h2>${t("confirmTitle")}</h2>
+      <p>${t("confirmText")}</p>
+      <button class="btn green" type="button" data-act="confirmClaim" data-m="${el.dataset.m}">${t("yes")}</button>
+      <button class="btn ghost" type="button" data-act="closeModal">${t("cancel")}</button>`);
+  }
+  if (act === "confirmClaim") { S.claimed[el.dataset.m] = Date.now(); save(); closeModal(); render(); window.scrollTo(0, 0); }
+  if (act === "closeModal") closeModal();
+  if (act === "closeAndRender") { closeModal(); render(); window.scrollTo(0, 0); }
+  if (act === "print") window.print();
+  if (act === "reset") { if (confirm(t("resetConfirm"))) { S = fresh(S.lang); save(); alert(t("resetDone")); } }
+});
+
+document.getElementById("langBtn").addEventListener("click", () => {
+  S.lang = S.lang === "sv" ? "en" : "sv"; save(); render();
+});
+
+/* ---------- Router ---------- */
+function render() {
+  document.documentElement.lang = S.lang;
+  document.getElementById("langBtn").textContent = S.lang === "sv" ? "🇬🇧 EN" : "🇸🇪 SV";
+  document.getElementById("brandName").textContent = t("appTitle");
+  document.title = t("appTitle");
+  const parts = ROUTE.replace(/^#\/?/, "").split("/");
+  if (parts[0] === "q" && parts[1]) return scan(parts[1]);
+  if (parts[0] === "m" && parts[1]) return missionPage(parts[1]);
+  if (parts[0] === "arrangor" || parts[0] === "organizer") return organizer();
+  home();
+}
+/* The app keeps track of the current page itself, so it also works
+   inside previews where normal links are blocked. */
+let ROUTE = location.hash || "#/";
+function go(hash) {
+  ROUTE = hash || "#/";
+  try { if (location.hash !== ROUTE) history.pushState(null, "", ROUTE); } catch (e) {}
+  closeModal(); render(); try { window.scrollTo(0, 0); } catch (e) {}
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[href]");
+  if (!a) return;
+  const href = a.getAttribute("href");
+  const i = href.indexOf("#");
+  if (i === -1) return;
+  e.preventDefault();
+  go(href.slice(i));
+}, true);
+const fromLocation = () => { if (location.hash && location.hash !== ROUTE) { ROUTE = location.hash; closeModal(); render(); } };
+window.addEventListener("hashchange", fromLocation);
+window.addEventListener("popstate", () => { ROUTE = location.hash || "#/"; closeModal(); render(); });
+render();
+</script>
+</body>
+</html>
