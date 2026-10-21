@@ -64,6 +64,7 @@ details.again[open] summary{margin-bottom:10px}
 .slot{background:var(--card2);border:2px dashed var(--line);border-radius:14px;padding:10px 6px;text-align:center;font-size:14px;color:var(--muted)}
 .slot .em{display:block;font-size:34px;line-height:1.25}
 .slot .q{font-weight:700;color:rgba(255,255,255,.28)}
+.slot .addr{display:block;margin-top:4px;font-size:12.5px;line-height:1.25;color:var(--ink);font-weight:600}
 .slot.found{border:2px solid var(--c);color:var(--ink);background:rgba(255,255,255,.06)}
 .clue{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
 .clue:first-of-type{border-top:0}
@@ -118,6 +119,7 @@ button.s:active{transform:scale(.97)}
 .qr-card small{color:#555;display:block}
 .qr-card.start{border:4px solid #ff8a1f}
 .qr-card.m-katterna .em{font-size:120px;line-height:1.05;margin:4px 0}
+.sign-addr{display:block;margin-top:4px;font-size:15px}
 .test{display:block;margin-top:6px;font-size:13px;color:#6b3fa0}
 .warn{background:#ffe08a;color:#3a2a00;border-radius:12px;padding:12px;margin:12px 0}
 .row{display:flex;gap:10px}
@@ -224,11 +226,11 @@ const MISSIONS = [
     },
     foundVerb: { sv: "Spöke fångat!", en: "Ghost caught!" },
     items: [
-      { code: "q7fk2m", name: "Berit",  line: { sv: "Buuu! Okej, okej, jag följer med…", en: "Boooo! Okay, okay, I'll come quietly…" } },
-      { code: "w3hx9t", name: "Kasper", line: { sv: "Jag gömde mig så bra! Hur hittade ni mig?", en: "I hid so well! How did you find me?" } },
-      { code: "r8bn4c", name: "Siv",    line: { sv: "Jag var bara ute och svävade lite.", en: "I was just out for a little float." } },
-      { code: "z2vp6e", name: "Otto",   line: { sv: "Akta, jag är kittlig!", en: "Careful, I'm ticklish!" } },
-      { code: "m5tj8a", name: "Mimmi",  line: { sv: "Får jag åtminstone ta med min nalle?", en: "Can I at least bring my teddy?" } }
+      { code: "q7fk2m", where: "Solbackavägen 22F", name: "Berit",  line: { sv: "Buuu! Okej, okej, jag följer med…", en: "Boooo! Okay, okay, I'll come quietly…" } },
+      { code: "w3hx9t", where: "Solbackavägen 12", name: "Kasper", line: { sv: "Jag gömde mig så bra! Hur hittade ni mig?", en: "I hid so well! How did you find me?" } },
+      { code: "r8bn4c", where: "Solbackavägen 25D", name: "Siv",    line: { sv: "Jag var bara ute och svävade lite.", en: "I was just out for a little float." } },
+      { code: "z2vp6e", where: "Solbackavägen 32", name: "Otto",   line: { sv: "Akta, jag är kittlig!", en: "Careful, I'm ticklish!" } },
+      { code: "m5tj8a", where: "Solbackavägen 31", name: "Mimmi",  line: { sv: "Får jag åtminstone ta med min nalle?", en: "Can I at least bring my teddy?" } }
     ]
   },
   {
@@ -563,7 +565,7 @@ function missionPage(id) {
       <div class="slots">
         ${m.items.map(it => S.found[it.code]
           ? `<div class="slot found"><span class="em">${itemEmoji(m, it)}</span>${L(it.name)}</div>`
-          : `<div class="slot"><span class="em q">?</span>${t("notFound")}</div>`).join("")}
+          : `<div class="slot"><span class="em q">?</span>${t("notFound")}${it.where ? `<small class="addr">${it.where}</small>` : ""}</div>`).join("")}
       </div>
     </section>`;
 
@@ -724,13 +726,13 @@ function scan(code) {
 /* ---------- Organizer page (#/arrangor) ---------- */
 function organizer() {
   const base = location.href.split("#")[0];
-  const card = (url, em, title, sub, start, mid) => `
+  const card = (url, em, title, sub, start, mid, where) => `
     <div class="qr-card m-${mid}${start ? " start" : ""}">
       <div class="em">${em}</div>
       <div class="scan">Skanna mig! · Scan me!</div>
       <div class="qr" data-qr="${url}"></div>
       <h3>${title}</h3>
-      <small>${sub}</small>
+      <small>${sub}</small>${where ? `<b class="sign-addr">📍 ${where}</b>` : ""}
       <a class="test no-print" href="${url}">${t("test")} →</a>
     </div>`;
   app.innerHTML = `
@@ -756,7 +758,7 @@ function organizer() {
         <div class="qr-grid">
           ${m.items.map(it => card(base + "#/q/" + it.code, itemEmoji(m, it),
               typeof it.name === "string" ? it.name : `${it.name.sv} / ${it.name.en}`,
-              `${m.title.sv} · ${m.title.en}`, false, m.id)).join("")}
+              `${m.title.sv} · ${m.title.en}`, false, m.id, it.where)).join("")}
         </div>`).join("")}
       </div>
     </div>`;
