@@ -532,6 +532,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
+const VERSION = "22 okt 02:00";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -962,6 +963,7 @@ function organizer() {
         <button class="btn" type="button" data-act="print" data-what="signs">🖨️ ${t("printSigns")}</button>
       </div>
       <p class="tip no-print">${t("unlockedNote")}</p>
+      <p class="muted no-print" style="font-size:13px">Version: ${VERSION}</p>
       <div class="row no-print" style="margin:12px 0 24px">
         <button class="btn ghost" type="button" data-act="lockPreview">${t("previewLocked")}</button>
         <button class="btn ghost" type="button" data-act="reset">${t("reset")}</button>
