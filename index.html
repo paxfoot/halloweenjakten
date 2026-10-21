@@ -85,6 +85,24 @@ button.s:active{transform:scale(.97)}
 .pop{font-size:110px;line-height:1;margin:14px 0;display:inline-block;animation:pop .6s cubic-bezier(.2,1.6,.4,1) both,float 3s ease-in-out .6s infinite}
 @keyframes pop{0%{transform:scale(0) rotate(-25deg)}100%{transform:scale(1)}}
 @keyframes float{50%{transform:translateY(-10px)}}
+.scanner{position:relative;width:220px;height:220px;margin:22px auto 14px;border-radius:22px;overflow:hidden;background:radial-gradient(circle,rgba(57,255,106,.14),transparent 70%),repeating-linear-gradient(0deg,rgba(124,255,138,.08) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(124,255,138,.08) 0 1px,transparent 1px 22px);border:2px solid rgba(124,255,138,.55);box-shadow:0 0 30px rgba(57,255,106,.25) inset}
+.scanner .target{position:absolute;inset:0;display:grid;place-items:center;font-size:120px;animation:flicker .18s steps(2) infinite}
+@keyframes flicker{50%{filter:drop-shadow(0 0 10px #39ff6a) hue-rotate(60deg);opacity:.85}}
+.laser{position:absolute;left:-10%;right:-10%;height:4px;background:#c8ffd0;box-shadow:0 0 8px 3px #39ff6a,0 0 26px 10px rgba(57,255,106,.55);animation:sweep .9s ease-in-out infinite alternate}
+@keyframes sweep{from{top:4%}to{top:95%}}
+.scanner i{position:absolute;width:26px;height:26px;border:4px solid #7cff8a}
+.scanner i:nth-of-type(1){top:8px;left:8px;border-right:0;border-bottom:0;border-radius:8px 0 0 0}
+.scanner i:nth-of-type(2){top:8px;right:8px;border-left:0;border-bottom:0;border-radius:0 8px 0 0}
+.scanner i:nth-of-type(3){bottom:8px;left:8px;border-right:0;border-top:0;border-radius:0 0 0 8px}
+.scanner i:nth-of-type(4){bottom:8px;right:8px;border-left:0;border-top:0;border-radius:0 0 8px 0}
+.scan-text{font-family:ui-monospace,Menlo,monospace;color:#7cff8a;font-size:17px;letter-spacing:1px}
+.scan-pct{font-family:ui-monospace,Menlo,monospace;color:#7cff8a;font-size:40px;font-weight:700;text-shadow:0 0 12px rgba(57,255,106,.6)}
+.profile{max-width:420px;margin:14px auto;text-align:left;border:2px solid #7cff8a;background:rgba(57,255,106,.06)}
+.profile h3{font-family:ui-monospace,Menlo,monospace;color:#7cff8a;letter-spacing:2px;text-transform:uppercase;font-size:15px}
+.profile dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0}
+.profile dt{color:var(--muted);font-size:15px}
+.profile dd{margin:0;font-weight:600}
+.scare span{opacity:.25}.scare span.on{opacity:1}
 .item-name{font-size:26px;color:var(--c)}
 .speech{background:#fff;color:#2a1b3d;border-radius:16px;padding:14px 16px;margin:14px auto;max-width:420px;font-size:18px;text-align:left}
 .speech .lbl{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#8a5a00;font-weight:700;margin-bottom:2px}
@@ -223,29 +241,36 @@ const EVENT = {
 const MISSIONS = [
   {
     id: "spoken",
+    scanFx: true,
     story: {
       sv: ["Det är Halloweenkväll på Solbackavägen. Löven prasslar, månen lyser – och plötsligt hörs ett konstigt ljud: ”Buuuu…”",
-           "Fem spöken har smitit ut från ett gammalt vindsförråd och gömt sig i grannarnas trädgårdar. De är inte farliga, bara väldigt busiga. De knuffar omkull pumpor, kittlar katter och skrämmer brevlådor.",
-           "Spökjägarförbundet har skickat ett brådskande meddelande: Vi behöver modiga spökjägare! Er mobil är nu en spökfälla. Hitta alla fem spöken och skanna deras QR-koder för att fånga dem."],
+           "Fem spöken har flyttat in längs gatan. Ingen vet vilka de är eller var de kommer ifrån. De är inte farliga – bara väldigt mystiska.",
+           "Men ni har ett hemligt verktyg: er mobil är nu en Spökometer 3000! Den kan analysera spökslem, även kallat ektoplasma. Hitta alla fem spöken, skanna dem och ta reda på deras hemligheter!"],
       en: ["It's Halloween night on Solbackavägen. The leaves rustle, the moon glows – and suddenly there's a strange sound: “Boooo…”",
-           "Five ghosts have slipped out of an old attic and hidden in the neighbours' gardens. They aren't dangerous, just very mischievous. They knock over pumpkins, tickle cats and spook letterboxes.",
-           "The Ghost Hunters' League has sent an urgent message: We need brave ghost hunters! Your phone is now a ghost trap. Find all five ghosts and scan their QR codes to catch them."]
+           "Five ghosts have moved in along the street. Nobody knows who they are or where they came from. They aren't dangerous – just very mysterious.",
+           "But you have a secret tool: your phone is now a Ghostometer 3000! It can analyse ghost slime, also known as ectoplasm. Find all five ghosts, scan them and discover their secrets!"]
     },
-    goal: { sv: "Fånga alla 5 spöken på Solbackavägen.", en: "Catch all 5 ghosts on Solbackavägen." }, emoji: "👻", color: "#8fd3ff",
+    goal: { sv: "Hitta och skanna alla 5 spöken på Solbackavägen.", en: "Find and scan all 5 ghosts on Solbackavägen." },
+    emoji: "👻", color: "#8fd3ff",
     where: { sv: "Solbackavägen", en: "Solbackavägen" },
     title:   { sv: "Spökjägarna", en: "Ghost Hunters" },
-    tagline: { sv: "Fånga alla 5 spöken på gatan", en: "Catch all 5 ghosts on the street" },
+    tagline: { sv: "Skanna 5 spöken och lär känna dem", en: "Scan 5 ghosts and get to know them" },
     intro: {
-      sv: "Något spökar i kvarteret! Fem busiga spöken har flyttat in i grannarnas trädgårdar. Som spökjägare ska ni hitta och fånga alla fem. Skanna QR-koden vid varje spöke för att fånga det i er spökfälla.",
-      en: "Something is haunting the neighbourhood! Five mischievous ghosts have moved into the neighbours' gardens. As ghost hunters, your job is to find and catch all five. Scan the QR code by each ghost to trap it in your ghost catcher."
+      sv: "Fem mystiska spöken har flyttat in på Solbackavägen. Skanna dem med er Spökometer 3000 och ta reda på deras hemligheter!",
+      en: "Five mysterious ghosts have moved in on Solbackavägen. Scan them with your Ghostometer 3000 and discover their secrets!"
     },
-    foundVerb: { sv: "Spöke fångat!", en: "Ghost caught!" },
+    foundVerb: { sv: "Spöke analyserat!", en: "Ghost analysed!" },
     items: [
-      { code: "q7fk2m", where: "Solbackavägen 22F", name: "Berit",  line: { sv: "Buuu! Okej, okej, jag följer med…", en: "Boooo! Okay, okay, I'll come quietly…" } },
-      { code: "w3hx9t", where: "Solbackavägen 12", name: "Kasper", line: { sv: "Jag gömde mig så bra! Hur hittade ni mig?", en: "I hid so well! How did you find me?" } },
-      { code: "r8bn4c", where: "Solbackavägen 25D", name: "Siv",    line: { sv: "Jag var bara ute och svävade lite.", en: "I was just out for a little float." } },
-      { code: "z2vp6e", where: "Solbackavägen 32", name: "Otto",   line: { sv: "Akta, jag är kittlig!", en: "Careful, I'm ticklish!" } },
-      { code: "m5tj8a", where: "Solbackavägen 31", name: "Mimmi",  line: { sv: "Får jag åtminstone ta med min nalle?", en: "Can I at least bring my teddy?" } }
+      { code: "q7fk2m", where: "Solbackavägen 22F", name: "Berit",  line: { sv: "Buuu! …Oj, blev jag skannad nu?", en: "Boooo! …Oops, did I just get scanned?" },
+        profile: { age: { sv: "312 år", en: "312 years" }, type: { sv: "Klassiskt lakansspöke", en: "Classic bedsheet ghost" }, likes: { sv: "Att säga BUU till brevbäraren", en: "Saying BOO to the postman" }, power: { sv: "Går genom väggar (men fastnar i dörrar)", en: "Walks through walls (but gets stuck in doors)" }, scare: 2 } },
+      { code: "w3hx9t", where: "Solbackavägen 12", name: "Kasper", line: { sv: "Jag gömde mig så bra! Hur hittade ni mig?", en: "I hid so well! How did you find me?" },
+        profile: { age: { sv: "87 år", en: "87 years" }, type: { sv: "Kurragömma-spöke", en: "Hide-and-seek ghost" }, likes: { sv: "Mörka garderober", en: "Dark wardrobes" }, power: { sv: "Blir osynlig när någon räknar till tio", en: "Turns invisible when someone counts to ten" }, scare: 1 } },
+      { code: "r8bn4c", where: "Solbackavägen 25D", name: "Siv",    line: { sv: "Jag var bara ute och svävade lite.", en: "I was just out for a little float." },
+        profile: { age: { sv: "150 år", en: "150 years" }, type: { sv: "Svävspöke", en: "Floating ghost" }, likes: { sv: "Månsken och prasslande löv", en: "Moonlight and rustling leaves" }, power: { sv: "Svävar högre än hustaken", en: "Floats higher than the rooftops" }, scare: 3 } },
+      { code: "z2vp6e", where: "Solbackavägen 32", name: "Otto",   line: { sv: "Akta, jag är kittlig!", en: "Careful, I'm ticklish!" },
+        profile: { age: { sv: "45 år", en: "45 years" }, type: { sv: "Kittelspöke", en: "Tickle ghost" }, likes: { sv: "Att fnissa i mörkret", en: "Giggling in the dark" }, power: { sv: "Kittlar dig utan att röra dig", en: "Tickles you without touching you" }, scare: 1 } },
+      { code: "m5tj8a", where: "Solbackavägen 31", name: "Mimmi",  line: { sv: "Vill ni hälsa på min nalle?", en: "Do you want to say hi to my teddy?" },
+        profile: { age: { sv: "9 spökår", en: "9 ghost years" }, type: { sv: "Litet barnspöke", en: "Little kid ghost" }, likes: { sv: "Sin nalle Bulle", en: "Her teddy bear, Bulle" }, power: { sv: "Lyser i mörkret när hon är glad", en: "Glows in the dark when she's happy" }, scare: 1 } }
     ]
   },
   {
@@ -374,6 +399,9 @@ const T = {
     seePrize: "Se er belöning",
     solveCase: "Lös fallet!",
     clue: "Ledtråd",
+    analysing: "Analyserar ektoplasma",
+    profileTitle: "Spökprofil",
+    pAge: "Ålder", pType: "Sort", pLikes: "Gillar", pPower: "Superkraft", pScare: "Läskighet",
     unknownCode: "Hmm… den här koden känner vi inte igen.",
     toHome: "Till startsidan",
     clues: "Ledtrådar",
@@ -458,6 +486,9 @@ const T = {
     seeReward: "See your reward",
     solveCase: "Solve the case!",
     clue: "Clue",
+    analysing: "Analysing ectoplasm",
+    profileTitle: "Ghost profile",
+    pAge: "Age", pType: "Type", pLikes: "Likes", pPower: "Superpower", pScare: "Spookiness",
     unknownCode: "Hmm… we don't recognise this code.",
     toHome: "Go to start page",
     clues: "Clues",
@@ -837,6 +868,8 @@ function scan(code) {
   }
   const { m, it } = hit;
   const already = !!S.found[code];
+  if (m.scanFx && !already && !scan.animating) return scanAnimation(code, m, it);
+  scan.animating = false;
   S.found[code] = true; S.started[m.id] = true; save();
   const n = count(m), total = m.items.length, done = n === total;
   let btnText = t("toMission");
@@ -848,11 +881,48 @@ function scan(code) {
       <h1>${already ? t("alreadyFound") : L(m.foundVerb)}</h1>
       <h2 class="item-name">${L(it.name)}</h2>
       <p class="speech">${m.suspects ? `<span class="lbl">${t("clue")}</span>` : ""}${m.suspects ? "" : "“"}${L(it.line)}${m.suspects ? "" : "”"}</p>
+      ${it.profile ? `
+      <section class="card profile">
+        <h3>📡 ${t("profileTitle")}</h3>
+        <dl>
+          <dt>${t("pAge")}</dt><dd>${L(it.profile.age)}</dd>
+          <dt>${t("pType")}</dt><dd>${L(it.profile.type)}</dd>
+          <dt>${t("pLikes")}</dt><dd>${L(it.profile.likes)}</dd>
+          <dt>${t("pPower")}</dt><dd>${L(it.profile.power)}</dd>
+          <dt>${t("pScare")}</dt><dd class="scare">${[1,2,3,4,5].map(n => `<span class="${n <= it.profile.scare ? "on" : ""}">👻</span>`).join("")}</dd>
+        </dl>
+      </section>` : ""}
       <div class="bar"><i style="width:${(n / total) * 100}%"></i></div>
       <p class="muted">${t("progress", n, total)}</p>
       ${done ? `<h2>🎉 ${t("allFound")}</h2>` : ""}
       <a class="btn" href="#/m/${m.id}">${btnText}</a>
     </section>`;
+}
+
+/* Green laser scan, then show the result */
+function scanAnimation(code, m, it) {
+  const route = ROUTE, DURATION = 2800;
+  app.innerHTML = `
+    <section class="found-screen" style="--c:${m.color}">
+      <p class="kicker">${L(m.title)}</p>
+      <div class="scanner"><div class="target">${itemEmoji(m, it)}</div><div class="laser"></div><i></i><i></i><i></i><i></i></div>
+      <div class="scan-pct" id="scanPct">0%</div>
+      <p class="scan-text">${t("analysing")}<span id="scanDots"></span></p>
+    </section>`;
+  const start = Date.now();
+  const timer = setInterval(() => {
+    const pct = Math.min(100, Math.round((Date.now() - start) / DURATION * 100));
+    const el = document.getElementById("scanPct"), dots = document.getElementById("scanDots");
+    if (el) el.textContent = pct + "%";
+    if (dots) dots.textContent = ".".repeat(Math.floor((Date.now() - start) / 300) % 4);
+    if (pct >= 100) {
+      clearInterval(timer);
+      if (ROUTE !== route) return;
+      try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch (e) {}
+      scan.animating = true;
+      scan(code);
+    }
+  }, 50);
 }
 
 /* ---------- Organizer page (#/arrangor) ---------- */
