@@ -145,6 +145,10 @@ button.s:active{transform:scale(.97)}
 .pqr .qr img,.pqr .qr canvas{width:100%!important;height:auto!important}
 .pqr b{display:block;font-size:2.9cqw;margin-top:1.5cqw;line-height:1.2}
 .pdeco{position:absolute!important;font-size:7cqw;opacity:.85}
+.poster.cat .pbig{font-size:31cqw;margin-top:1cqw}
+.poster.cat .ptitle{font-size:15cqw}
+.poster.cat .pqr{width:44cqw;margin-bottom:2cqw}
+.poster.cat .pqr b{font-size:3.6cqw}
 .poster.main .ptitle{margin-top:4cqw;font-size:17cqw}
 .poster.main .psub{font-size:3.6cqw;opacity:.75;margin-top:1.5cqw}
 .ptitle{width:100%;white-space:nowrap}
@@ -158,6 +162,7 @@ button.s:active{transform:scale(.97)}
   body[data-print=posters] .signs,body[data-print=signs] .posters{display:none!important}
   .poster-wrap{max-width:none;width:194mm;margin:0 auto;break-after:page;page-break-after:always}
   .poster-wrap:last-child{break-after:auto;page-break-after:auto}
+  .cat-posters{break-before:page;page-break-before:always}
   body{background:#fff!important;color:#000}
   .top,.no-print{display:none!important}
   main{max-width:none;padding:0}
@@ -746,7 +751,7 @@ function organizer() {
       </div>
       <div class="signs">
       <h2 class="no-print" style="page-break-before:auto">🏷️ ${t("signs")}</h2>
-      ${MISSIONS.map(m => `
+      ${MISSIONS.map(m => m.id === "katterna" ? catPosters(m, base) : `
         <h2>${m.emoji} ${m.title.sv} / ${m.title.en}</h2>
         <div class="qr-grid">
           ${m.items.map(it => card(base + "#/q/" + it.code, itemEmoji(m, it),
@@ -811,6 +816,24 @@ function posters(base) {
       ${qr(base + "#/m/" + m.id, "Skanna för berättelsen · Scan for the story")}
     </div></div>`).join("");
   return main + missions;
+}
+
+/* Each cat gets a full A4 page, since the sign IS the cat */
+function catPosters(m, base) {
+  return `<h2 class="no-print">${m.emoji} ${m.title.sv} / ${m.title.en}</h2>
+    <div class="cat-posters">${m.items.map(it => `
+      <div class="poster-wrap"><div class="poster mission cat" style="--c:${m.color}">
+        <span class="pdeco" style="top:3cqw;left:4cqw">🌙</span>
+        <span class="pdeco" style="top:5cqw;right:5cqw">🧹</span>
+        <span class="pdeco" style="bottom:4cqw;left:5cqw">🐾</span>
+        <span class="pdeco" style="bottom:4cqw;right:5cqw;transform:scaleX(-1)">🐾</span>
+        <p class="pkick">${m.title.sv} · ${m.title.en}</p>
+        <div class="pbig">${m.emoji}</div>
+        <h1 class="ptitle">${it.name}</h1>
+        <p class="ptext">Jag har rymt från Häxan Hilda! Skanna mig så hittar jag hem.<br><i>I ran away from Hilda the Witch! Scan me so I can find my way home.</i></p>
+        <div class="pqr"><div class="qr" data-qr="${base}#/q/${it.code}"></div><b>Skanna mig! · Scan me!</b></div>
+      </div></div>`).join("")}
+    </div>`;
 }
 
 /* ---------- Modal ---------- */
