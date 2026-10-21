@@ -154,9 +154,11 @@ button.s:active{transform:scale(.97)}
 .pqr .qr img,.pqr .qr canvas{width:100%!important;height:auto!important}
 .pqr b{display:block;font-size:2.9cqw;margin-top:1.5cqw;line-height:1.2}
 .pdeco{position:absolute!important;font-size:7cqw;opacity:.85}
+.pcat{width:37cqw;margin-top:1cqw}
+.pcat svg{display:block;width:100%;height:auto;filter:drop-shadow(0 0 2.5cqw rgba(192,139,255,.55))}
 .poster.cat .pbig{font-size:31cqw;margin-top:1cqw}
-.poster.cat .ptitle{font-size:15cqw}
-.poster.cat .pqr{width:44cqw;margin-bottom:2cqw}
+.poster.cat .ptitle{font-size:13cqw;margin-top:0}
+.poster.cat .pqr{width:41cqw;margin-bottom:2cqw}
 .poster.cat .pqr b{font-size:3.2cqw;white-space:nowrap}
 .poster.main .ptitle{margin-top:4cqw;font-size:17cqw}
 .poster.main .psub{font-size:3.6cqw;opacity:.75;margin-top:1.5cqw}
@@ -955,6 +957,62 @@ function posters(base) {
   return main + missions;
 }
 
+/* ---------- Cat illustrations ---------- */
+const INK = "#160d22";
+const CAT_ART = {
+  Sotis:  { fur: "#26232e", ear: "#5a3a4a", eyes: "#b8f05a", whisk: "#d8d0e0",
+            extra: `<circle cx="160" cy="40" r="3" fill="#b8f05a" opacity=".7"/><circle cx="40" cy="30" r="2" fill="#b8f05a" opacity=".6"/>` },
+  Morris: { fur: "#2a2a32", belly: "#f4f0ea", muzzle: "#f4f0ea", paws: "#f4f0ea", ear: "#5a3a4a", eyes: "#f2b33d", whisk: "#d8d0e0",
+            extra: `<g stroke="${INK}" stroke-width="3" stroke-linejoin="round"><path d="M100 136 L80 125 L80 147 Z M100 136 L120 125 L120 147 Z" fill="#d8343f"/><circle cx="100" cy="136" r="5" fill="#a8222c"/></g>` },
+  Pumpa:  { fur: "#f39a3c", belly: "#ffe0b8", muzzle: "#ffe0b8", ear: "#f7b9a8", eyes: "#5fbf5a", whisk: "#6a3d14",
+            extra: `<path d="M62 126 Q100 144 138 126" stroke="#2f7a3a" stroke-width="8" fill="none" stroke-linecap="round"/><g stroke="${INK}" stroke-width="2.5"><ellipse cx="100" cy="146" rx="10" ry="8" fill="#ff7a1a"/><path d="M100 138 L102 132" stroke="#2f7a3a" stroke-width="3"/></g>` },
+  Nisse:  { fur: "#8d7c6c", belly: "#f1ece4", muzzle: "#f1ece4", ear: "#e9a9b4", eyes: "#6ec3ff", whisk: "#3a2e24",
+            extra: `<g stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"><path d="M56 56 C 72 18, 112 -2, 154 10 C 138 22, 132 38, 144 56 Z" fill="#d8343f"/><rect x="50" y="46" width="100" height="16" rx="8" fill="#fff"/><circle cx="156" cy="12" r="10" fill="#fff"/></g>` },
+  Luna:   { fur: "#b9bfd0", belly: "#f4f6fb", muzzle: "#f4f6fb", ear: "#f2b7c6", eyes: "#4aa8f0", whisk: "#4a4e60",
+            extra: `<path d="M98 50 A12 12 0 1 0 110 68 A10 10 0 1 1 98 50 Z" fill="#ffd34d" stroke="${INK}" stroke-width="2"/><g fill="#ffd34d"><circle cx="34" cy="40" r="3"/><circle cx="168" cy="54" r="2.5"/><circle cx="176" cy="30" r="2"/></g>` },
+  Smulan: { fur: "#f4efe6", belly: "#fffaf2", ear: "#f2a7b8", eyes: "#5fbf5a", whisk: "#5a4a40",
+            headMarks: `<path d="M50 84 Q52 52 84 44 Q90 70 70 98 Q56 100 50 84 Z" fill="#f0a050"/><path d="M118 44 Q146 46 153 76 Q136 82 122 64 Z" fill="#3a3030"/>`,
+            bodyMarks: `<ellipse cx="136" cy="150" rx="14" ry="22" fill="#f0a050"/><ellipse cx="66" cy="178" rx="11" ry="15" fill="#3a3030"/>`,
+            extra: `<g fill="#b97a3e" stroke="${INK}" stroke-width="1.5"><circle cx="84" cy="126" r="3"/><circle cx="116" cy="124" r="2.5"/><circle cx="108" cy="131" r="2"/><circle cx="92" cy="133" r="2.5"/></g>` },
+  Tiger:  { fur: "#e9a93a", belly: "#ffe7b8", muzzle: "#ffe7b8", ear: "#f7b9a8", eyes: "#f2d13d", whisk: "#3b2410",
+            headMarks: `<g stroke="#3b2410" stroke-width="6" fill="none" stroke-linecap="round"><path d="M100 44 L100 60 M84 47 L89 60 M116 47 L111 60 M48 82 L64 86 M48 96 L63 95 M152 82 L136 86 M152 96 L137 95"/></g>`,
+            bodyMarks: `<g stroke="#3b2410" stroke-width="7" fill="none" stroke-linecap="round"><path d="M50 145 Q62 150 72 143 M49 165 Q61 170 71 163 M52 186 Q63 190 72 184 M150 145 Q138 150 128 143 M151 165 Q139 170 129 163 M148 186 Q137 190 128 184"/></g>`,
+            tailMarks: `<g stroke="#3b2410" stroke-width="6" fill="none" stroke-linecap="round"><path d="M168 146 L180 140 M170 166 L183 166 M160 124 L170 116"/></g>` }
+};
+function catSVG(o) {
+  if (!o) return "";
+  const F = o.fur, B = o.belly;
+  return `<svg viewBox="0 0 200 232" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g stroke="${INK}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M138 196 C 188 192, 194 130, 166 108 C 158 101, 147 109, 154 118 C 172 138, 166 176, 132 180" fill="${F}"/>
+      ${o.tailMarks || ""}
+      <ellipse cx="100" cy="166" rx="52" ry="56" fill="${F}"/>
+      <g stroke-width="0">${o.bodyMarks || ""}</g>
+      ${B ? `<ellipse cx="100" cy="178" rx="27" ry="38" fill="${B}" stroke-width="0"/>` : ""}
+      <ellipse cx="80" cy="220" rx="16" ry="9" fill="${o.paws || F}"/>
+      <ellipse cx="120" cy="220" rx="16" ry="9" fill="${o.paws || F}"/>
+      <path d="M58 72 L52 18 L94 50 Z" fill="${F}"/>
+      <path d="M142 72 L148 18 L106 50 Z" fill="${F}"/>
+      <path d="M64 58 L60 32 L82 50 Z" fill="${o.ear}" stroke-width="0"/>
+      <path d="M136 58 L140 32 L118 50 Z" fill="${o.ear}" stroke-width="0"/>
+      <ellipse cx="100" cy="88" rx="55" ry="47" fill="${F}"/>
+      <g stroke-width="0">${o.headMarks || ""}</g>
+      ${o.muzzle ? `<ellipse cx="100" cy="109" rx="24" ry="16" fill="${o.muzzle}" stroke-width="0"/>` : ""}
+      <ellipse cx="100" cy="88" rx="55" ry="47" fill="none"/>
+    </g>
+    <g stroke="${INK}" stroke-width="3">
+      <ellipse cx="78" cy="84" rx="11" ry="13" fill="${o.eyes}"/>
+      <ellipse cx="122" cy="84" rx="11" ry="13" fill="${o.eyes}"/>
+    </g>
+    <ellipse cx="78" cy="85" rx="3.5" ry="9" fill="#111"/><ellipse cx="122" cy="85" rx="3.5" ry="9" fill="#111"/>
+    <circle cx="82" cy="79" r="3" fill="#fff"/><circle cx="126" cy="79" r="3" fill="#fff"/>
+    <path d="M94 100 L106 100 L100 107 Z" fill="#f28ca0" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M100 107 Q100 115 92 115 M100 107 Q100 115 108 115" fill="none" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/>
+    <g stroke="${o.whisk}" stroke-width="2" stroke-linecap="round"><path d="M72 104 L38 97 M72 110 L36 113 M128 104 L162 97 M128 110 L164 113"/></g>
+    ${o.extra || ""}
+  </svg>`;
+}
+
 /* Each cat gets a full A4 page, since the sign IS the cat */
 function catPosters(m, base) {
   return `<h2 class="no-print">${m.emoji} ${m.title.sv} / ${m.title.en}</h2>
@@ -965,9 +1023,9 @@ function catPosters(m, base) {
         <span class="pdeco" style="bottom:4cqw;left:5cqw">🐾</span>
         <span class="pdeco" style="bottom:4cqw;right:5cqw;transform:scaleX(-1)">🐾</span>
         <p class="pkick">${m.title.sv} · ${m.title.en}</p>
-        <div class="pbig">${m.emoji}</div>
+        <div class="pcat">${catSVG(CAT_ART[it.name]) || `<div class="pbig">${m.emoji}</div>`}</div>
         <h1 class="ptitle">${it.name}</h1>
-        <p class="ptext">Jag har rymt från Häxan Hilda! Skanna mig så hittar jag hem.<br><i>I ran away from Hilda the Witch! Scan me so I can find my way home.</i></p>
+        <p class="ptext">Jag har rymt! Skanna mig så hittar jag hem.<br><i>I ran away! Scan me so I can find my way home.</i></p>
         <div class="pqr"><div class="qr" data-qr="${base}#/q/${it.code}"></div><b>Skanna mig! · Scan me!</b></div>
       </div></div>`).join("")}
     </div>`;
