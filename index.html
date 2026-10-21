@@ -145,7 +145,8 @@ button.s:active{transform:scale(.97)}
 .pqr .qr img,.pqr .qr canvas{width:100%!important;height:auto!important}
 .pqr b{display:block;font-size:2.9cqw;margin-top:1.5cqw;line-height:1.2}
 .pdeco{position:absolute!important;font-size:7cqw;opacity:.85}
-.poster.main .ptitle{margin-top:4cqw}
+.poster.main .ptitle{margin-top:4cqw;font-size:17cqw}
+.poster.main .psub{font-size:3.6cqw;opacity:.75;margin-top:1.5cqw}
 .ptitle{width:100%;white-space:nowrap}
 .poster.main .ptext{font-size:3.4cqw}
 .poster.main .pmissions{margin-top:3cqw}
@@ -787,7 +788,7 @@ function posters(base) {
     <div class="poster-wrap"><div class="poster main" style="--c:var(--orange)">
       ${deco("🦇", "", "🎃", "🕸️")}
       <div class="pmoon"></div>
-      <p class="pkick">${both(EVENT.date)}</p>
+      <p class="pkick">${EVENT.date.sv}</p>
       <h1 class="ptitle">Halloweenjakten</h1>
       <p class="psub">The Halloween Hunt</p>
       <p class="ptext">Tre uppdrag i kvarteret – leta, skanna, vinn!<br><i>Three missions in the neighbourhood – search, scan, win!</i></p>
