@@ -122,6 +122,7 @@ button.s:active{transform:scale(.97)}
 .house{display:flex;gap:10px;align-items:flex-start;text-align:left}
 .dot{flex:0 0 12px;height:12px;border-radius:50%;margin-top:6px;background:var(--green);box-shadow:0 0 10px var(--green)}
 .house.off{opacity:.45}.house.off .dot{background:#777;box-shadow:none}
+.house.out .dot{background:var(--red)}
 .house small{display:block;color:var(--muted)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:16px;z-index:50}
 .modal .card{max-width:420px;width:100%;margin:0;text-align:center}
@@ -380,6 +381,7 @@ const T = {
     loadingHouses: "Hämtar belöningshus…",
     housesError: "Kunde inte hämta listan med belöningshus just nu.",
     closed: "stängt",
+    outLabel: "slut på belöningar",
     start: "Starta uppdraget",
     yourMission: "Ert uppdrag",
     seeAll: "Se alla uppdrag",
@@ -468,6 +470,7 @@ const T = {
     loadingHouses: "Loading reward houses…",
     housesError: "Couldn't load the reward house list right now.",
     closed: "closed",
+    outLabel: "out of rewards",
     start: "Start mission",
     yourMission: "Your mission",
     seeAll: "See all missions",
@@ -829,14 +832,20 @@ function parseCSV(text) {
   if (cell || row.length) { row.push(cell); rows.push(row); }
   return rows;
 }
-const isYes = v => /^(true|ja|yes|x|1|öppet|open|sant)$/i.test((v || "").trim());
+// Column B: "Öppet", "Slut" or "Stängt" (old checkboxes TRUE/FALSE also work)
+function houseStatus(v) {
+  v = (v || "").trim().toLowerCase();
+  if (/^(öppet|öppen|open|true|ja|yes|x|1|sant)$/.test(v)) return "open";
+  if (/^(slut|slutsåld|slut på belöningar|out|sold out)$/.test(v)) return "out";
+  return "closed";
+}
 async function loadHouses() {
   if (!EVENT.sheetUrl) return;
   try {
     const res = await fetch(sheetCsvUrl(EVENT.sheetUrl), { cache: "no-store" });
     if (!res.ok) throw new Error(res.status);
     HOUSES = parseCSV(await res.text()).slice(1)
-      .map(r => ({ name: (r[0] || "").trim(), open: isYes(r[1]), note: (r[2] || "").trim() }))
+      .map(r => ({ name: (r[0] || "").trim(), status: houseStatus(r[1]), note: (r[2] || "").trim() }))
       .filter(h => h.name);
   } catch (e) { if (HOUSES === null) HOUSES = "error"; }
   document.querySelectorAll("[data-houses]").forEach(el => el.innerHTML = housesHTML());
@@ -847,11 +856,12 @@ function housesHTML() {
   }
   if (HOUSES === null) return `<p class="muted">${t("loadingHouses")}</p>`;
   if (HOUSES === "error") return `<p class="muted">${t("housesError")}</p>`;
-  const open = HOUSES.filter(h => h.open), closed = HOUSES.filter(h => !h.open);
-  const li = h => `<li class="house${h.open ? "" : " off"}"><span class="dot"></span><span>${esc(h.name)}${h.open ? "" : ` (${t("closed")})`}${h.note ? `<small>${esc(h.note)}</small>` : ""}</span></li>`;
+  const by = st => HOUSES.filter(h => h.status === st);
+  const label = { open: "", out: ` (${t("outLabel")})`, closed: ` (${t("closed")})` };
+  const li = h => `<li class="house ${h.status === "open" ? "" : "off " + h.status}"><span class="dot"></span><span>${esc(h.name)}${label[h.status]}${h.note ? `<small>${esc(h.note)}</small>` : ""}</span></li>`;
   return `<p class="muted">${t("openNow")}</p>
-    ${open.length ? "" : `<p>${t("noneOpen")}</p>`}
-    <ul class="times">${open.map(li).join("")}${closed.map(li).join("")}</ul>`;
+    ${by("open").length ? "" : `<p>${t("noneOpen")}</p>`}
+    <ul class="times">${by("open").map(li).join("")}${by("out").map(li).join("")}${by("closed").map(li).join("")}</ul>`;
 }
 const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 loadHouses();
