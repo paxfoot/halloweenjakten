@@ -144,7 +144,6 @@ button.s:active{transform:scale(.97)}
 .qr-card .scan{font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:13px;color:#a54d00}
 .qr-card small{color:#555;display:block}
 .qr-card.start{border:4px solid #ff8a1f}
-.qr-card.m-katterna .em{font-size:120px;line-height:1.05;margin:4px 0}
 .sign-addr{display:block;margin-top:4px;font-size:15px}
 .test{display:block;margin-top:6px;font-size:13px;color:#6b3fa0}
 .warn{background:#ffe08a;color:#3a2a00;border-radius:12px;padding:12px;margin:12px 0}
@@ -175,10 +174,22 @@ button.s:active{transform:scale(.97)}
 .pdeco{position:absolute!important;font-size:7cqw;opacity:.85}
 .pcat{width:37cqw;margin-top:1cqw}
 .pcat svg{display:block;width:100%;height:auto;filter:drop-shadow(0 0 2.5cqw rgba(192,139,255,.55))}
-.poster.cat .pbig{font-size:31cqw;margin-top:1cqw}
-.poster.cat .ptitle{font-size:13cqw;margin-top:0}
-.poster.cat .pqr{width:41cqw;margin-bottom:2cqw}
-.poster.cat .pqr b{font-size:3.2cqw;white-space:nowrap}
+.poster.sign .pbig{font-size:30cqw;margin-top:2cqw;filter:drop-shadow(0 0 3cqw var(--c))}
+.poster.sign .ptitle{font-size:13cqw;margin-top:1cqw}
+.poster.sign .psub{font-size:4cqw;margin-top:.5cqw;opacity:.8}
+.poster.sign .pinfo{font-size:3.4cqw;opacity:.85;margin-top:1.5cqw}
+.poster.sign .pqr{width:41cqw;margin-bottom:2cqw}
+.poster.sign .pqr b{font-size:3.2cqw;white-space:nowrap}
+.sign-set{margin:6px 0 34px}
+.sign-set h2{margin-top:10px}
+.sizebar{display:flex;gap:6px;align-items:center;margin:4px 0 16px}
+.sizebar span{color:var(--muted);margin-right:4px}
+.sizebar button{font:inherit;font-weight:600;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.sizebar button.on{background:var(--orange);color:#2a1200;border-color:var(--orange)}
+.org[data-size=big] .small-signs,.org[data-size=small] .big-signs{display:none}
+.qr-card .cat-mini{width:110px;margin:2px auto 0}
+.qr-card .cat-mini svg{display:block;width:100%;height:auto}
+.qr-card .em{font-size:56px}
 .poster.main .ptitle{margin-top:4cqw;font-size:17cqw}
 .poster.main .psub{font-size:3.6cqw;opacity:.75;margin-top:1.5cqw}
 .ptitle{width:100%;white-space:nowrap}
@@ -190,16 +201,20 @@ button.s:active{transform:scale(.97)}
 @page{size:A4;margin:8mm}
 @media print{
   body[data-print=posters] .signs,body[data-print=signs] .posters{display:none!important}
+  body[data-print=signs] .sign-set:not(.print-on),
+  body[data-print=signs] .big-signs:not(.print-on),
+  body[data-print=signs] .small-signs:not(.print-on){display:none!important}
+  body[data-print=signs] .big-signs.print-on{display:block!important}
+  body[data-print=signs] .small-signs.print-on{display:grid!important}
+  .sign-set{margin:0}
   .poster-wrap{max-width:none;width:194mm;margin:0 auto;break-after:page;page-break-after:always}
   .poster-wrap:last-child{break-after:auto;page-break-after:auto}
-  .cat-posters{break-before:page;page-break-before:always}
   body{background:#fff!important;color:#000}
   .top,.no-print{display:none!important}
   main{max-width:none;padding:0}
   .qr-grid{grid-template-columns:repeat(2,1fr);gap:8mm}
   .qr-card{border:2px dashed #999;page-break-inside:avoid}
-  .signs h2{color:#000;page-break-before:always}
-  .signs h2:first-of-type{page-break-before:auto}
+  .signs h2{display:none}
 }
 </style>
 </head>
@@ -261,6 +276,7 @@ const MISSIONS = [
       en: "Five mysterious ghosts have moved in on Solbackavägen. Scan them with your Ghostometer 3000 and discover their secrets!"
     },
     foundVerb: { sv: "Spöke analyserat!", en: "Ghost analysed!" },
+    signText: { sv: "Skanna mig med Spökometern!", en: "Scan me with your Ghostometer!" },
     items: [
       { code: "q7fk2m", where: "Solbackavägen 22F", name: "Berit",  line: { sv: "Buuu! …Oj, blev jag skannad nu?", en: "Boooo! …Oops, did I just get scanned?" },
         profile: { age: { sv: "312 år", en: "312 years" }, type: { sv: "Klassiskt lakansspöke", en: "Classic bedsheet ghost" }, likes: { sv: "Att säga BUU till brevbäraren", en: "Saying BOO to the postman" }, power: { sv: "Går genom väggar (men fastnar i dörrar)", en: "Walks through walls (but gets stuck in doors)" }, scare: 2 } },
@@ -293,6 +309,7 @@ const MISSIONS = [
       en: "Hilda the Witch is beside herself! She sneezed in the middle of a spell and – poof! – all seven of her cats ran away. Now they're hiding along the street. Help Hilda find them before midnight! Scan the QR code by each cat."
     },
     foundVerb: { sv: "Katt hittad!", en: "Cat found!" },
+    signText: { sv: "Jag har rymt! Skanna mig så hittar jag hem.", en: "I ran away! Scan me so I can find my way home." },
     items: [
       { code: "k4ws7n", name: "Sotis",  line: { sv: "Mjau! Jag var inte borta, jag var på äventyr.", en: "Meow! I wasn't lost, I was on an adventure." } },
       { code: "h9cq3r", name: "Morris", line: { sv: "Säg inget till Hilda, men jag åt upp hennes fladdermusmuffins.", en: "Don't tell Hilda, but I ate her bat muffins." } },
@@ -322,6 +339,7 @@ const MISSIONS = [
       en: "Alarm in the woods! The neighbourhood's giant candy bowl – filled to the brim for Halloween – is gone. Someone has stolen it! Four suspects were in the woods tonight. As detectives, you need to find all five clues, read them carefully and work out who the thief is."
     },
     foundVerb: { sv: "Bevis säkrat!", en: "Clue collected!" },
+    signText: { sv: "Bevis! Skanna för att undersöka.", en: "Evidence! Scan to investigate." },
     items: [
       { code: "c5mz8w", emoji: "👣", name: { sv: "Fotspår", en: "Footprints" },
         line: { sv: "Avtryck i leran – av fötter, inte tassar. Tjuven går på två ben.", en: "Prints in the mud – of feet, not paws. The thief walks on two legs." } },
@@ -429,7 +447,12 @@ const T = {
     orgIntro: "Här är alla QR-koder. Skriv ut sidan och sätt upp varje lapp vid rätt spöke, katt eller bevis. Startlappen kan sitta där uppdraget börjar.",
     orgFileWarn: "Sidan är öppnad som en fil på datorn. Lägg upp den på nätet först – annars pekar QR-koderna fel.",
     printPosters: "Skriv ut affischer",
-    printSigns: "Skriv ut QR-lappar",
+    printBig: "Stora (1 per sida)",
+    printSmall: "Små (flera per sida)",
+    showSize: "Visa:",
+    sizeBig: "Stora",
+    sizeSmall: "Små",
+    signsIntro: "Varje uppdrag har stora lappar (en hel A4 per sak) och små lappar (flera per A4). Tryck på knappen för den storlek du vill skriva ut.",
     posters: "Affischer",
     postersIntro: "En stor affisch för hela jakten och en för varje uppdrag. Sätt upp dem där uppdragen börjar.",
     signs: "QR-lappar",
@@ -517,7 +540,12 @@ const T = {
     orgIntro: "Here are all the QR codes. Print this page and put each sign next to the right ghost, cat or clue. The start sign can go where the mission begins.",
     orgFileWarn: "This page is opened as a file on your computer. Put it online first – otherwise the QR codes will point to the wrong place.",
     printPosters: "Print posters",
-    printSigns: "Print QR signs",
+    printBig: "Big (1 per page)",
+    printSmall: "Small (several per page)",
+    showSize: "Show:",
+    sizeBig: "Big",
+    sizeSmall: "Small",
+    signsIntro: "Each mission has big signs (a full A4 per item) and small signs (several per A4). Tap the button for the size you want to print.",
     posters: "Posters",
     postersIntro: "One big poster for the whole hunt and one for each mission. Put them up where each mission starts.",
     signs: "QR signs",
@@ -532,7 +560,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "22 okt 02:00";
+const VERSION = "22 okt 09:30";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -940,6 +968,7 @@ function scanAnimation(code, m, it) {
 }
 
 /* ---------- Organizer page (#/arrangor) ---------- */
+let ORG_SIZE = "big";
 function organizer() {
   if (!S.organizer) { S.organizer = true; save(); }
   const base = location.href.split("#")[0];
@@ -953,14 +982,13 @@ function organizer() {
       <a class="test no-print" href="${url}">${t("test")} →</a>
     </div>`;
   app.innerHTML = `
-    <div class="org">
+    <div class="org" data-size="${ORG_SIZE}">
       <a class="back no-print" href="#/">${t("back")}</a>
       <h1 class="no-print">${t("orgTitle")}</h1>
       <p class="muted no-print">${t("orgIntro")}</p>
       ${location.protocol === "file:" ? `<div class="warn no-print">⚠️ ${t("orgFileWarn")}</div>` : ""}
       <div class="row no-print" style="margin:14px 0 10px">
         <button class="btn" type="button" data-act="print" data-what="posters">🖨️ ${t("printPosters")}</button>
-        <button class="btn" type="button" data-act="print" data-what="signs">🖨️ ${t("printSigns")}</button>
       </div>
       <p class="tip no-print">${t("unlockedNote")}</p>
       <p class="muted no-print" style="font-size:13px">Version: ${VERSION}</p>
@@ -974,14 +1002,27 @@ function organizer() {
         ${posters(base)}
       </div>
       <div class="signs">
-      <h2 class="no-print" style="page-break-before:auto">🏷️ ${t("signs")}</h2>
-      ${MISSIONS.map(m => m.id === "katterna" ? catPosters(m, base) : `
-        <h2>${m.emoji} ${m.title.sv} / ${m.title.en}</h2>
-        <div class="qr-grid">
-          ${m.items.map(it => card(base + "#/q/" + it.code, itemEmoji(m, it),
-              typeof it.name === "string" ? it.name : `${it.name.sv} / ${it.name.en}`,
-              `${m.title.sv} · ${m.title.en}`, false, m.id, it.where)).join("")}
-        </div>`).join("")}
+      <h2 class="no-print">🏷️ ${t("signs")}</h2>
+      <p class="muted no-print">${t("signsIntro")}</p>
+      <div class="sizebar no-print"><span>${t("showSize")}</span>
+        <button type="button" data-act="orgSize" data-size="big" class="${ORG_SIZE === "big" ? "on" : ""}">${t("sizeBig")}</button>
+        <button type="button" data-act="orgSize" data-size="small" class="${ORG_SIZE === "small" ? "on" : ""}">${t("sizeSmall")}</button>
+      </div>
+      ${MISSIONS.map(m => `
+        <section class="sign-set" data-m="${m.id}">
+          <h2>${m.emoji} ${m.title.sv} / ${m.title.en}</h2>
+          <div class="row no-print" style="margin-bottom:14px">
+            <button class="btn" type="button" data-act="printSigns" data-m="${m.id}" data-size="big">🖨️ ${t("printBig")}</button>
+            <button class="btn" type="button" data-act="printSigns" data-m="${m.id}" data-size="small">🖨️ ${t("printSmall")}</button>
+          </div>
+          <div class="big-signs">${bigSigns(m, base)}</div>
+          <div class="small-signs qr-grid">
+            ${m.items.map(it => card(base + "#/q/" + it.code,
+                CAT_ART[it.name] && m.id === "katterna" ? `<div class="cat-mini">${catSVG(CAT_ART[it.name])}</div>` : itemEmoji(m, it),
+                typeof it.name === "string" ? it.name : `${it.name.sv} / ${it.name.en}`,
+                `${m.title.sv} · ${m.title.en}`, false, m.id, it.where)).join("")}
+          </div>
+        </section>`).join("")}
       </div>
     </div>`;
   fitTitles();
@@ -1098,22 +1139,30 @@ function catSVG(o) {
   </svg>`;
 }
 
-/* Each cat gets a full A4 page, since the sign IS the cat */
-function catPosters(m, base) {
-  return `<h2 class="no-print">${m.emoji} ${m.title.sv} / ${m.title.en}</h2>
-    <div class="cat-posters">${m.items.map(it => `
-      <div class="poster-wrap"><div class="poster mission cat" style="--c:${m.color}">
-        <span class="pdeco" style="top:3cqw;left:4cqw">🌙</span>
-        <span class="pdeco" style="top:5cqw;right:5cqw">🧹</span>
-        <span class="pdeco" style="bottom:4cqw;left:5cqw">🐾</span>
-        <span class="pdeco" style="bottom:4cqw;right:5cqw;transform:scaleX(-1)">🐾</span>
+/* Big signs: one full A4 page per item */
+const SIGN_DECO = { spoken: ["👻", "🦇", "🎃", "👻"], katterna: ["🌙", "🧹", "🐾", "🐾"], brottet: ["🔦", "🦉", "🍂", "🍂"] };
+function bigSigns(m, base) {
+  const d = SIGN_DECO[m.id] || ["🦇", "🦇", "🎃", "🎃"];
+  return m.items.map(it => {
+    const name = typeof it.name === "string" ? { sv: it.name, en: it.name } : it.name;
+    const art = m.id === "katterna" && CAT_ART[it.name]
+      ? `<div class="pcat">${catSVG(CAT_ART[it.name])}</div>`
+      : `<div class="pbig">${itemEmoji(m, it)}</div>`;
+    return `
+      <div class="poster-wrap"><div class="poster mission sign" style="--c:${m.color}">
+        <span class="pdeco" style="top:3cqw;left:4cqw">${d[0]}</span>
+        <span class="pdeco" style="top:5cqw;right:5cqw">${d[1]}</span>
+        <span class="pdeco" style="bottom:4cqw;left:5cqw">${d[2]}</span>
+        <span class="pdeco" style="bottom:4cqw;right:5cqw;transform:scaleX(-1)">${d[3]}</span>
         <p class="pkick">${m.title.sv} · ${m.title.en}</p>
-        <div class="pcat">${catSVG(CAT_ART[it.name]) || `<div class="pbig">${m.emoji}</div>`}</div>
-        <h1 class="ptitle">${it.name}</h1>
-        <p class="ptext">Jag har rymt! Skanna mig så hittar jag hem.<br><i>I ran away! Scan me so I can find my way home.</i></p>
+        ${art}
+        <h1 class="ptitle">${name.sv}</h1>
+        ${name.en !== name.sv ? `<p class="psub">${name.en}</p>` : ""}
+        <p class="ptext">${m.signText.sv}<br><i>${m.signText.en}</i></p>
+        ${it.where ? `<p class="pinfo">📍 ${it.where}</p>` : ""}
         <div class="pqr"><div class="qr" data-qr="${base}#/q/${it.code}"></div><b>Skanna mig! · Scan me!</b></div>
-      </div></div>`).join("")}
-    </div>`;
+      </div></div>`;
+  }).join("");
 }
 
 /* ---------- Modal ---------- */
@@ -1141,6 +1190,19 @@ document.addEventListener("click", e => {
   if (act === "confirmClaim") { S.claimed[el.dataset.m] = Date.now(); save(); closeModal(); render(); window.scrollTo(0, 0); }
   if (act === "closeModal") closeModal();
   if (act === "closeAndRender") { closeModal(); render(); window.scrollTo(0, 0); }
+  if (act === "orgSize") {
+    ORG_SIZE = el.dataset.size;
+    document.querySelector(".org").dataset.size = ORG_SIZE;
+    document.querySelectorAll("[data-act=orgSize]").forEach(b => b.classList.toggle("on", b.dataset.size === ORG_SIZE));
+  }
+  if (act === "printSigns") {
+    document.querySelectorAll(".print-on").forEach(x => x.classList.remove("print-on"));
+    const set = document.querySelector(`.sign-set[data-m="${el.dataset.m}"]`);
+    set.classList.add("print-on");
+    set.querySelector(el.dataset.size === "big" ? ".big-signs" : ".small-signs").classList.add("print-on");
+    document.body.dataset.print = "signs";
+    window.print();
+  }
   if (act === "lockPreview") { S.organizer = false; save(); go("#/"); }
   if (act === "print") { document.body.dataset.print = el.dataset.what || ""; window.print(); }
   if (act === "reset") { if (confirm(t("resetConfirm"))) { S = fresh(S.lang, S.organizer); save(); alert(t("resetDone")); } }
