@@ -560,7 +560,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "22 okt 09:30";
+const VERSION = "22 okt 09:40";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1159,7 +1159,6 @@ function bigSigns(m, base) {
         <h1 class="ptitle">${name.sv}</h1>
         ${name.en !== name.sv ? `<p class="psub">${name.en}</p>` : ""}
         <p class="ptext">${m.signText.sv}<br><i>${m.signText.en}</i></p>
-        ${it.where ? `<p class="pinfo">📍 ${it.where}</p>` : ""}
         <div class="pqr"><div class="qr" data-qr="${base}#/q/${it.code}"></div><b>Skanna mig! · Scan me!</b></div>
       </div></div>`;
   }).join("");
