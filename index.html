@@ -628,9 +628,9 @@ const T = {
     steps: ["Pick a mission and read the story.", "Find the QR codes and scan them with your phone's camera.", "All done? Show the screen at a reward house and get your reward!"],
     samePhone: "Use the same phone the whole time – the phone is what remembers what you've found.",
     missions: "Missions",
-    rewards: "Rewards",
-    rewardTimes: "Collect your rewards:",
-    rewardHouses: "Reward houses:",
+    prizes: "Rewards",
+    prizeTimes: "Collect your rewards:",
+    prizeHouses: "Reward houses:",
     openNow: "Reward houses open right now:",
     noneOpen: "No reward houses are open right now. Check again in a little while!",
     loadingHouses: "Loading reward houses…",
@@ -654,7 +654,7 @@ const T = {
     toMission: "Go to mission",
     alreadyFound: "You already found this one!",
     allFound: "You found them all!",
-    seeReward: "See your reward",
+    seePrize: "See your reward",
     solveCase: "Solve the case!",
     clue: "Clue",
     questionOf: (n, t) => `Question ${n} of ${t}`,
@@ -709,7 +709,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "23 okt 22:05";
+const VERSION = "23 okt 22:15";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
