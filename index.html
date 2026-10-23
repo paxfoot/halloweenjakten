@@ -103,6 +103,29 @@ button.s:active{transform:scale(.97)}
 .profile dt{color:var(--muted);font-size:15px}
 .profile dd{margin:0;font-weight:600}
 .scare span{opacity:.25}.scare span.on{opacity:1}
+.quiz{text-align:center;padding-top:10px}
+.quiz .teacher{font-size:64px;line-height:1;margin:8px 0 4px;animation:float 3s ease-in-out infinite}
+.quiz h1{font-size:30px;margin:6px 0 10px}
+.qvisual{margin:6px auto 14px}
+.qsum,.qrow{font-size:40px;line-height:1.3;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 8px}
+.qsum{font-size:30px;white-space:nowrap}
+.qsum b{color:var(--c);font-size:36px;margin:0 2px}
+.qmark{display:inline-block;width:46px;height:46px;line-height:46px;border-radius:12px;border:3px dashed var(--c);color:var(--c);font-weight:700;font-size:30px;vertical-align:middle}
+.qmonster svg{width:190px;height:auto}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+.choices.n4{grid-template-columns:1fr 1fr}
+.choice{font:inherit;color:var(--ink);background:var(--card2);border:3px solid var(--c);border-radius:20px;padding:16px 6px 12px;cursor:pointer;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:transform .15s}
+.choice:active{transform:scale(.95)}
+.choice .cem{font-size:54px;line-height:1}
+.choice .cbig{font-size:56px;font-weight:700;line-height:1;color:var(--c)}
+.choice .clabel{font-size:16px;font-weight:600}
+.choice.wrong{opacity:.35;border-color:var(--line);pointer-events:none;animation:shake .4s}
+.choice.right{background:var(--green);border-color:var(--green);color:#0d2a12;transform:scale(1.06)}
+.choice.right .cbig{color:#0d2a12}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.oops{font-size:22px;font-weight:700;margin-top:16px;color:var(--orange2)}
+.diploma{background:#fff8e6;color:#3a2a10;border:6px double #c9a24a;border-radius:16px;padding:14px 16px;margin:14px 0}
+.diploma span{display:block;font-family:'Creepster',cursive;font-size:30px;color:#8a5a00}
 .item-name{font-size:26px;color:var(--c)}
 .speech{background:#fff;color:#2a1b3d;border-radius:16px;padding:14px 16px;margin:14px auto;max-width:420px;font-size:18px;text-align:left}
 .speech .lbl{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#8a5a00;font-weight:700;margin-bottom:2px}
@@ -195,9 +218,14 @@ button.s:active{transform:scale(.97)}
 .ptitle{width:100%;white-space:nowrap}
 .poster.main .ptext{font-size:3.4cqw}
 .poster.main .pmissions{margin-top:3cqw}
-.poster.main .pmissions div{padding:2cqw 1cqw}
-.poster.main .pmissions b{font-size:3.1cqw}
-.poster.main .pqr{width:36cqw}
+.poster.main .pmissions{display:grid;grid-template-columns:1fr 1fr;gap:2.4cqw}
+.poster.main .pmissions div{display:flex;align-items:center;gap:2cqw;padding:1.8cqw 2.4cqw;text-align:left}
+.poster.main .pmissions span{font-size:7cqw}
+.poster.main .pmissions b{font-size:3.3cqw;white-space:nowrap}
+.poster.main .pmissions small{font-size:2.6cqw;white-space:nowrap}
+.poster.main .ptext{margin-top:1.5cqw}
+.poster.main .pinfo{margin-top:2cqw}
+.poster.main .pqr{width:33cqw;margin-bottom:1cqw}
 @page{size:A4;margin:8mm}
 @media print{
   body[data-print=posters] .signs,body[data-print=signs] .posters{display:none!important}
@@ -363,6 +391,73 @@ const MISSIONS = [
       sv: "Rätt! Det var Mumien Mona! Hon hade sovit i 3000 år och missat varenda Halloween – hon ville bara smaka godis för en gångs skull. Hon lovar att lämna tillbaka skålen (nästan full).",
       en: "Correct! It was Mona the Mummy! She had slept for 3,000 years and missed every single Halloween – she just wanted to taste candy for once. She promises to give the bowl back (almost full)."
     }
+  },
+  {
+    id: "skolan",
+    story: {
+      sv: ["Buuu! Välkomna till min klass! Jag är Spökläraren, och jag har undervisat på den här skolan i över hundra år.",
+           "Men på hundra år har jag inte haft en enda elev! Alla blev så rädda när jag svävade in i klassrummet…",
+           "Nu har jag gömt 5 frågor runt om i skolmuseet. Hitta dem, skanna dem och svara rätt – då blir ni elever i Spökskolan och får en belöning!"],
+      en: ["Boooo! Welcome to my class! I am the Ghost Teacher, and I have taught at this school for over a hundred years.",
+           "But in a hundred years I haven't had a single pupil! Everyone got so scared when I floated into the classroom…",
+           "Now I have hidden 5 questions around the school museum. Find them, scan them and answer correctly – then you'll be pupils of the Ghost School and get a reward!"]
+    },
+    goal: { sv: "Hitta och svara på Spöklärarens 5 frågor i skolmuseet.", en: "Find and answer the Ghost Teacher's 5 questions in the school museum." },
+    emoji: "🎓", color: "#5fd4c4",
+    where: { sv: "Skolmuseet", en: "The school museum" },
+    title:   { sv: "Spökläraren", en: "The Ghost Teacher" },
+    tagline: { sv: "Svara på 5 frågor i skolmuseet", en: "Answer 5 questions at the school museum" },
+    intro: {
+      sv: "Spökläraren har gömt 5 frågor i skolmuseet. Hitta dem och svara rätt!",
+      en: "The Ghost Teacher has hidden 5 questions in the school museum. Find them and answer correctly!"
+    },
+    foundVerb: { sv: "Rätt svar!", en: "Correct!" },
+    signText: { sv: "Spökläraren har en fråga! Skanna mig.", en: "The Ghost Teacher has a question! Scan me." },
+    completeText: { sv: "Ni är nu officiella elever i Spökskolan!", en: "You are now official pupils of the Ghost School!" },
+    items: [
+      { code: "g4tm2q", emoji: "🎃", name: { sv: "Fråga 1", en: "Question 1" },
+        quiz: {
+          q: { sv: "Hur många pumpor blir det?", en: "How many pumpkins is that?" },
+          visual: `<div class="qsum">🎃🎃 <b>+</b> 🎃🎃🎃 <b>=</b> ❓</div>`,
+          choices: [{ big: "4" }, { big: "5" }, { big: "6" }], answer: 1
+        },
+        line: { sv: "Rätt! 2 pumpor och 3 pumpor blir 5 pumpor. Vilken räknare!", en: "Correct! 2 pumpkins and 3 pumpkins make 5 pumpkins. What a counter!" } },
+      { code: "j7ws3x", emoji: "🤔", name: { sv: "Fråga 2", en: "Question 2" },
+        quiz: {
+          q: { sv: "Vilken finns INTE på riktigt?", en: "Which one is NOT real?" },
+          choices: [
+            { em: "🦇", label: { sv: "Fladdermus", en: "Bat" } },
+            { em: "🕷️", label: { sv: "Spindel", en: "Spider" } },
+            { em: "🎃", label: { sv: "Pumpa", en: "Pumpkin" } },
+            { em: "🧛", label: { sv: "Vampyr", en: "Vampire" } }
+          ], answer: 3
+        },
+        line: { sv: "Rätt! Vampyrer finns bara i sagor. Fladdermöss, spindlar och pumpor finns på riktigt!", en: "Correct! Vampires only live in stories. Bats, spiders and pumpkins are real!" } },
+      { code: "u2kd8n", emoji: "🧩", name: { sv: "Fråga 3", en: "Question 3" },
+        quiz: {
+          q: { sv: "Vad kommer sedan?", en: "What comes next?" },
+          visual: `<div class="qrow">🎃 👻 🎃 👻 🎃 <span class="qmark">?</span></div>`,
+          choices: [{ em: "🎃" }, { em: "👻" }, { em: "🦇" }], answer: 1
+        },
+        line: { sv: "Rätt! Pumpa, spöke, pumpa, spöke, pumpa… och sedan ett spöke! Precis som jag. Buuu!", en: "Correct! Pumpkin, ghost, pumpkin, ghost, pumpkin… and then a ghost! Just like me. Boooo!" } },
+      { code: "v9fp4h", emoji: "👀", name: { sv: "Fråga 4", en: "Question 4" },
+        quiz: {
+          q: { sv: "Hur många ögon har monstret?", en: "How many eyes does the monster have?" },
+          visual: "MONSTER",
+          choices: [{ big: "1" }, { big: "2" }, { big: "3" }], answer: 2
+        },
+        line: { sv: "Rätt! Monstret Mollie har 3 ögon – ett extra för att se i mörkret!", en: "Correct! Mollie the Monster has 3 eyes – an extra one for seeing in the dark!" } },
+      { code: "a6rc7z", emoji: "🔊", name: { sv: "Fråga 5", en: "Question 5" },
+        quiz: {
+          q: { sv: "Vem säger ”Hu-hu”?", en: "Who says “Hoo-hoo”?" },
+          choices: [
+            { em: "🐈‍⬛", label: { sv: "Katt", en: "Cat" } },
+            { em: "🦉", label: { sv: "Uggla", en: "Owl" } },
+            { em: "🦇", label: { sv: "Fladdermus", en: "Bat" } }
+          ], answer: 1
+        },
+        line: { sv: "Rätt! Ugglan säger hu-hu. Katten säger mjau, och fladdermusen säger… ingenting alls!", en: "Correct! The owl says hoo-hoo. The cat says meow, and the bat says… nothing at all!" } }
+    ]
   }
 ];
 
@@ -371,7 +466,7 @@ const T = {
   sv: {
     appTitle: "Halloweenjakten",
     soon: "Kommer snart!",
-    soonText: "Lördag 31 oktober kl 14–20 vaknar spökena, katterna rymmer och ett brott begås i skogen. Ta med mobilen och kom ut och jaga!",
+    soonText: "Lördag 31 oktober kl 14–20 vaknar spökena, katterna rymmer, ett brott begås i skogen och Spökläraren väntar i skolmuseet. Ta med mobilen och kom ut och jaga!",
     countdownLabel: "Jakten börjar om",
     units: ["dagar", "tim", "min", "sek"],
     locked: "🔒 Öppnar 31 okt kl 14",
@@ -386,7 +481,7 @@ const T = {
     tooEarlyText: "Du hittade en hemlig kod! Men den vaknar inte förrän lördag 31 oktober kl 14. Kom tillbaka då!",
     previewLocked: "Visa ”Kommer snart”-sidan",
     unlockedNote: "🔓 Den här mobilen är upplåst så att du kan testa innan jakten börjar.",
-    intro: "Tre spännande uppdrag väntar i kvarteret! Välj ett uppdrag, leta upp alla QR-koder och skanna dem med mobilen. Klarar ni ett uppdrag får ni en belöning i ett belöningshus.",
+    intro: "Fyra spännande uppdrag väntar i kvarteret! Välj ett uppdrag, leta upp alla QR-koder och skanna dem med mobilen. Klarar ni ett uppdrag får ni en belöning i ett belöningshus.",
     howTitle: "Så funkar det",
     steps: ["Välj ett uppdrag och läs berättelsen.", "Leta upp QR-koderna och skanna dem med mobilens kamera.", "Klart? Visa skärmen i ett belöningshus och hämta er belöning!"],
     samePhone: "Använd samma mobil hela tiden – det är mobilen som kommer ihåg vad ni hittat.",
@@ -420,6 +515,10 @@ const T = {
     seePrize: "Se er belöning",
     solveCase: "Lös fallet!",
     clue: "Ledtråd",
+    questionOf: (n, t) => `Fråga ${n} av ${t}`,
+    tryAgain: "Oj, försök igen! 👻",
+    alreadyAnswered: "Den här frågan har ni redan klarat!",
+    diploma: "Spökdiplom",
     analysing: "Analyserar ektoplasma",
     profileTitle: "Spökprofil",
     pAge: "Ålder", pType: "Sort", pLikes: "Gillar", pPower: "Superkraft", pScare: "Läskighet",
@@ -465,7 +564,7 @@ const T = {
   en: {
     appTitle: "The Halloween Hunt",
     soon: "Coming soon!",
-    soonText: "On Saturday 31 October, 2–8 pm, the ghosts wake up, the cats run away and a crime happens in the woods. Bring your phone and come out hunting!",
+    soonText: "On Saturday 31 October, 2–8 pm, the ghosts wake up, the cats run away, a crime happens in the woods and the Ghost Teacher waits at the school museum. Bring your phone and come out hunting!",
     countdownLabel: "The hunt starts in",
     units: ["days", "hrs", "min", "sec"],
     locked: "🔒 Opens 31 Oct at 2 pm",
@@ -480,7 +579,7 @@ const T = {
     tooEarlyText: "You found a secret code! But it won't wake up until Saturday 31 October at 2 pm. Come back then!",
     previewLocked: "Preview the “Coming soon” page",
     unlockedNote: "🔓 This phone is unlocked so you can test before the hunt starts.",
-    intro: "Three spooky missions are waiting in the neighbourhood! Pick a mission, find all the QR codes and scan them with your phone. Finish a mission and collect a reward at a reward house.",
+    intro: "Four spooky missions are waiting in the neighbourhood! Pick a mission, find all the QR codes and scan them with your phone. Finish a mission and collect a reward at a reward house.",
     howTitle: "How it works",
     steps: ["Pick a mission and read the story.", "Find the QR codes and scan them with your phone's camera.", "All done? Show the screen at a reward house and get your reward!"],
     samePhone: "Use the same phone the whole time – the phone is what remembers what you've found.",
@@ -514,6 +613,10 @@ const T = {
     seeReward: "See your reward",
     solveCase: "Solve the case!",
     clue: "Clue",
+    questionOf: (n, t) => `Question ${n} of ${t}`,
+    tryAgain: "Oops, try again! 👻",
+    alreadyAnswered: "You already answered this question!",
+    diploma: "Ghost diploma",
     analysing: "Analysing ectoplasm",
     profileTitle: "Ghost profile",
     pAge: "Age", pType: "Type", pLikes: "Likes", pPower: "Superpower", pScare: "Spookiness",
@@ -560,7 +663,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "22 okt 09:40";
+const VERSION = "23 okt 21:30";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -801,6 +904,7 @@ function claimView(m) {
       <div class="mem pulse">${m.emoji}</div>
       <h1>${t("missionComplete")}</h1>
       <h2>${L(m.title)}</h2>
+      ${m.completeText ? `<div class="diploma"><span>🎓 ${t("diploma")}</span>${L(m.completeText)}</div>` : ""}
       <div class="clock"><span>${t("timeLeft")}</span><b id="endcd"></b></div>
       <div id="endwarn"></div>
       <p>${t("showAtHouse")}</p>
@@ -909,7 +1013,9 @@ function scan(code) {
     return;
   }
   const { m, it } = hit;
-  const already = !!S.found[code];
+  if (it.quiz && !S.found[code]) { S.started[m.id] = true; save(); return quizView(code, m, it); }
+  const already = !!S.found[code] && !scan.fresh;
+  scan.fresh = false;
   if (m.scanFx && !scan.animating) return scanAnimation(code, m, it);
   scan.animating = false;
   S.found[code] = true; S.started[m.id] = true; save();
@@ -920,7 +1026,7 @@ function scan(code) {
     <section class="found-screen" style="--c:${m.color}">
       <p class="kicker">${L(m.title)}</p>
       <div class="pop">${itemEmoji(m, it)}</div>
-      <h1>${already ? t("alreadyFound") : L(m.foundVerb)}</h1>
+      <h1>${already ? t(it.quiz ? "alreadyAnswered" : "alreadyFound") : L(m.foundVerb)}</h1>
       <h2 class="item-name">${L(it.name)}</h2>
       <p class="speech">${m.suspects ? `<span class="lbl">${t("clue")}</span>` : ""}${m.suspects ? "" : "“"}${L(it.line)}${m.suspects ? "" : "”"}</p>
       ${it.profile ? `
@@ -1061,9 +1167,9 @@ function posters(base) {
       <p class="pkick">${EVENT.date.sv}</p>
       <h1 class="ptitle">Halloweenjakten</h1>
       <p class="psub">The Halloween Hunt</p>
-      <p class="ptext">Tre uppdrag i kvarteret – leta, skanna, vinn!<br><i>Three missions in the neighbourhood – search, scan, win!</i></p>
+      <p class="ptext">Fyra uppdrag i kvarteret – leta, skanna, vinn!<br><i>Four missions in the neighbourhood – search, scan, win!</i></p>
       <div class="pmissions">${MISSIONS.map(m => `
-        <div style="--c:${m.color}"><span>${m.emoji}</span><b>${m.title.sv}</b><small>${m.title.en}</small></div>`).join("")}
+        <div style="--c:${m.color}"><span>${m.emoji}</span><p style="margin:0"><b>${m.title.sv}</b><small>${m.title.en}</small></p></div>`).join("")}
       </div>
       ${EVENT.prizeTimes.length ? `<p class="pinfo">🎁 Belöningar · Rewards: ${EVENT.prizeTimes.map(x => x.sv).join(", ")}</p>` : ""}
       ${qr(base + "#/", "Skanna och börja! · Scan to start!")}
@@ -1139,6 +1245,58 @@ function catSVG(o) {
   </svg>`;
 }
 
+/* A silly three-eyed monster for the Ghost Teacher's question 4 */
+function monsterSVG() {
+  const I = "#160d22";
+  return `<svg viewBox="0 0 200 190" xmlns="http://www.w3.org/2000/svg" aria-label="monster">
+    <g stroke="${I}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M58 52 L46 16 L78 40 Z M142 52 L154 16 L122 40 Z" fill="#ffd34d"/>
+      <path d="M30 120 C 20 60, 60 30, 100 30 C 140 30, 180 60, 170 120 C 168 150, 160 170, 150 176 L 140 162 L 128 178 L 114 162 L 100 178 L 86 162 L 72 178 L 60 162 L 50 176 C 40 170, 32 150, 30 120 Z" fill="#9b6bff"/>
+      <circle cx="62" cy="82" r="17" fill="#fff"/><circle cx="100" cy="66" r="19" fill="#fff"/><circle cx="138" cy="82" r="17" fill="#fff"/>
+      <path d="M66 120 Q100 150 134 120" fill="#5a1630"/>
+      <path d="M84 128 L90 138 L96 130 M104 130 L110 138 L116 128" fill="#fff" stroke-width="3"/>
+    </g>
+    <circle cx="66" cy="85" r="7" fill="${I}"/><circle cx="96" cy="70" r="8" fill="${I}"/><circle cx="134" cy="85" r="7" fill="${I}"/>
+    <circle cx="69" cy="81" r="2.5" fill="#fff"/><circle cx="99" cy="66" r="3" fill="#fff"/><circle cx="137" cy="81" r="2.5" fill="#fff"/>
+  </svg>`;
+}
+
+/* ---------- Ghost Teacher questions ---------- */
+function quizView(code, m, it) {
+  const qz = it.quiz, idx = m.items.indexOf(it) + 1;
+  const visual = qz.visual === "MONSTER" ? `<div class="qmonster">${monsterSVG()}</div>` : (qz.visual || "");
+  app.innerHTML = `
+    <section class="quiz" style="--c:${m.color}">
+      <p class="kicker">${L(m.title)} · ${t("questionOf", idx, m.items.length)}</p>
+      <div class="teacher">👻</div>
+      <h1>${L(qz.q)}</h1>
+      ${visual ? `<div class="qvisual">${visual}</div>` : ""}
+      <div class="choices n${qz.choices.length}">
+        ${qz.choices.map((c, i) => `
+          <button class="choice" type="button" data-act="answer" data-code="${code}" data-i="${i}">
+            ${c.big ? `<span class="cbig">${c.big}</span>` : ""}${c.em ? `<span class="cem">${c.em}</span>` : ""}${c.label ? `<span class="clabel">${L(c.label)}</span>` : ""}
+          </button>`).join("")}
+      </div>
+      <div class="oops" id="quizMsg"></div>
+    </section>`;
+}
+function answer(el) {
+  const hit = findCode(el.dataset.code);
+  if (!hit) return;
+  const { it } = hit, route = ROUTE;
+  if (Number(el.dataset.i) !== it.quiz.answer) {
+    el.classList.add("wrong");
+    document.getElementById("quizMsg").textContent = t("tryAgain");
+    try { navigator.vibrate && navigator.vibrate(120); } catch (e) {}
+    return;
+  }
+  el.classList.add("right");
+  document.querySelectorAll(".choice").forEach(b => b.style.pointerEvents = "none");
+  document.getElementById("quizMsg").textContent = "";
+  S.found[el.dataset.code] = true; save();
+  setTimeout(() => { if (ROUTE === route) { scan.fresh = true; scan(el.dataset.code); } }, 700);
+}
+
 /* Big signs: one full A4 page per item */
 const SIGN_DECO = { spoken: ["👻", "🦇", "🎃", "👻"], katterna: ["🌙", "🧹", "🐾", "🐾"], brottet: ["🔦", "🦉", "🍂", "🍂"] };
 function bigSigns(m, base) {
@@ -1177,6 +1335,7 @@ document.addEventListener("click", e => {
   const act = el.dataset.act;
   if (act === "closeModal" && e.target !== el) return; // only backdrop clicks close
   if (act === "start") { S.started[el.dataset.m] = true; save(); render(); window.scrollTo(0, 0); }
+  if (act === "answer") answer(el);
   if (act === "guess") guess(el.dataset.m, el.dataset.s);
   if (act === "claim") {
     openModal(`
