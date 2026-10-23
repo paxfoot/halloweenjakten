@@ -137,6 +137,7 @@ button.s:active{transform:scale(.97)}
 .qposter .qmark{width:10cqw;height:10cqw;line-height:10cqw;font-size:6.5cqw;border-radius:2.5cqw;border-width:.6cqw}
 .qposter .qmonster svg{width:29cqw}
 .qposter .pqr{width:34cqw}
+.qposter .pinfo{font-size:3.6cqw;margin-top:2cqw}
 .poster.sign.qposter .pqr b{white-space:normal;font-size:3cqw}
 .cardq{margin-top:8px;border-top:1px dashed #bbb;padding-top:8px}
 .cardq b{display:block;font-size:18px}
@@ -415,21 +416,21 @@ const MISSIONS = [
   {
     id: "skolan",
     story: {
-      sv: ["Buuu! Välkomna till min klass! Jag är Spökläraren, och jag har undervisat på den här skolan i över hundra år.",
+      sv: ["Buuu! Välkomna till min klass! Jag är Spökläraren, och jag har undervisat i den gamla skolan i över hundra år.",
            "Men på hundra år har jag inte haft en enda elev! Alla blev så rädda när jag svävade in i klassrummet…",
-           "Nu har jag gömt 5 frågor runt om i skolmuseet. Hitta dem, skanna dem och svara rätt – då blir ni elever i Spökskolan och får en belöning!"],
-      en: ["Boooo! Welcome to my class! I am the Ghost Teacher, and I have taught at this school for over a hundred years.",
+           "Därför har jag gjort en tipsrunda längs Klasrovägen. Följ frågorna hela vägen till skolmuseet – där väntar den allra sista frågan. Svara rätt på alla 6, så blir ni elever i Spökskolan och får en belöning!"],
+      en: ["Boooo! Welcome to my class! I am the Ghost Teacher, and I have taught at the old school for over a hundred years.",
            "But in a hundred years I haven't had a single pupil! Everyone got so scared when I floated into the classroom…",
-           "Now I have hidden 5 questions around the school museum. Find them, scan them and answer correctly – then you'll be pupils of the Ghost School and get a reward!"]
+           "So I have made a quiz trail along Klasrovägen. Follow the questions all the way to the school museum – the very last question is waiting there. Answer all 6 correctly and you'll be pupils of the Ghost School and get a reward!"]
     },
-    goal: { sv: "Hitta och svara på Spöklärarens 5 frågor i skolmuseet.", en: "Find and answer the Ghost Teacher's 5 questions in the school museum." },
+    goal: { sv: "6 frågor längs Klasrovägen – den sista finns på skolmuseet.", en: "6 questions along Klasrovägen – the last one is at the school museum." },
     emoji: "🎓", color: "#5fd4c4",
-    where: { sv: "Skolmuseet", en: "The school museum" },
+    where: { sv: "Klasrovägen → Skolmuseet", en: "Klasrovägen → Skolmuseet" },
     title:   { sv: "Spökläraren", en: "The Ghost Teacher" },
-    tagline: { sv: "Svara på 5 frågor i skolmuseet", en: "Answer 5 questions at the school museum" },
+    tagline: { sv: "Tipsrunda längs Klasrovägen till skolmuseet", en: "Quiz trail along Klasrovägen to the school museum" },
     intro: {
-      sv: "Spökläraren har gömt 5 frågor i skolmuseet. Hitta dem och svara rätt!",
-      en: "The Ghost Teacher has hidden 5 questions in the school museum. Find them and answer correctly!"
+      sv: "Följ Spöklärarens tipsrunda längs Klasrovägen till skolmuseet och svara på alla 6 frågor!",
+      en: "Follow the Ghost Teacher's quiz trail along Klasrovägen to the school museum and answer all 6 questions!"
     },
     foundVerb: { sv: "Rätt svar!", en: "Correct!" },
     signText: { sv: "Spökläraren har en fråga! Skanna mig.", en: "The Ghost Teacher has a question! Scan me." },
@@ -476,7 +477,16 @@ const MISSIONS = [
             { em: "🦇", label: { sv: "Fladdermus", en: "Bat" } }
           ], answer: 1
         },
-        line: { sv: "Rätt! Ugglan säger hu-hu. Katten säger mjau, och fladdermusen säger… ingenting alls!", en: "Correct! The owl says hoo-hoo. The cat says meow, and the bat says… nothing at all!" } }
+        line: { sv: "Rätt! Ugglan säger hu-hu. Katten säger mjau, och fladdermusen säger… ingenting alls!", en: "Correct! The owl says hoo-hoo. The cat says meow, and the bat says… nothing at all!" } },
+      { code: "d3hn5w", emoji: "🏫", name: { sv: "Fråga 6", en: "Question 6" },
+        quiz: {
+          final: true,
+          q: { sv: "Hur gammal är skolan?", en: "How old is the school?" },
+          hint: { sv: "Fråga personalen!", en: "Ask the staff!" },
+          visual: `<div class="qrow">🏫 🎂 <span class="qmark">?</span></div>`,
+          choices: [{ big: "22" }, { big: "122" }, { big: "222" }], answer: 2
+        },
+        line: { sv: "Rätt! Skolan är hela 222 år gammal. Jag har bara spökat här i 100 av dem!", en: "Correct! The school is a whole 222 years old. I've only been haunting it for 100 of them!" } }
     ]
   }
 ];
@@ -538,6 +548,7 @@ const T = {
     questionOf: (n, t) => `Fråga ${n} av ${t}`,
     tryAgain: "Oj, försök igen! 👻",
     lookAtPoster: "Titta på affischen! Vilket är rätt svar?",
+    finalQuestion: "Sista frågan!",
     alreadyAnswered: "Den här frågan har ni redan klarat!",
     diploma: "Spökdiplom",
     analysing: "Analyserar ektoplasma",
@@ -637,6 +648,7 @@ const T = {
     questionOf: (n, t) => `Question ${n} of ${t}`,
     tryAgain: "Oops, try again! 👻",
     lookAtPoster: "Look at the poster! Which is the right answer?",
+    finalQuestion: "Final question!",
     alreadyAnswered: "You already answered this question!",
     diploma: "Ghost diploma",
     analysing: "Analysing ectoplasm",
@@ -685,7 +697,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "23 okt 21:40";
+const VERSION = "23 okt 21:50";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1107,7 +1119,7 @@ function organizer() {
       <div class="qr" data-qr="${url}"></div>
       <h3>${title}</h3>
       <small>${sub}</small>${where ? `<b class="sign-addr">📍 ${where}</b>` : ""}${quiz ? `
-      <div class="cardq"><b>${quiz.q.sv}</b><i>${quiz.q.en}</i>${quiz.visual ? `<div class="cardvis">${quizVisual(quiz)}</div>` : ""}</div>` : ""}
+      <div class="cardq"><b>${quiz.q.sv}</b><i>${quiz.q.en}</i>${quiz.visual ? `<div class="cardvis">${quizVisual(quiz)}</div>` : ""}${quiz.hint ? `<i>💡 ${quiz.hint.sv} · ${quiz.hint.en}</i>` : ""}</div>` : ""}
       <a class="test no-print" href="${url}">${t("test")} →</a>
     </div>`;
   app.innerHTML = `
@@ -1290,9 +1302,10 @@ function quizView(code, m, it) {
   const qz = it.quiz, idx = m.items.indexOf(it) + 1;
   app.innerHTML = `
     <section class="quiz" style="--c:${m.color}">
-      <p class="kicker">${L(m.title)} · ${t("questionOf", idx, m.items.length)}</p>
+      <p class="kicker">${L(m.title)} · ${qz.final ? t("finalQuestion") : t("questionOf", idx, m.items.length)}</p>
       <div class="teacher">👻</div>
       <h1>${t("lookAtPoster")}</h1>
+      ${qz.hint ? `<p class="tip" style="text-align:center">💡 ${L(qz.hint)}</p>` : ""}
       <div class="choices n${qz.choices.length}">
         ${qz.choices.map((c, i) => `
           <button class="choice" type="button" data-act="answer" data-code="${code}" data-i="${i}">
@@ -1331,10 +1344,11 @@ function bigSigns(m, base) {
         <span class="pdeco" style="bottom:4cqw;left:5cqw">${d[2]}</span>
         <span class="pdeco" style="bottom:4cqw;right:5cqw;transform:scaleX(-1)">${d[3]}</span>
         <p class="pkick">${m.title.sv} · ${m.title.en}</p>
-        <div class="pnum"><span>👻</span>Fråga ${idx + 1} <i>· Question ${idx + 1}</i></div>
+        <div class="pnum"><span>👻</span>${it.quiz.final ? "Sista frågan! <i>· Final question!</i>" : `Fråga ${idx + 1} <i>· Question ${idx + 1}</i>`}</div>
         <h1 class="pq">${it.quiz.q.sv}</h1>
         <p class="pqen">${it.quiz.q.en}</p>
         ${it.quiz.visual ? `<div class="pvis">${quizVisual(it.quiz)}</div>` : ""}
+        ${it.quiz.hint ? `<p class="pinfo">💡 ${it.quiz.hint.sv} <i style="font-style:normal;opacity:.75">· ${it.quiz.hint.en}</i></p>` : ""}
         <div class="pqr"><div class="qr" data-qr="${base}#/q/${it.code}"></div><b>Skanna och svara! · Scan and answer!</b></div>
       </div></div>`;
     const name = typeof it.name === "string" ? { sv: it.name, en: it.name } : it.name;
