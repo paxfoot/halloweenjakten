@@ -139,6 +139,18 @@ button.s:active{transform:scale(.97)}
 .qposter .pqr{width:34cqw}
 .qposter .pinfo{font-size:3.6cqw;margin-top:2cqw}
 .poster.sign.qposter .pqr b{white-space:normal;font-size:3cqw}
+.qpics{display:grid;gap:2.4cqw}
+.qpics.n3{grid-template-columns:repeat(3,1fr)}
+.qpics.n4{grid-template-columns:repeat(4,1fr)}
+.qpics div{background:rgba(255,255,255,.06);border:.5cqw solid var(--c);border-radius:3.5cqw;padding:2.5cqw 1cqw}
+.qpics span{display:block;font-size:11cqw;line-height:1.1}
+.qpics b{display:block;font-size:3.6cqw;margin-top:1cqw}
+.qpics i{display:block;font-style:normal;font-size:2.8cqw;color:var(--muted)}
+.cardvis .qpics{gap:6px}
+.cardvis .qpics div{border:2px solid #ccc;border-radius:10px;padding:6px 2px;background:#f3f0fa}
+.cardvis .qpics span{font-size:30px}
+.cardvis .qpics b{font-size:12px;color:#222}
+.cardvis .qpics i{font-size:10px;color:#666}
 .cardq{margin-top:8px;border-top:1px dashed #bbb;padding-top:8px}
 .cardq b{display:block;font-size:18px}
 .cardq i{display:block;font-style:normal;color:#666;font-size:13px}
@@ -697,7 +709,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "23 okt 21:50";
+const VERSION = "23 okt 22:05";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1119,7 +1131,7 @@ function organizer() {
       <div class="qr" data-qr="${url}"></div>
       <h3>${title}</h3>
       <small>${sub}</small>${where ? `<b class="sign-addr">📍 ${where}</b>` : ""}${quiz ? `
-      <div class="cardq"><b>${quiz.q.sv}</b><i>${quiz.q.en}</i>${quiz.visual ? `<div class="cardvis">${quizVisual(quiz)}</div>` : ""}${quiz.hint ? `<i>💡 ${quiz.hint.sv} · ${quiz.hint.en}</i>` : ""}</div>` : ""}
+      <div class="cardq"><b>${quiz.q.sv}</b><i>${quiz.q.en}</i>${quizVisual(quiz) ? `<div class="cardvis">${quizVisual(quiz)}</div>` : ""}${quiz.hint ? `<i>💡 ${quiz.hint.sv} · ${quiz.hint.en}</i>` : ""}</div>` : ""}
       <a class="test no-print" href="${url}">${t("test")} →</a>
     </div>`;
   app.innerHTML = `
@@ -1297,7 +1309,10 @@ function monsterSVG() {
 }
 
 /* ---------- Ghost Teacher questions ---------- */
-const quizVisual = qz => qz.visual === "MONSTER" ? `<div class="qmonster">${monsterSVG()}</div>` : (qz.visual || "");
+const quizPictures = qz => `<div class="qpics n${qz.choices.length}">${qz.choices.map(c => `<div><span>${c.em}</span><b>${c.label.sv}</b><i>${c.label.en}</i></div>`).join("")}</div>`;
+const quizVisual = qz => qz.visual === "MONSTER" ? `<div class="qmonster">${monsterSVG()}</div>`
+  : qz.visual ? qz.visual
+  : qz.choices.every(c => c.em && c.label) ? quizPictures(qz) : "";
 function quizView(code, m, it) {
   const qz = it.quiz, idx = m.items.indexOf(it) + 1;
   app.innerHTML = `
@@ -1347,7 +1362,7 @@ function bigSigns(m, base) {
         <div class="pnum"><span>👻</span>${it.quiz.final ? "Sista frågan! <i>· Final question!</i>" : `Fråga ${idx + 1} <i>· Question ${idx + 1}</i>`}</div>
         <h1 class="pq">${it.quiz.q.sv}</h1>
         <p class="pqen">${it.quiz.q.en}</p>
-        ${it.quiz.visual ? `<div class="pvis">${quizVisual(it.quiz)}</div>` : ""}
+        ${quizVisual(it.quiz) ? `<div class="pvis">${quizVisual(it.quiz)}</div>` : ""}
         ${it.quiz.hint ? `<p class="pinfo">💡 ${it.quiz.hint.sv} <i style="font-style:normal;opacity:.75">· ${it.quiz.hint.en}</i></p>` : ""}
         <div class="pqr"><div class="qr" data-qr="${base}#/q/${it.code}"></div><b>Skanna och svara! · Scan and answer!</b></div>
       </div></div>`;
