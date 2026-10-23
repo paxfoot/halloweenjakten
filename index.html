@@ -159,6 +159,9 @@ button.s:active{transform:scale(.97)}
 .cardvis .qsum b{font-size:20px}
 .cardvis .qmark{width:26px;height:26px;line-height:22px;font-size:16px;border-width:2px}
 .cardvis .qmonster svg{width:110px}
+.catart svg{display:block;height:auto}
+.pop .catart svg{width:170px;filter:drop-shadow(0 0 18px rgba(192,139,255,.55))}
+.slot .catart svg{width:74px;margin:-4px auto 2px}
 .item-name{font-size:26px;color:var(--c)}
 .speech{background:#fff;color:#2a1b3d;border-radius:16px;padding:14px 16px;margin:14px auto;max-width:420px;font-size:18px;text-align:left}
 .speech .lbl{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#8a5a00;font-weight:700;margin-bottom:2px}
@@ -709,7 +712,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "23 okt 22:15";
+const VERSION = "23 okt 22:25";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -732,6 +735,8 @@ const count = m => m.items.filter(i => S.found[i.code]).length;
 const isComplete = m => count(m) === m.items.length;
 const isSolved = m => !m.suspects || !!S.solved[m.id];
 const itemEmoji = (m, it) => it.emoji || m.emoji;
+const itemArt = (m, it, headOnly) => (m.id === "katterna" && typeof CAT_ART !== "undefined" && CAT_ART[it.name])
+  ? `<span class="catart${headOnly ? " head" : ""}">${catSVG(CAT_ART[it.name], headOnly)}</span>` : itemEmoji(m, it);
 
 function findCode(code) {
   for (const m of MISSIONS) for (const it of m.items) if (it.code === code) return { m, it };
@@ -887,7 +892,7 @@ function missionPage(id) {
       <p class="muted">${t("progress", n, total)}</p>
       <div class="slots">
         ${m.items.map(it => S.found[it.code]
-          ? `<div class="slot found"><span class="em">${itemEmoji(m, it)}</span>${L(it.name)}</div>`
+          ? `<div class="slot found"><span class="em">${itemArt(m, it, true)}</span>${L(it.name)}</div>`
           : `<div class="slot"><span class="em q">?</span>${t("notFound")}${it.where ? `<small class="addr">${it.where}</small>` : ""}</div>`).join("")}
       </div>
     </section>`;
@@ -1071,7 +1076,7 @@ function scan(code) {
   app.innerHTML = `
     <section class="found-screen" style="--c:${m.color}">
       <p class="kicker">${L(m.title)}</p>
-      <div class="pop">${itemEmoji(m, it)}</div>
+      <div class="pop">${itemArt(m, it)}</div>
       <h1>${already ? t(it.quiz ? "alreadyAnswered" : "alreadyFound") : L(m.foundVerb)}</h1>
       <h2 class="item-name">${L(it.name)}</h2>
       <p class="speech">${m.suspects ? `<span class="lbl">${t("clue")}</span>` : ""}${m.suspects ? "" : "“"}${L(it.line)}${m.suspects ? "" : "”"}</p>
@@ -1258,13 +1263,13 @@ const CAT_ART = {
             bodyMarks: `<g stroke="#3b2410" stroke-width="7" fill="none" stroke-linecap="round"><path d="M50 145 Q62 150 72 143 M49 165 Q61 170 71 163 M52 186 Q63 190 72 184 M150 145 Q138 150 128 143 M151 165 Q139 170 129 163 M148 186 Q137 190 128 184"/></g>`,
             tailMarks: `<g stroke="#3b2410" stroke-width="6" fill="none" stroke-linecap="round"><path d="M168 146 L180 140 M170 166 L183 166 M160 124 L170 116"/></g>` }
 };
-function catSVG(o) {
+function catSVG(o, headOnly) {
   if (!o) return "";
   const F = o.fur, B = o.belly;
-  return `<svg viewBox="0 0 200 232" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  return `<svg viewBox="${headOnly ? "28 -2 144 140" : "0 0 200 232"}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <g stroke="${INK}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M138 196 C 188 192, 194 130, 166 108 C 158 101, 147 109, 154 118 C 172 138, 166 176, 132 180" fill="${F}"/>
-      ${o.tailMarks || ""}
+      ${headOnly ? "" : `<path d="M138 196 C 188 192, 194 130, 166 108 C 158 101, 147 109, 154 118 C 172 138, 166 176, 132 180" fill="${F}"/>
+      ${o.tailMarks || ""}`}
       <ellipse cx="100" cy="166" rx="52" ry="56" fill="${F}"/>
       <g stroke-width="0">${o.bodyMarks || ""}</g>
       ${B ? `<ellipse cx="100" cy="178" rx="27" ry="38" fill="${B}" stroke-width="0"/>` : ""}
