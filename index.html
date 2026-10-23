@@ -126,6 +126,26 @@ button.s:active{transform:scale(.97)}
 .oops{font-size:22px;font-weight:700;margin-top:16px;color:var(--orange2)}
 .diploma{background:#fff8e6;color:#3a2a10;border:6px double #c9a24a;border-radius:16px;padding:14px 16px;margin:14px 0}
 .diploma span{display:block;font-family:'Creepster',cursive;font-size:30px;color:#8a5a00}
+.qposter .pnum{font-size:4.6cqw;font-weight:700;color:var(--c);margin-top:5cqw}
+.qposter .pnum span{display:none}
+.qposter .pnum i{font-style:normal;opacity:.75;font-weight:600}
+.qposter .pq{font-size:8.8cqw;line-height:1.1;margin:2.5cqw 0 0;font-weight:700}
+.qposter .pqen{font-size:4.3cqw;color:var(--muted);margin:1.5cqw 0 0}
+.qposter .pvis{margin-top:2.5cqw;width:100%}
+.qposter .qsum,.qposter .qrow{font-size:7.4cqw;padding:2.5cqw 2cqw;border-radius:4cqw;background:rgba(255,255,255,.06)}
+.qposter .qsum b{font-size:6.6cqw}
+.qposter .qmark{width:10cqw;height:10cqw;line-height:10cqw;font-size:6.5cqw;border-radius:2.5cqw;border-width:.6cqw}
+.qposter .qmonster svg{width:29cqw}
+.qposter .pqr{width:34cqw}
+.poster.sign.qposter .pqr b{white-space:normal;font-size:3cqw}
+.cardq{margin-top:8px;border-top:1px dashed #bbb;padding-top:8px}
+.cardq b{display:block;font-size:18px}
+.cardq i{display:block;font-style:normal;color:#666;font-size:13px}
+.cardvis{margin-top:6px}
+.cardvis .qsum,.cardvis .qrow{font-size:22px;padding:6px;background:#f3f0fa;border:0;color:#222}
+.cardvis .qsum b{font-size:20px}
+.cardvis .qmark{width:26px;height:26px;line-height:22px;font-size:16px;border-width:2px}
+.cardvis .qmonster svg{width:110px}
 .item-name{font-size:26px;color:var(--c)}
 .speech{background:#fff;color:#2a1b3d;border-radius:16px;padding:14px 16px;margin:14px auto;max-width:420px;font-size:18px;text-align:left}
 .speech .lbl{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#8a5a00;font-weight:700;margin-bottom:2px}
@@ -449,7 +469,7 @@ const MISSIONS = [
         line: { sv: "Rätt! Monstret Mollie har 3 ögon – ett extra för att se i mörkret!", en: "Correct! Mollie the Monster has 3 eyes – an extra one for seeing in the dark!" } },
       { code: "a6rc7z", emoji: "🔊", name: { sv: "Fråga 5", en: "Question 5" },
         quiz: {
-          q: { sv: "Vem säger ”Hu-hu”?", en: "Who says “Hoo-hoo”?" },
+          q: { sv: "Vem säger ”Hu‑hu”?", en: "Who says “Hoo‑hoo”?" },
           choices: [
             { em: "🐈‍⬛", label: { sv: "Katt", en: "Cat" } },
             { em: "🦉", label: { sv: "Uggla", en: "Owl" } },
@@ -517,6 +537,7 @@ const T = {
     clue: "Ledtråd",
     questionOf: (n, t) => `Fråga ${n} av ${t}`,
     tryAgain: "Oj, försök igen! 👻",
+    lookAtPoster: "Titta på affischen! Vilket är rätt svar?",
     alreadyAnswered: "Den här frågan har ni redan klarat!",
     diploma: "Spökdiplom",
     analysing: "Analyserar ektoplasma",
@@ -615,6 +636,7 @@ const T = {
     clue: "Clue",
     questionOf: (n, t) => `Question ${n} of ${t}`,
     tryAgain: "Oops, try again! 👻",
+    lookAtPoster: "Look at the poster! Which is the right answer?",
     alreadyAnswered: "You already answered this question!",
     diploma: "Ghost diploma",
     analysing: "Analysing ectoplasm",
@@ -663,7 +685,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "23 okt 21:30";
+const VERSION = "23 okt 21:40";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1078,13 +1100,14 @@ let ORG_SIZE = "big";
 function organizer() {
   if (!S.organizer) { S.organizer = true; save(); }
   const base = location.href.split("#")[0];
-  const card = (url, em, title, sub, start, mid, where) => `
+  const card = (url, em, title, sub, start, mid, where, quiz) => `
     <div class="qr-card m-${mid}${start ? " start" : ""}">
       <div class="em">${em}</div>
       <div class="scan">Skanna mig! · Scan me!</div>
       <div class="qr" data-qr="${url}"></div>
       <h3>${title}</h3>
-      <small>${sub}</small>${where ? `<b class="sign-addr">📍 ${where}</b>` : ""}
+      <small>${sub}</small>${where ? `<b class="sign-addr">📍 ${where}</b>` : ""}${quiz ? `
+      <div class="cardq"><b>${quiz.q.sv}</b><i>${quiz.q.en}</i>${quiz.visual ? `<div class="cardvis">${quizVisual(quiz)}</div>` : ""}</div>` : ""}
       <a class="test no-print" href="${url}">${t("test")} →</a>
     </div>`;
   app.innerHTML = `
@@ -1126,7 +1149,7 @@ function organizer() {
             ${m.items.map(it => card(base + "#/q/" + it.code,
                 CAT_ART[it.name] && m.id === "katterna" ? `<div class="cat-mini">${catSVG(CAT_ART[it.name])}</div>` : itemEmoji(m, it),
                 typeof it.name === "string" ? it.name : `${it.name.sv} / ${it.name.en}`,
-                `${m.title.sv} · ${m.title.en}`, false, m.id, it.where)).join("")}
+                `${m.title.sv} · ${m.title.en}`, false, m.id, it.where, it.quiz)).join("")}
           </div>
         </section>`).join("")}
       </div>
@@ -1262,15 +1285,14 @@ function monsterSVG() {
 }
 
 /* ---------- Ghost Teacher questions ---------- */
+const quizVisual = qz => qz.visual === "MONSTER" ? `<div class="qmonster">${monsterSVG()}</div>` : (qz.visual || "");
 function quizView(code, m, it) {
   const qz = it.quiz, idx = m.items.indexOf(it) + 1;
-  const visual = qz.visual === "MONSTER" ? `<div class="qmonster">${monsterSVG()}</div>` : (qz.visual || "");
   app.innerHTML = `
     <section class="quiz" style="--c:${m.color}">
       <p class="kicker">${L(m.title)} · ${t("questionOf", idx, m.items.length)}</p>
       <div class="teacher">👻</div>
-      <h1>${L(qz.q)}</h1>
-      ${visual ? `<div class="qvisual">${visual}</div>` : ""}
+      <h1>${t("lookAtPoster")}</h1>
       <div class="choices n${qz.choices.length}">
         ${qz.choices.map((c, i) => `
           <button class="choice" type="button" data-act="answer" data-code="${code}" data-i="${i}">
@@ -1301,7 +1323,20 @@ function answer(el) {
 const SIGN_DECO = { spoken: ["👻", "🦇", "🎃", "👻"], katterna: ["🌙", "🧹", "🐾", "🐾"], brottet: ["🔦", "🦉", "🍂", "🍂"] };
 function bigSigns(m, base) {
   const d = SIGN_DECO[m.id] || ["🦇", "🦇", "🎃", "🎃"];
-  return m.items.map(it => {
+  return m.items.map((it, idx) => {
+    if (it.quiz) return `
+      <div class="poster-wrap"><div class="poster mission sign qposter" style="--c:${m.color}">
+        <span class="pdeco" style="top:3cqw;left:4cqw">${d[0]}</span>
+        <span class="pdeco" style="top:5cqw;right:5cqw">${d[1]}</span>
+        <span class="pdeco" style="bottom:4cqw;left:5cqw">${d[2]}</span>
+        <span class="pdeco" style="bottom:4cqw;right:5cqw;transform:scaleX(-1)">${d[3]}</span>
+        <p class="pkick">${m.title.sv} · ${m.title.en}</p>
+        <div class="pnum"><span>👻</span>Fråga ${idx + 1} <i>· Question ${idx + 1}</i></div>
+        <h1 class="pq">${it.quiz.q.sv}</h1>
+        <p class="pqen">${it.quiz.q.en}</p>
+        ${it.quiz.visual ? `<div class="pvis">${quizVisual(it.quiz)}</div>` : ""}
+        <div class="pqr"><div class="qr" data-qr="${base}#/q/${it.code}"></div><b>Skanna och svara! · Scan and answer!</b></div>
+      </div></div>`;
     const name = typeof it.name === "string" ? { sv: it.name, en: it.name } : it.name;
     const art = m.id === "katterna" && CAT_ART[it.name]
       ? `<div class="pcat">${catSVG(CAT_ART[it.name])}</div>`
