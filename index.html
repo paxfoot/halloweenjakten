@@ -192,6 +192,12 @@ button.s:active{transform:scale(.97)}
 .countdown b{display:block;font-size:30px;line-height:1;color:var(--orange);font-variant-numeric:tabular-nums}
 .countdown span{font-size:13px;color:var(--muted)}
 .mcard.locked{opacity:.85;pointer-events:none}
+.helpcard{border:2px solid var(--orange);background:linear-gradient(180deg,rgba(255,138,31,.14),var(--card))}
+.helpcard h2{font-size:21px}
+.helpmodal{text-align:left}
+.helpmodal p{margin:.6em 0}
+.helpmodal .phone{font-size:20px;white-space:nowrap}
+.modal .card{max-height:90vh;overflow:auto}
 /* organizer */
 .org h1{font-size:28px}
 .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:10px 0 24px}
@@ -326,6 +332,9 @@ const EVENT = {
   // PRIZE HOUSE SHEET: paste the link to your Google Sheet here.
   // Column A = house, Column B = open? (checkbox), Column C = note.
   // The sheet must be shared so "Anyone with the link" can view it.
+  // Shown on the "Coming soon" page so neighbors can volunteer as reward houses.
+  // Write it as it should be shown, e.g. "070-123 45 67". Leave "" to hide the text button.
+  helperPhone: "+46706672321",
   sheetUrl: "https://docs.google.com/spreadsheets/d/1-ih75_cghyeV4l0LNj3S7iDS4vB8MxZ9GbFwelb8y9A/edit",
   // Only used if there is no sheet. Leave empty [] to hide.
   prizeHouses: [
@@ -528,6 +537,18 @@ const T = {
   sv: {
     appTitle: "Halloweenjakten",
     soon: "Kommer snart!",
+    helpTitle: "Kan du tänka dig att hjälpa till?",
+    helpTeaser: "Vi söker fler grannar som vill vara belöningshus 🏠",
+    helpMore: "Läs mer",
+    helpBody: [
+      "Halloweenjakten är ett ideellt evenemang som drivs av oss grannar – för att ge barnen en magisk Halloween. 🎃",
+      "Vi söker fler grannar som vill vara <b>belöningshus</b>, där barnen kan hämta en belöning när de har klarat ett uppdrag.",
+      "Belöningarna är redan inköpta och kan hämtas på morgonen samma dag.",
+      "Under evenemanget checkar du enkelt in och ut via hemsidan när du har tid."
+    ],
+    helpCta: "Skicka ett sms",
+    helpOr: "Hör av dig på",
+    close: "Stäng",
     soonText: "Lördag 31 oktober kl 14–20 vaknar spökena, katterna rymmer, ett brott begås i skogen och Spökläraren väntar i skolmuseet. Ta med mobilen och kom ut och jaga!",
     countdownLabel: "Jakten börjar om",
     units: ["dagar", "tim", "min", "sek"],
@@ -631,6 +652,18 @@ const T = {
   en: {
     appTitle: "The Halloween Hunt",
     soon: "Coming soon!",
+    helpTitle: "Would you like to help?",
+    helpTeaser: "We're looking for more neighbors to be reward houses 🏠",
+    helpMore: "Read more",
+    helpBody: [
+      "The Halloween Hunt is a non-profit event run by us neighbors – to give the kids a magical Halloween. 🎃",
+      "We're looking for more neighbors to be <b>reward houses</b>, where kids can pick up a reward after completing a mission.",
+      "The rewards are already purchased and can be picked up on the morning of the event.",
+      "During the event, you can easily check in and out via the website whenever you're available."
+    ],
+    helpCta: "Send a text",
+    helpOr: "Get in touch on",
+    close: "Close",
     soonText: "On Saturday 31 October, 2–8 pm, the ghosts wake up, the cats run away, a crime happens in the woods and the Ghost Teacher waits at the school museum. Bring your phone and come out hunting!",
     countdownLabel: "The hunt starts in",
     units: ["days", "hrs", "min", "sec"],
@@ -735,7 +768,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "24 okt 05:20";
+const VERSION = "24 okt 06:20";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -824,6 +857,11 @@ function comingSoon() {
     <section class="card" style="text-align:center">
       <p class="muted">${t("countdownLabel")}</p>
       <div class="countdown" id="countdown"></div>
+    </section>
+    <section class="card helpcard">
+      <h2>🙋 ${t("helpTitle")}</h2>
+      <p>${t("helpTeaser")}</p>
+      <button class="btn" type="button" data-act="helpInfo">${t("helpMore")}</button>
     </section>
     <h2 class="section-h">${t("missions")}</h2>
     <div class="missions">
@@ -1444,6 +1482,19 @@ document.addEventListener("click", e => {
   if (act === "confirmClaim") { S.claimed[el.dataset.m] = Date.now(); save(); closeModal(); render(); window.scrollTo(0, 0); }
   if (act === "closeModal") closeModal();
   if (act === "closeAndRender") { closeModal(); render(); window.scrollTo(0, 0); }
+  if (act === "helpInfo") {
+    const ph = EVENT.helperPhone, digits = (ph || "").replace(/[^\d+]/g, "");
+    openModal(`
+      <div class="helpmodal">
+        <div style="font-size:54px;text-align:center">🏠🎁</div>
+        <h2 style="text-align:center">${t("helpTitle")}</h2>
+        ${t("helpBody").map(x => `<p>${x}</p>`).join("")}
+        ${ph ? `
+        <p style="text-align:center;margin-top:14px">${t("helpOr")} <b class="phone">${ph}</b></p>
+        <a class="btn green" href="sms:${digits}">💬 ${t("helpCta")}</a>` : ""}
+        <button class="btn ghost" type="button" data-act="closeModal">${t("close")}</button>
+      </div>`);
+  }
   if (act === "orgStyle") {
     S.orgLight = el.dataset.style === "light"; save();
     document.querySelector(".org").dataset.style = el.dataset.style;
