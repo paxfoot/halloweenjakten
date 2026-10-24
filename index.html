@@ -262,6 +262,23 @@ button.s:active{transform:scale(.97)}
 .poster.main .ptext{margin-top:1.5cqw}
 .poster.main .pinfo{margin-top:2cqw}
 .poster.main .pqr{width:33cqw;margin-bottom:1cqw}
+/* Light, ink-saving poster style */
+.org[data-style=light] .poster{--cd:color-mix(in srgb,var(--c) 58%,#000);background:#fff;color:#1d1626}
+.org[data-style=light] .poster::before{opacity:.1}
+.org[data-style=light] .pkick{color:#b4540a}
+.org[data-style=light] .ptitle{color:var(--cd);text-shadow:none}
+.org[data-style=light] .poster.main .ptitle{color:#e2650c}
+.org[data-style=light] .psub,.org[data-style=light] .pinfo{color:#1d1626;opacity:1}
+.org[data-style=light] .ptext i,.org[data-style=light] .pqen,.org[data-style=light] .pmissions small,.org[data-style=light] .qpics i{color:#5c5468}
+.org[data-style=light] .pnum{color:var(--cd)}
+.org[data-style=light] .pmissions div{background:#fff;border-color:var(--c)}
+.org[data-style=light] .pqr{border:.5cqw solid var(--c)}
+.org[data-style=light] .qsum,.org[data-style=light] .qrow{background:#fff;border:.4cqw solid #ddd;color:#1d1626}
+.org[data-style=light] .qsum b,.org[data-style=light] .qmark{color:var(--cd);border-color:var(--cd)}
+.org[data-style=light] .qpics div{background:#fff}
+.org[data-style=light] .pbig{filter:none}
+.org[data-style=light] .pcat svg{filter:none}
+.org[data-style=light] .pmoon{box-shadow:none}
 @page{size:A4;margin:8mm}
 @media print{
   body[data-print=posters] .signs,body[data-print=signs] .posters{display:none!important}
@@ -596,6 +613,9 @@ const T = {
     printBig: "Stora (1 per sida)",
     printSmall: "Små (flera per sida)",
     showSize: "Visa:",
+    styleLabel: "Affischstil:",
+    styleDark: "🌙 Mörk",
+    styleLight: "☀️ Ljus (sparar bläck)",
     sizeBig: "Stora",
     sizeSmall: "Små",
     signsIntro: "Varje uppdrag har stora lappar (en hel A4 per sak) och små lappar (flera per A4). Tryck på knappen för den storlek du vill skriva ut.",
@@ -695,6 +715,9 @@ const T = {
     printBig: "Big (1 per page)",
     printSmall: "Small (several per page)",
     showSize: "Show:",
+    styleLabel: "Poster style:",
+    styleDark: "🌙 Dark",
+    styleLight: "☀️ Light (saves ink)",
     sizeBig: "Big",
     sizeSmall: "Small",
     signsIntro: "Each mission has big signs (a full A4 per item) and small signs (several per A4). Tap the button for the size you want to print.",
@@ -712,7 +735,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "23 okt 22:25";
+const VERSION = "24 okt 05:20";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1140,11 +1163,15 @@ function organizer() {
       <a class="test no-print" href="${url}">${t("test")} →</a>
     </div>`;
   app.innerHTML = `
-    <div class="org" data-size="${ORG_SIZE}">
+    <div class="org" data-size="${ORG_SIZE}" data-style="${S.orgLight ? "light" : "dark"}">
       <a class="back no-print" href="#/">${t("back")}</a>
       <h1 class="no-print">${t("orgTitle")}</h1>
       <p class="muted no-print">${t("orgIntro")}</p>
       ${location.protocol === "file:" ? `<div class="warn no-print">⚠️ ${t("orgFileWarn")}</div>` : ""}
+      <div class="sizebar no-print" style="margin-top:16px"><span>${t("styleLabel")}</span>
+        <button type="button" data-act="orgStyle" data-style="dark" class="${S.orgLight ? "" : "on"}">${t("styleDark")}</button>
+        <button type="button" data-act="orgStyle" data-style="light" class="${S.orgLight ? "on" : ""}">${t("styleLight")}</button>
+      </div>
       <div class="row no-print" style="margin:14px 0 10px">
         <button class="btn" type="button" data-act="print" data-what="posters">🖨️ ${t("printPosters")}</button>
       </div>
@@ -1417,6 +1444,12 @@ document.addEventListener("click", e => {
   if (act === "confirmClaim") { S.claimed[el.dataset.m] = Date.now(); save(); closeModal(); render(); window.scrollTo(0, 0); }
   if (act === "closeModal") closeModal();
   if (act === "closeAndRender") { closeModal(); render(); window.scrollTo(0, 0); }
+  if (act === "orgStyle") {
+    S.orgLight = el.dataset.style === "light"; save();
+    document.querySelector(".org").dataset.style = el.dataset.style;
+    document.querySelectorAll("[data-act=orgStyle]").forEach(b => b.classList.toggle("on", b.dataset.style === el.dataset.style));
+    fitTitles();
+  }
   if (act === "orgSize") {
     ORG_SIZE = el.dataset.size;
     document.querySelector(".org").dataset.size = ORG_SIZE;
