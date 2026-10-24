@@ -1,0 +1,7 @@
+Emoji images in this folder are from Noto Emoji by Google
+https://github.com/googlefonts/noto-emoji (tag v2026-09-24-unicode18_0)
+
+Licensed under the Apache License, Version 2.0
+https://www.apache.org/licenses/LICENSE-2.0
+
+The files are unmodified copies of the SVGs in 2D/svg/.

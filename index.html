@@ -198,6 +198,7 @@ button.s:active{transform:scale(.97)}
 .helpmodal p{margin:.6em 0}
 .helpmodal .phone{font-size:20px;white-space:nowrap}
 .modal .card{max-height:90vh;overflow:auto}
+img.emo{height:1em;width:auto;vertical-align:-.12em;display:inline-block}
 /* organizer */
 .org h1{font-size:28px}
 .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:10px 0 24px}
@@ -768,7 +769,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "24 okt 06:20";
+const VERSION = "24 okt 06:45";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1248,6 +1249,7 @@ function organizer() {
         </section>`).join("")}
       </div>
     </div>`;
+  document.querySelectorAll(".org .poster, .org .qr-card").forEach(vectorEmojis);
   fitTitles();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitles);
   document.querySelectorAll("[data-qr]").forEach(el => {
@@ -1256,6 +1258,36 @@ function organizer() {
     } else {
       el.innerHTML = `<small style="word-break:break-all">${el.dataset.qr}</small>`;
     }
+  });
+}
+
+/* Sharp vector emojis on posters and signs (Noto Emoji, Apache 2.0 – see emoji/CREDITS.txt).
+   Phone emoji fonts are often small pictures that look blurry when printed big. */
+const EMOJI_FILES = new Set(["1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4cd", "1f4e1", "1f4f1", "1f4f7", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f634", "1f64b", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "2753", "2b50"]);
+function vectorEmojis(root) {
+  const isEmo = c => { const o = c.codePointAt(0); return o >= 0x1f000 || (o >= 0x2300 && o <= 0x23ff) || (o >= 0x2600 && o <= 0x27bf) || (o >= 0x2b00 && o <= 0x2bff); };
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const chars = [...node.nodeValue];
+    if (!chars.some(isEmo)) return;
+    const frag = document.createDocumentFragment(); let text = "", i = 0;
+    while (i < chars.length) {
+      if (!isEmo(chars[i])) { text += chars[i++]; continue; }
+      let j = i + 1;
+      while (j < chars.length && (chars[j] === "\ufe0f" || chars[j] === "\u200d" || (chars[j - 1] === "\u200d" && isEmo(chars[j])))) j++;
+      const seq = chars.slice(i, j).join("");
+      const key = [...seq].filter(c => c !== "\ufe0f").map(c => c.codePointAt(0).toString(16).padStart(4, "0")).join("_");
+      if (EMOJI_FILES.has(key)) {
+        if (text) { frag.appendChild(document.createTextNode(text)); text = ""; }
+        const img = document.createElement("img");
+        img.className = "emo"; img.alt = seq; img.src = "emoji/emoji_u" + key + ".svg";
+        frag.appendChild(img);
+      } else text += seq;
+      i = j;
+    }
+    if (text) frag.appendChild(document.createTextNode(text));
+    node.parentNode.replaceChild(frag, node);
   });
 }
 
