@@ -200,6 +200,22 @@ button.s:active{transform:scale(.97)}
 .modal .card{max-height:90vh;overflow:auto}
 img.emo{height:1em;width:auto;vertical-align:-.12em;display:inline-block}
 img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04em;border-radius:2px}
+.stats h2{margin-bottom:12px}
+.stiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stile{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.stile b{display:block;font-size:30px;color:var(--orange);line-height:1.1}
+.stile span{font-size:14px;font-weight:600}
+.stile small{display:block;font-size:12px;color:var(--muted)}
+.stable{width:100%;border-collapse:collapse;margin:14px 0 6px;font-size:15px}
+.stable th{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:right;font-weight:600;padding:4px 6px}
+.stable th:first-child,.stable td:first-child{text-align:left}
+.stable td{padding:7px 6px;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+.sitems{margin-top:8px}
+.sitems summary{cursor:pointer;font-weight:600;padding:6px 0}
+.sitems ul{list-style:none;margin:0;padding:0 0 6px}
+.sitems li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line);font-size:15px}
+.sitems li small{color:var(--muted)}
+.sitems li.low b{color:var(--red)}
 /* organizer */
 .org h1{font-size:28px}
 .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:10px 0 24px}
@@ -337,6 +353,9 @@ const EVENT = {
   // Shown on the "Coming soon" page so neighbors can volunteer as reward houses.
   // Write it as it should be shown, e.g. "070-123 45 67". Leave "" to hide the text button.
   helperPhone: "+46706672321",
+  // STATISTICS: the "Web app" link from the Apps Script in your Google Sheet (ends with /exec).
+  // Leave "" to switch counting off. Only numbers are counted – no names, no cookies.
+  statsUrl: "",
   sheetUrl: "https://docs.google.com/spreadsheets/d/1-ih75_cghyeV4l0LNj3S7iDS4vB8MxZ9GbFwelb8y9A/edit",
   // Only used if there is no sheet. Leave empty [] to hide.
   prizeHouses: [
@@ -637,6 +656,17 @@ const T = {
     printSmall: "Små (flera per sida)",
     showSize: "Visa:",
     styleLabel: "Affischstil:",
+    statsTitle: "Statistik",
+    statsOff: "Statistiken är inte påslagen än.",
+    statsLoading: "Hämtar statistik…",
+    statsError: "Kunde inte hämta statistiken just nu.",
+    statsRefresh: "Uppdatera",
+    statsUpdated: "Uppdaterad",
+    statsNote: "Den här mobilen räknas inte, eftersom den är en arrangörsmobil.",
+    stPhones: "Mobiler", stViews: "Sidvisningar", stClaimed: "Belöningar hämtade", stHelp: "Hjälpa till",
+    stHelpDetail: (o, sms) => `${o} läste · ${sms} sms`,
+    stMission: "Uppdrag", stStarted: "Startade", stDone: "Klara", stRewards: "Belöningar",
+    stItems: "Hittad av antal mobiler",
     styleDark: "🌙 Mörk",
     styleLight: "☀️ Ljus (sparar bläck)",
     sizeBig: "Stora",
@@ -751,6 +781,17 @@ const T = {
     printSmall: "Small (several per page)",
     showSize: "Show:",
     styleLabel: "Poster style:",
+    statsTitle: "Statistics",
+    statsOff: "Statistics are not switched on yet.",
+    statsLoading: "Loading statistics…",
+    statsError: "Couldn't load the statistics right now.",
+    statsRefresh: "Refresh",
+    statsUpdated: "Updated",
+    statsNote: "This phone isn't counted, because it's an organizer phone.",
+    stPhones: "Phones", stViews: "Page views", stClaimed: "Rewards collected", stHelp: "Volunteer",
+    stHelpDetail: (o, sms) => `${o} read · ${sms} texts`,
+    stMission: "Mission", stStarted: "Started", stDone: "Finished", stRewards: "Rewards",
+    stItems: "Found by number of phones",
     styleDark: "🌙 Dark",
     styleLight: "☀️ Light (saves ink)",
     sizeBig: "Big",
@@ -770,7 +811,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "24 okt 07:00";
+const VERSION = "24 okt 07:30";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1006,6 +1047,8 @@ function guess(mid, sid) {
 
 /* ---------- Claim screen ---------- */
 function claimView(m) {
+  S.done = S.done || {};
+  if (!S.done[m.id]) { S.done[m.id] = true; save(); track("done:" + m.id); }
   const fx = ["🎃", "🍬", "⭐", "🦇", "🍭", m.emoji];
   let rain = "";
   for (let i = 0; i < 14; i++) {
@@ -1057,6 +1100,38 @@ function tick() {
   if (el) el.textContent = new Date().toLocaleTimeString(S.lang === "sv" ? "sv-SE" : "en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
 setInterval(tick, 1000);
+
+/* ---------- Statistics: anonymous counters in the Google Sheet ---------- */
+// Organizer phones are never counted, so testing doesn't change the numbers.
+const STATQ = [];
+let statTimer = 0;
+function track(...keys) {
+  if (!EVENT.statsUrl || S.organizer) return;
+  STATQ.push(...keys);
+  clearTimeout(statTimer);
+  statTimer = setTimeout(flushStats, 800);
+}
+function flushStats() {
+  while (STATQ.length) {
+    const body = STATQ.splice(0, 10).join(",");
+    try {
+      if (!(navigator.sendBeacon && navigator.sendBeacon(EVENT.statsUrl, body)))
+        fetch(EVENT.statsUrl, { method: "POST", mode: "no-cors", body, keepalive: true });
+    } catch (e) {}
+  }
+}
+window.addEventListener("pagehide", flushStats);
+function markStarted(id) {
+  if (!S.started[id]) { S.started[id] = true; save(); track("start:" + id); }
+}
+function trackView() {
+  if (!S.counted && !S.organizer) { S.counted = true; save(); track("phones"); }
+  const parts = ROUTE.replace(/^#\/?/, "").split("/");
+  if (parts[0] === "arrangor" || parts[0] === "organizer") return;
+  const now = Date.now();
+  const page = !isOpen() ? "soon" : (now >= CLOSES ? "closed" : parts[0] === "q" ? "scan" : parts[0] === "m" && byId(parts[1]) ? parts[1] : "home");
+  track("view:" + page);
+}
 
 /* ---------- Prize houses from Google Sheet ---------- */
 let HOUSES = null; // null = loading, "error", or list of {name, open, note}
@@ -1127,12 +1202,14 @@ function scan(code) {
     return;
   }
   const { m, it } = hit;
-  if (it.quiz && !S.found[code]) { S.started[m.id] = true; save(); return quizView(code, m, it); }
+  if (it.quiz && !S.found[code]) { markStarted(m.id); return quizView(code, m, it); }
   const already = !!S.found[code] && !scan.fresh;
   scan.fresh = false;
   if (m.scanFx && !scan.animating) return scanAnimation(code, m, it);
   scan.animating = false;
-  S.found[code] = true; S.started[m.id] = true; save();
+  if (!S.found[code]) track("found:" + code);
+  markStarted(m.id);
+  S.found[code] = true; save();
   const n = count(m), total = m.items.length, done = n === total;
   let btnText = t("toMission");
   if (done) btnText = S.claimed[m.id] ? t("toMission") : (isSolved(m) ? t("seePrize") : t("solveCase"));
@@ -1221,6 +1298,12 @@ function organizer() {
         <button class="btn ghost" type="button" data-act="lockPreview">${t("previewLocked")}</button>
         <button class="btn ghost" type="button" data-act="reset">${t("reset")}</button>
       </div>
+      <section class="card stats no-print">
+        <h2>📊 ${t("statsTitle")}</h2>
+        <div id="statsBox">${EVENT.statsUrl ? t("statsLoading") : t("statsOff")}</div>
+        ${EVENT.statsUrl ? `<p class="muted" style="font-size:13px;margin-top:10px">${t("statsNote")}</p>
+        <button class="btn ghost" type="button" data-act="statsRefresh">🔄 ${t("statsRefresh")}</button>` : ""}
+      </section>
       <div class="posters">
         <h2 class="no-print">🖼️ ${t("posters")}</h2>
         <p class="muted no-print">${t("postersIntro")}</p>
@@ -1251,6 +1334,7 @@ function organizer() {
       </div>
     </div>`;
   document.querySelectorAll(".org .poster, .org .qr-card").forEach(vectorEmojis);
+  loadStats();
   fitTitles();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitles);
   document.querySelectorAll("[data-qr]").forEach(el => {
@@ -1265,7 +1349,7 @@ function organizer() {
 /* Sharp vector emojis everywhere (Noto Emoji, Apache 2.0 – see emoji/CREDITS.txt), so the
    app looks the same on every phone and matches the printed posters.
    NOTE: when adding a new emoji to the texts, also add its SVG to the emoji/ folder. */
-const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4cd", "1f4e1", "1f4f1", "1f4f7", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f634", "1f64b", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "2753", "2b50"]);
+const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cd", "1f4e1", "1f4f1", "1f4f7", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f634", "1f64b", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "2753", "2b50"]);
 function vectorEmojis(root) {
   const isEmo = c => { const o = c.codePointAt(0); return o >= 0x1f000 || (o >= 0x2300 && o <= 0x23ff) || (o >= 0x2600 && o <= 0x27bf) || (o >= 0x2b00 && o <= 0x2bff); };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -1306,6 +1390,45 @@ function startEmojiObserver() {
   vectorEmojis(document.body);
   emojiObserver.observe(document.body, { childList: true, subtree: true });
 }
+
+/* ---------- Statistics box on the organizer page ---------- */
+async function loadStats() {
+  const box = document.getElementById("statsBox");
+  if (!box || !EVENT.statsUrl) return;
+  try {
+    const res = await fetch(EVENT.statsUrl + (EVENT.statsUrl.includes("?") ? "&" : "?") + "t=" + Date.now());
+    const data = await res.json();
+    if (document.getElementById("statsBox")) renderStats(data.counts || {});
+  } catch (e) {
+    if (box.isConnected && !box.dataset.ok) box.textContent = t("statsError");
+  }
+}
+function renderStats(c) {
+  const box = document.getElementById("statsBox");
+  const n = k => Number(c[k]) || 0;
+  const sum = pre => Object.keys(c).filter(k => k.startsWith(pre)).reduce((a, k) => a + n(k), 0);
+  const tile = (num, label, sub) => `<div class="stile"><b>${num}</b><span>${label}</span>${sub ? `<small>${sub}</small>` : ""}</div>`;
+  box.dataset.ok = "1";
+  box.innerHTML = `
+    <div class="stiles">
+      ${tile(n("phones"), t("stPhones"))}
+      ${tile(sum("view:"), t("stViews"))}
+      ${tile(sum("claimed:"), t("stClaimed"))}
+      ${tile(n("help:sms"), t("stHelp"), t("stHelpDetail", n("help:open"), n("help:sms")))}
+    </div>
+    <table class="stable">
+      <tr><th>${t("stMission")}</th><th>${t("stStarted")}</th><th>${t("stDone")}</th><th>${t("stRewards")}</th></tr>
+      ${MISSIONS.map(m => `<tr><td>${m.emoji} ${L(m.title)}</td><td>${n("start:" + m.id)}</td><td>${n("done:" + m.id)}</td><td>${n("claimed:" + m.id)}</td></tr>`).join("")}
+    </table>
+    ${MISSIONS.map(m => {
+      const counts = m.items.map(it => n("found:" + it.code)), low = Math.min(...counts);
+      return `<details class="sitems"><summary>${m.emoji} ${L(m.title)} – ${t("stItems")}</summary>
+        <ul>${m.items.map((it, i) => `<li class="${counts[i] === low && Math.max(...counts) > low ? "low" : ""}"><span>${L(it.name)}${it.where ? ` <small>(${it.where})</small>` : ""}</span><b>${counts[i]}</b></li>`).join("")}</ul>
+      </details>`;
+    }).join("")}
+    <p class="muted" style="font-size:13px;margin:10px 0 0">${t("statsUpdated")} ${new Date().toLocaleTimeString(S.lang === "sv" ? "sv-SE" : "en-GB", { hour: "2-digit", minute: "2-digit" })}</p>`;
+}
+setInterval(() => { if (document.getElementById("statsBox")) loadStats(); }, 60000);
 
 /* Shrink poster titles until they fit on one line */
 function fitTitles() {
@@ -1461,6 +1584,7 @@ function answer(el) {
   el.classList.add("right");
   document.querySelectorAll(".choice").forEach(b => b.style.pointerEvents = "none");
   document.getElementById("quizMsg").textContent = "";
+  if (!S.found[el.dataset.code]) track("found:" + el.dataset.code);
   S.found[el.dataset.code] = true; save();
   setTimeout(() => { if (ROUTE === route) { scan.fresh = true; scan(el.dataset.code); } }, 700);
 }
@@ -1516,7 +1640,7 @@ document.addEventListener("click", e => {
   if (!el) return;
   const act = el.dataset.act;
   if (act === "closeModal" && e.target !== el) return; // only backdrop clicks close
-  if (act === "start") { S.started[el.dataset.m] = true; save(); render(); window.scrollTo(0, 0); }
+  if (act === "start") { markStarted(el.dataset.m); render(); window.scrollTo(0, 0); }
   if (act === "answer") answer(el);
   if (act === "guess") guess(el.dataset.m, el.dataset.s);
   if (act === "claim") {
@@ -1527,10 +1651,11 @@ document.addEventListener("click", e => {
       <button class="btn green" type="button" data-act="confirmClaim" data-m="${el.dataset.m}">${t("yes")}</button>
       <button class="btn ghost" type="button" data-act="closeModal">${t("cancel")}</button>`);
   }
-  if (act === "confirmClaim") { S.claimed[el.dataset.m] = Date.now(); save(); closeModal(); render(); window.scrollTo(0, 0); }
+  if (act === "confirmClaim") { S.claimed[el.dataset.m] = Date.now(); save(); track("claimed:" + el.dataset.m); closeModal(); render(); window.scrollTo(0, 0); }
   if (act === "closeModal") closeModal();
   if (act === "closeAndRender") { closeModal(); render(); window.scrollTo(0, 0); }
   if (act === "helpInfo") {
+    track("help:open");
     const ph = EVENT.helperPhone, digits = (ph || "").replace(/[^\d+]/g, "");
     openModal(`
       <div class="helpmodal">
@@ -1543,6 +1668,7 @@ document.addEventListener("click", e => {
         <button class="btn ghost" type="button" data-act="closeModal">${t("close")}</button>
       </div>`);
   }
+  if (act === "statsRefresh") loadStats();
   if (act === "orgStyle") {
     S.orgLight = el.dataset.style === "light"; save();
     document.querySelector(".org").dataset.style = el.dataset.style;
@@ -1598,9 +1724,10 @@ let ROUTE = location.hash || "#/";
 function go(hash) {
   ROUTE = hash || "#/";
   try { if (location.hash !== ROUTE) history.pushState(null, "", ROUTE); } catch (e) {}
-  closeModal(); render(); try { window.scrollTo(0, 0); } catch (e) {}
+  closeModal(); render(); trackView(); try { window.scrollTo(0, 0); } catch (e) {}
 }
 document.addEventListener("click", e => {
+  if (e.target.closest('a[href^="sms:"]')) { track("help:sms"); flushStats(); }
   const a = e.target.closest("a[href]");
   if (!a) return;
   const href = a.getAttribute("href");
@@ -1609,11 +1736,12 @@ document.addEventListener("click", e => {
   e.preventDefault();
   go(href.slice(i));
 }, true);
-const fromLocation = () => { if (location.hash && location.hash !== ROUTE) { ROUTE = location.hash; closeModal(); render(); } };
+const fromLocation = () => { if (location.hash && location.hash !== ROUTE) { ROUTE = location.hash; closeModal(); render(); trackView(); } };
 startEmojiObserver();
 window.addEventListener("hashchange", fromLocation);
-window.addEventListener("popstate", () => { ROUTE = location.hash || "#/"; closeModal(); render(); });
+window.addEventListener("popstate", () => { ROUTE = location.hash || "#/"; closeModal(); render(); trackView(); });
 render();
+trackView();
 </script>
 </body>
 </html>
