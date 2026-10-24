@@ -5,3 +5,8 @@ Licensed under the Apache License, Version 2.0
 https://www.apache.org/licenses/LICENSE-2.0
 
 The files are unmodified copies of the SVGs in 2D/svg/.
+
+The two flag images (emoji_u1f1ec_1f1e7.svg = United Kingdom,
+emoji_u1f1f8_1f1ea.svg = Sweden) come from the same repository's
+third_party/region-flags/svg/ folder, which is in the public domain
+or otherwise exempt from copyright.
