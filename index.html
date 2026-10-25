@@ -811,7 +811,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "24 okt 21:35";
+const VERSION = "25 okt 08:20";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1114,9 +1114,10 @@ function track(...keys) {
 function flushStats() {
   while (STATQ.length) {
     const body = STATQ.splice(0, 10).join(",");
+    // Sent without cookies: Google scripts can fail for people signed in to several Google accounts.
     try {
-      if (!(navigator.sendBeacon && navigator.sendBeacon(EVENT.statsUrl, body)))
-        fetch(EVENT.statsUrl, { method: "POST", mode: "no-cors", body, keepalive: true });
+      fetch(EVENT.statsUrl, { method: "POST", mode: "no-cors", credentials: "omit", keepalive: true,
+        headers: { "Content-Type": "text/plain" }, body });
     } catch (e) {}
   }
 }
