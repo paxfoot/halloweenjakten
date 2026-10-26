@@ -371,12 +371,8 @@ const MISSIONS = [
     id: "spoken",
     scanFx: true,
     story: {
-      sv: ["Det är Halloweenkväll på Solbackavägen. Löven prasslar, månen lyser – och plötsligt hörs ett konstigt ljud: ”Buuuu…”",
-           "Fem spöken har flyttat in längs gatan. Ingen vet vilka de är eller var de kommer ifrån. De är inte farliga – bara väldigt mystiska.",
-           "Men ni har ett hemligt verktyg: er mobil är nu en Spökometer 3000! Den kan analysera spökslem, även kallat ektoplasma. Hitta alla fem spöken, scanna dem och ta reda på deras hemligheter!"],
-      en: ["It's Halloween night on Solbackavägen. The leaves rustle, the moon glows – and suddenly there's a strange sound: “Boooo…”",
-           "Five ghosts have moved in along the street. Nobody knows who they are or where they came from. They aren't dangerous – just very mysterious.",
-           "But you have a secret tool: your phone is now a Ghostometer 3000! It can analyse ghost slime, also known as ectoplasm. Find all five ghosts, scan them and discover their secrets!"]
+      sv: ["Hemligt uppdrag! SPÖK – Sektionen för Paranormala och Övernaturliga Krafter – har hört rykten om att det spökar på Solbackavägen i kväll. Nu behöver de modiga agenter som kan ta reda på sanningen.", "Er mobil har fått en hemlig uppdatering och är nu en Spökometer 3000! Leta upp spökena, scanna dem och skicka all information till SPÖK."],
+      en: ["Secret mission! SPÖK – the Section for Paranormal and Supernatural Forces – has heard rumours that Solbackavägen is haunted tonight. Now they need brave agents to find out the truth.", "Your phone has received a secret update and is now a Ghostometer 3000! Track down the ghosts, scan them and send all the information to SPÖK."]
     },
     goal: { sv: "Hitta och scanna alla 5 spöken på Solbackavägen.", en: "Find and scan all 5 ghosts on Solbackavägen." },
     posterGoal: { sv: "Hitta och scanna alla 5 spöken", en: "Find and scan all 5 ghosts" },
@@ -406,12 +402,8 @@ const MISSIONS = [
   {
     id: "katterna",
     story: {
-      sv: ["Häxan Hilda bor i ett snett litet hus med en ännu snettare skorsten. Hon har sju katter, och hon älskar dem mer än något annat – till och med mer än sin flygande kvast.",
-           "I kväll skulle Hilda brygga en trolldryck som får pumpor att lysa. Men precis när hon skulle säga det sista trollordet kom en dammtuss in i näsan. ATJOOO! Det small, det glittrade – och alla sju katterna rusade ut genom dörren.",
-           "Nu gömmer de sig längs Flygarevägen. Hilda är för förkyld för att leta själv. Kan ni hjälpa henne? Hitta alla sju katterna och scanna deras QR-koder, så hittar de hem igen."],
-      en: ["Hilda the Witch lives in a crooked little house with an even more crooked chimney. She has seven cats, and she loves them more than anything – even more than her flying broom.",
-           "Tonight Hilda was brewing a potion to make pumpkins glow. But just as she was about to say the last magic word, a speck of dust got up her nose. ATCHOOO! There was a bang, a sparkle – and all seven cats dashed out the door.",
-           "Now they're hiding along Flygarevägen. Hilda has too much of a cold to search herself. Can you help her? Find all seven cats and scan their QR codes so they can find their way home."]
+      sv: ["Häxan Hilda är förkyld. I kväll skulle hon brygga en trolldryck som får pumpor att lysa – men mitt i det sista trollordet kom en nysning. ATJOOO! Det small och glittrade, och alla sju katterna blev så rädda att de sprang ut genom dörren.", "Nu gömmer de sig längs Flygarevägen. Hjälp Hilda att hitta dem!"],
+      en: ["Hilda the Witch has a cold. Tonight she was brewing a potion to make pumpkins glow – but right in the middle of the last magic word came a sneeze. ATCHOOO! There was a bang and a sparkle, and all seven cats got so scared that they ran out the door.", "Now they're hiding along Flygarevägen. Help Hilda find them!"]
     },
     goal: { sv: "Hitta Hildas 7 katter på Flygarevägen.", en: "Find Hilda's 7 cats on Flygarevägen." },
     posterGoal: { sv: "Hitta Häxan Hildas 7 katter", en: "Find Hilda the Witch's 7 cats" }, emoji: "🐈‍⬛", color: "#c08bff",
@@ -438,10 +430,10 @@ const MISSIONS = [
     id: "brottet",
     story: {
       sv: ["Varje Halloween ställer grannarna ut en jättestor godisskål vid skogsbrynet. I år var den fylld till brädden med klubbor, chokladbitar och sura maskar.",
-           "Men när ugglan Ugo flög förbi i skymningen var skålen BORTA. Kvar fanns bara konstiga spår som ledde in i skogen.",
+           "Men när ugglan Ugo flög förbi i skymningen var skålen TOM. Kvar fanns bara konstiga spår som ledde in i skogen.",
            "Fyra underliga figurer sågs i skogen i kväll: en vampyr, en varulv, ett skelett och en mumie. En av dem är tjuven! Som detektiver ska ni leta upp alla fem bevis, läsa ledtrådarna noga och peka ut den skyldiga."],
       en: ["Every Halloween, the neighbours put out a giant candy bowl at the edge of the woods. This year it was filled to the brim with lollipops, chocolates and sour worms.",
-           "But when Ugo the Owl flew past at dusk, the bowl was GONE. All that was left were strange tracks leading into the woods.",
+           "But when Ugo the Owl flew past at dusk, the bowl was EMPTY. All that was left were strange tracks leading into the woods.",
            "Four odd figures were seen in the woods tonight: a vampire, a werewolf, a skeleton and a mummy. One of them is the thief! As detectives, you must find all five clues, read them carefully and point out who did it."]
     },
     goal: { sv: "Hitta 5 bevis i skogen och avslöja tjuven.", en: "Find 5 clues in the woods and unmask the thief." },
@@ -450,8 +442,8 @@ const MISSIONS = [
     title:   { sv: "Brottet i skogen", en: "The Crime in the Woods" },
     tagline: { sv: "Hitta 5 bevis och lös mysteriet", en: "Find 5 clues and solve the mystery" },
     intro: {
-      sv: "Larm i skogen! Kvarterets stora godisskål – fylld till brädden inför Halloween – är borta. Någon har stulit den! Fyra misstänkta var i skogen i kväll. Som detektiver ska ni hitta alla fem bevis, läsa ledtrådarna noga och lista ut vem som är tjuven.",
-      en: "Alarm in the woods! The neighbourhood's giant candy bowl – filled to the brim for Halloween – is gone. Someone has stolen it! Four suspects were in the woods tonight. As detectives, you need to find all five clues, read them carefully and work out who the thief is."
+      sv: "Larm i skogen! Kvarterets stora godisskål – fylld till brädden inför Halloween – är tom. Någon har stulit allt godis! Fyra misstänkta var i skogen i kväll. Som detektiver ska ni hitta alla fem bevis, läsa ledtrådarna noga och lista ut vem som är tjuven.",
+      en: "Alarm in the woods! The neighbourhood's giant candy bowl – filled to the brim for Halloween – is empty. Someone has stolen all the candy! Four suspects were in the woods tonight. As detectives, you need to find all five clues, read them carefully and work out who the thief is."
     },
     foundVerb: { sv: "Bevis säkrat!", en: "Clue collected!" },
     signText: { sv: "Bevis! Scanna för att undersöka.", en: "Evidence! Scan to investigate." },
@@ -461,7 +453,7 @@ const MISSIONS = [
       { code: "n2tq6b", emoji: "🧄", name: { sv: "Vitlöksmacka", en: "Garlic sandwich" },
         line: { sv: "En halvt uppäten vitlöksmacka vid stigen. Tjuven har ätit vitlök!", en: "A half-eaten garlic sandwich by the path. The thief has been eating garlic!" } },
       { code: "e9hv3k", emoji: "👂", name: { sv: "Vittnet", en: "The witness" },
-        line: { sv: "En uggla hörde inget skrammel alls. Det var helt tyst när skålen försvann.", en: "An owl heard no rattling at all. It was completely quiet when the bowl vanished." } },
+        line: { sv: "En uggla hörde inget skrammel alls. Det var helt tyst när godiset försvann.", en: "An owl heard no rattling at all. It was completely quiet when the candy vanished." } },
       { code: "s4jf7p", emoji: "🧻", name: { sv: "Tygremsa", en: "Strip of cloth" },
         line: { sv: "En lång, dammig, vit tygremsa har fastnat på en gren.", en: "A long, dusty, white strip of cloth is caught on a branch." } },
       { code: "x8rb2y", emoji: "⏳", name: { sv: "Ökensand", en: "Desert sand" },
@@ -475,19 +467,15 @@ const MISSIONS = [
     ],
     culprit: "mona",
     reveal: {
-      sv: "Rätt! Det var Mumien Mona! Hon hade sovit i 3000 år och missat varenda Halloween – hon ville bara smaka godis för en gångs skull. Hon lovar att lämna tillbaka skålen (nästan full).",
-      en: "Correct! It was Mona the Mummy! She had slept for 3,000 years and missed every single Halloween – she just wanted to taste candy for once. She promises to give the bowl back (almost full)."
+      sv: "Rätt! Det var Mumien Mona! Hon hade sovit i 3000 år och missat varenda Halloween – hon ville bara smaka godis för en gångs skull. Hon lovar att lämna tillbaka godiset (nästan allt).",
+      en: "Correct! It was Mona the Mummy! She had slept for 3,000 years and missed every single Halloween – she just wanted to taste candy for once. She promises to give the candy back (almost all of it)."
     }
   },
   {
     id: "skolan",
     story: {
-      sv: ["Buuu! Välkomna till min klass! Jag är Spökläraren, och jag har undervisat i den gamla skolan i över hundra år.",
-           "Men på hundra år har jag inte haft en enda elev! Alla blev så rädda när jag svävade in i klassrummet…",
-           "Därför har jag gjort en tipsrunda längs Klasrovägen. Följ frågorna hela vägen till skolmuseet – där väntar den allra sista frågan. Svara rätt på alla 6, så blir ni elever i Spökskolan och får en belöning!"],
-      en: ["Boooo! Welcome to my class! I am the Ghost Teacher, and I have taught at the old school for over a hundred years.",
-           "But in a hundred years I haven't had a single pupil! Everyone got so scared when I floated into the classroom…",
-           "So I have made a quiz trail along Klasrovägen. Follow the questions all the way to the school museum – the very last question is waiting there. Answer all 6 correctly and you'll be pupils of the Ghost School and get a reward!"]
+      sv: ["Buuu! Jag är Spökläraren. För hundra år sedan undervisade jag barnen i den gamla skolan – och jag saknar det så mycket! Det finns inget roligare än att lära ut saker.", "Därför blir jag så glad när det är massor av barn ute på gatorna på Halloween. Jag har gjort en tipsrunda längs Klasrovägen bara för er. Klarar ni alla frågor kan ni hämta en belöning!"],
+      en: ["Boooo! I am the Ghost Teacher. A hundred years ago I taught the children at the old school – and I miss it so much! There's nothing more fun than teaching.", "That's why I get so happy when lots of children are out on the streets on Halloween. I have made a quiz trail along Klasrovägen just for you. Get all the questions right and you can collect a reward!"]
     },
     goal: { sv: "6 frågor längs Klasrovägen – den sista finns på skolmuseet.", en: "6 questions along Klasrovägen – the last one is at the school museum." },
     posterGoal: { sv: "Tipsrunda med 6 frågor", en: "Quiz trail with 6 questions" },
@@ -822,7 +810,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "26 okt 09:10";
+const VERSION = "26 okt 09:25";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
