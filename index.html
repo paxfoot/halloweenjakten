@@ -379,6 +379,7 @@ const MISSIONS = [
            "But you have a secret tool: your phone is now a Ghostometer 3000! It can analyse ghost slime, also known as ectoplasm. Find all five ghosts, scan them and discover their secrets!"]
     },
     goal: { sv: "Hitta och scanna alla 5 spöken på Solbackavägen.", en: "Find and scan all 5 ghosts on Solbackavägen." },
+    posterGoal: { sv: "Hitta och scanna alla 5 spöken!", en: "Find and scan all 5 ghosts!" },
     emoji: "👻", color: "#8fd3ff",
     where: { sv: "Solbackavägen", en: "Solbackavägen" },
     title:   { sv: "Spökjägarna", en: "Ghost Hunters" },
@@ -412,7 +413,8 @@ const MISSIONS = [
            "Tonight Hilda was brewing a potion to make pumpkins glow. But just as she was about to say the last magic word, a speck of dust got up her nose. ATCHOOO! There was a bang, a sparkle – and all seven cats dashed out the door.",
            "Now they're hiding along Flygarevägen. Hilda has too much of a cold to search herself. Can you help her? Find all seven cats and scan their QR codes so they can find their way home."]
     },
-    goal: { sv: "Hitta Hildas 7 katter på Flygarevägen.", en: "Find Hilda's 7 cats on Flygarevägen." }, emoji: "🐈‍⬛", color: "#c08bff",
+    goal: { sv: "Hitta Hildas 7 katter på Flygarevägen.", en: "Find Hilda's 7 cats on Flygarevägen." },
+    posterGoal: { sv: "Hjälp Häxan Hilda att hitta sina 7 bortsprungna katter!", en: "Help Hilda the Witch find her 7 runaway cats!" }, emoji: "🐈‍⬛", color: "#c08bff",
     where: { sv: "Flygarevägen", en: "Flygarevägen" },
     title:   { sv: "Häxans katter", en: "The Witch's Cats" },
     tagline: { sv: "Hitta Häxan Hildas 7 bortsprungna katter", en: "Find Hilda the Witch's 7 runaway cats" },
@@ -487,6 +489,7 @@ const MISSIONS = [
            "So I have made a quiz trail along Klasrovägen. Follow the questions all the way to the school museum – the very last question is waiting there. Answer all 6 correctly and you'll be pupils of the Ghost School and get a reward!"]
     },
     goal: { sv: "6 frågor längs Klasrovägen – den sista finns på skolmuseet.", en: "6 questions along Klasrovägen – the last one is at the school museum." },
+    posterGoal: { sv: "6 frågor längs vägen – den sista finns på skolmuseet.", en: "6 questions along the road – the last one is at the school museum." },
     emoji: "🎓", color: "#5fd4c4",
     where: { sv: "Klasrovägen → Skolmuseet", en: "Klasrovägen → Skolmuseet" },
     title:   { sv: "Spökläraren", en: "The Ghost Teacher" },
@@ -818,7 +821,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "26 okt 08:50";
+const VERSION = "26 okt 08:55";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1492,7 +1495,7 @@ function posters(base) {
       <div class="pbig">${m.emoji}</div>
       <h1 class="ptitle">${m.title.sv}</h1>
       <p class="psub">${m.title.en}</p>
-      <p class="ptext">${m.goal.sv}<br><i>${m.goal.en}</i></p>
+      <p class="ptext">${(m.posterGoal || m.goal).sv}<br><i>${(m.posterGoal || m.goal).en}</i></p>
       ${m.where && m.where.sv ? `<p class="pinfo">📍 ${both(m.where)}</p>` : ""}
       ${qr(base + "#/m/" + m.id, "Scanna för berättelsen · Scan for the story")}
     </div></div>`).join("");
