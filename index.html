@@ -191,7 +191,8 @@ button.s:active{transform:scale(.97)}
 .countdown div{background:var(--card2);border:1px solid var(--line);border-radius:14px;min-width:68px;padding:10px 6px;text-align:center}
 .countdown b{display:block;font-size:30px;line-height:1;color:var(--orange);font-variant-numeric:tabular-nums}
 .countdown span{font-size:13px;color:var(--muted)}
-.mcard.locked{opacity:.85;pointer-events:none}
+.mcard.locked{opacity:.92}
+.btn.lockedbtn{background:var(--card2);color:var(--muted);border:2px dashed var(--line);box-shadow:none;cursor:default}
 .helpcard{border:2px solid var(--orange);background:linear-gradient(180deg,rgba(255,138,31,.14),var(--card))}
 .helpcard h2{font-size:21px}
 .helpmodal{text-align:left}
@@ -574,6 +575,8 @@ const T = {
     countdownLabel: "Jakten börjar om",
     units: ["dagar", "tim", "min", "sek"],
     locked: "🔒 Öppnar 31 okt kl 14",
+    readStory: "Läs berättelsen",
+    opensSaturday: "Uppdraget öppnar lördag kl 14",
     timeLeft: "Tid kvar att hämta belöningen",
     hurry: "⏰ Mindre än 15 minuter kvar! Skynda er till ett belöningshus.",
     lastChance: "⏰ Belöningshusen stänger! Sista chansen att visa skärmen.",
@@ -701,6 +704,8 @@ const T = {
     countdownLabel: "The hunt starts in",
     units: ["days", "hrs", "min", "sec"],
     locked: "🔒 Opens 31 Oct at 2 pm",
+    readStory: "Read the story",
+    opensSaturday: "The mission opens Saturday at 2 pm",
     timeLeft: "Time left to collect your reward",
     hurry: "⏰ Less than 15 minutes left! Hurry to a reward house.",
     lastChance: "⏰ The reward houses are closing! Last chance to show this screen.",
@@ -813,7 +818,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "26 okt 08:35";
+const VERSION = "26 okt 08:45";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -911,13 +916,13 @@ function comingSoon() {
     <h2 class="section-h">${t("missions")}</h2>
     <div class="missions">
       ${MISSIONS.map(m => `
-        <div class="mcard locked" style="--c:${m.color}">
+        <a class="mcard locked" href="#/m/${m.id}" style="--c:${m.color}">
           <div class="mrow">
             <div class="mem">${m.emoji}</div>
             <div><h3>${L(m.title)}</h3><p>${L(m.tagline)}</p></div>
           </div>
-          <div style="margin-top:12px"><span class="chip">${t("locked")}</span></div>
-        </div>`).join("")}
+          <div style="margin-top:12px"><span class="chip">${t("locked")}</span> <span class="chip">📖 ${t("readStory")}</span></div>
+        </a>`).join("")}
     </div>`;
   tick();
 }
@@ -940,6 +945,20 @@ function closedPage() {
         <div class="mrow"><div class="mem">${m.emoji}</div><div><h3>${L(m.title)}</h3></div></div>
         <div style="margin-top:12px">${statusChip(m)}</div>
       </div>`).join("")}</div>` : ""}`;
+}
+function lockedStory(m) {
+  app.innerHTML = `
+    <a class="back" href="#/">${t("back")}</a>
+    <div class="mhead">
+      <div class="mem">${m.emoji}</div>
+      <h1>${L(m.title)}</h1>
+      ${L(m.where) ? `<p class="muted">📍 ${L(m.where)}</p>` : ""}
+    </div>
+    <section class="card" style="--c:${m.color}">
+      <div class="story">${L(m.story).map(p => `<p>${p}</p>`).join("")}</div>
+      <div class="goal"><span>${t("yourMission")}</span>${L(m.goal)}</div>
+    </section>
+    <button class="btn lockedbtn" type="button" disabled>🔒 ${t("opensSaturday")}</button>`;
 }
 function tooEarly() {
   app.innerHTML = `
@@ -1119,7 +1138,7 @@ function flushStats() {
     // Sent without cookies: Google scripts can fail for people signed in to several Google accounts.
     try {
       fetch(EVENT.statsUrl, { method: "POST", mode: "no-cors", credentials: "omit", keepalive: true,
-        headers: { "Content-Type": "text/plain" }, body });
+        headers: { "Content-Type": "text/plain" }, body }).catch(() => {}); // no signal: just skip
     } catch (e) {}
   }
 }
@@ -1352,7 +1371,7 @@ function organizer() {
 /* Sharp vector emojis everywhere (Noto Emoji, Apache 2.0 – see emoji/CREDITS.txt), so the
    app looks the same on every phone and matches the printed posters.
    NOTE: when adding a new emoji to the texts, also add its SVG to the emoji/ folder. */
-const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cd", "1f4e1", "1f4f1", "1f4f7", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f634", "1f64b", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "2753", "2b50"]);
+const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cd", "1f4d6", "1f4e1", "1f4f1", "1f4f7", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f634", "1f64b", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "2753", "2b50"]);
 function vectorEmojis(root) {
   const isEmo = c => { const o = c.codePointAt(0); return o >= 0x1f000 || (o >= 0x2300 && o <= 0x23ff) || (o >= 0x2600 && o <= 0x27bf) || (o >= 0x2b00 && o <= 0x2bff); };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -1710,7 +1729,7 @@ function render() {
   if (parts[0] === "arrangor" || parts[0] === "organizer") return organizer();
   const now = Date.now();
   RERENDER_AT = [OPENS, CLOSES, GRACE_END].find(x => x > now) || 0;
-  if (!isOpen()) return parts[0] === "q" ? tooEarly() : comingSoon();
+  if (!isOpen()) return parts[0] === "q" ? tooEarly() : (parts[0] === "m" && byId(parts[1])) ? lockedStory(byId(parts[1])) : comingSoon();
   if (now >= CLOSES && !S.organizer) {
     const m = parts[0] === "m" ? byId(parts[1]) : null;
     if (m && canClaim(m) && now < GRACE_END) return claimView(m);
