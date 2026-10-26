@@ -192,6 +192,9 @@ button.s:active{transform:scale(.97)}
 .countdown b{display:block;font-size:30px;line-height:1;color:var(--orange);font-variant-numeric:tabular-nums}
 .countdown span{font-size:13px;color:var(--muted)}
 .mcard.locked{opacity:.85;pointer-events:none}
+.lockcd{text-align:center;border:2px solid var(--c);padding:12px 12px 14px}
+.lockcd p{margin:0}
+.lockcd .countdown b{color:var(--c)}
 .btn.lockedbtn{background:var(--card2);color:var(--muted);border:2px dashed var(--line);box-shadow:none;cursor:default}
 .helpcard{border:2px solid var(--orange);background:linear-gradient(180deg,rgba(255,138,31,.14),var(--card))}
 .helpcard h2{font-size:21px}
@@ -569,6 +572,7 @@ const T = {
     locked: "🔒 Öppnar 31 okt kl 14",
     readStory: "Läs berättelsen",
     opensSaturday: "Uppdraget öppnar lördag kl 14",
+    missionOpensIn: "Uppdraget öppnar om",
     timeLeft: "Tid kvar att hämta belöningen",
     hurry: "⏰ Mindre än 15 minuter kvar! Skynda er till ett belöningshus.",
     lastChance: "⏰ Belöningshusen stänger! Sista chansen att visa skärmen.",
@@ -698,6 +702,7 @@ const T = {
     locked: "🔒 Opens 31 Oct at 2 pm",
     readStory: "Read the story",
     opensSaturday: "The mission opens Saturday at 2 pm",
+    missionOpensIn: "The mission opens in",
     timeLeft: "Time left to collect your reward",
     hurry: "⏰ Less than 15 minutes left! Hurry to a reward house.",
     lastChance: "⏰ The reward houses are closing! Last chance to show this screen.",
@@ -810,7 +815,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "26 okt 09:25";
+const VERSION = "26 okt 09:30";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -946,11 +951,16 @@ function lockedStory(m) {
       <h1>${L(m.title)}</h1>
       ${L(m.where) ? `<p class="muted">📍 ${L(m.where)}</p>` : ""}
     </div>
+    <section class="card lockcd" style="--c:${m.color}">
+      <p class="muted">${t("missionOpensIn")}</p>
+      <div class="countdown" id="countdown"></div>
+    </section>
     <section class="card" style="--c:${m.color}">
       <div class="story">${L(m.story).map(p => `<p>${p}</p>`).join("")}</div>
       <div class="goal"><span>${t("yourMission")}</span>${L(m.goal)}</div>
     </section>
     <button class="btn lockedbtn" type="button" disabled>🔒 ${t("opensSaturday")}</button>`;
+  tick();
 }
 function tooEarly() {
   app.innerHTML = `
