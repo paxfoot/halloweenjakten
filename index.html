@@ -191,7 +191,7 @@ button.s:active{transform:scale(.97)}
 .countdown div{background:var(--card2);border:1px solid var(--line);border-radius:14px;min-width:68px;padding:10px 6px;text-align:center}
 .countdown b{display:block;font-size:30px;line-height:1;color:var(--orange);font-variant-numeric:tabular-nums}
 .countdown span{font-size:13px;color:var(--muted)}
-.mcard.locked{opacity:.92}
+.mcard.locked{opacity:.85;pointer-events:none}
 .btn.lockedbtn{background:var(--card2);color:var(--muted);border:2px dashed var(--line);box-shadow:none;cursor:default}
 .helpcard{border:2px solid var(--orange);background:linear-gradient(180deg,rgba(255,138,31,.14),var(--card))}
 .helpcard h2{font-size:21px}
@@ -822,7 +822,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "26 okt 09:05";
+const VERSION = "26 okt 09:10";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -920,13 +920,13 @@ function comingSoon() {
     <h2 class="section-h">${t("missions")}</h2>
     <div class="missions">
       ${MISSIONS.map(m => `
-        <a class="mcard locked" href="#/m/${m.id}" style="--c:${m.color}">
+        <div class="mcard locked" style="--c:${m.color}">
           <div class="mrow">
             <div class="mem">${m.emoji}</div>
             <div><h3>${L(m.title)}</h3><p>${L(m.tagline)}</p></div>
           </div>
-          <div style="margin-top:12px"><span class="chip">${t("locked")}</span> <span class="chip">📖 ${t("readStory")}</span></div>
-        </a>`).join("")}
+          <div style="margin-top:12px"><span class="chip">${t("locked")}</span></div>
+        </div>`).join("")}
     </div>`;
   tick();
 }
