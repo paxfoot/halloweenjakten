@@ -600,6 +600,7 @@ const T = {
     outLabel: "slut på belöningar",
     start: "Starta uppdraget",
     yourMission: "Ert uppdrag",
+    continueBtn: "Fortsätt",
     houseNo: "Nr",
     seeAll: "Se alla uppdrag",
     readAgain: "Läs berättelsen igen",
@@ -730,6 +731,7 @@ const T = {
     outLabel: "out of rewards",
     start: "Start mission",
     yourMission: "Your mission",
+    continueBtn: "Continue",
     houseNo: "No.",
     seeAll: "See all missions",
     readAgain: "Read the story again",
@@ -815,11 +817,11 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "26 okt 09:35";
+const VERSION = "27 okt 10:45";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
-function fresh(keepLang, keepOrg) { return { lang: keepLang, organizer: keepOrg, found: {}, started: {}, solved: {}, wrong: {}, claimed: {} }; }
+function fresh(keepLang, keepOrg) { return { lang: keepLang, organizer: keepOrg, found: {}, started: {}, solved: {}, wrong: {}, claimed: {}, storySeen: {} }; }
 S = Object.assign(fresh(S.lang), S);
 if (!S.lang) S.lang = (navigator.language || "").toLowerCase().startsWith("sv") ? "sv" : "en";
 const OPENS = new Date(EVENT.opensAt).getTime();
@@ -942,6 +944,19 @@ function closedPage() {
         <div class="mrow"><div class="mem">${m.emoji}</div><div><h3>${L(m.title)}</h3></div></div>
         <div style="margin-top:12px">${statusChip(m)}</div>
       </div>`).join("")}</div>` : ""}`;
+}
+function storyFirst(code, m) {
+  app.innerHTML = `
+    <div class="mhead">
+      <div class="mem">${m.emoji}</div>
+      <h1>${L(m.title)}</h1>
+      ${L(m.where) ? `<p class="muted">📍 ${L(m.where)}</p>` : ""}
+    </div>
+    <section class="card" style="--c:${m.color}">
+      <div class="story">${L(m.story).map(p => `<p>${p}</p>`).join("")}</div>
+      <div class="goal"><span>${t("yourMission")}</span>${L(m.goal)}</div>
+    </section>
+    <button class="btn" type="button" data-act="storyContinue" data-code="${code}">${t("continueBtn")} ➜</button>`;
 }
 function lockedStory(m) {
   app.innerHTML = `
@@ -1226,6 +1241,8 @@ function scan(code) {
     return;
   }
   const { m, it } = hit;
+  // First time in this mission? Show the story first; the find is shown (and counted) after "Fortsätt".
+  if (!S.storySeen[m.id] && !S.found[code]) return storyFirst(code, m);
   if (it.quiz && !S.found[code]) { markStarted(m.id); return quizView(code, m, it); }
   const already = !!S.found[code] && !scan.fresh;
   scan.fresh = false;
@@ -1664,7 +1681,11 @@ document.addEventListener("click", e => {
   if (!el) return;
   const act = el.dataset.act;
   if (act === "closeModal" && e.target !== el) return; // only backdrop clicks close
-  if (act === "start") { markStarted(el.dataset.m); render(); window.scrollTo(0, 0); }
+  if (act === "start") { S.storySeen[el.dataset.m] = true; markStarted(el.dataset.m); render(); window.scrollTo(0, 0); }
+  if (act === "storyContinue") {
+    const hit = findCode(el.dataset.code);
+    if (hit) { S.storySeen[hit.m.id] = true; save(); scan(el.dataset.code); try { window.scrollTo(0, 0); } catch (e) {} }
+  }
   if (act === "answer") answer(el);
   if (act === "guess") guess(el.dataset.m, el.dataset.s);
   if (act === "claim") {
