@@ -584,6 +584,8 @@ const T = {
       "Under evenemanget checkar du enkelt in och ut via hemsidan när du har tid."
     ],
     helpCta: "Skicka ett sms",
+    copyPhone: "Kopiera telefonnummer",
+    copied: "Kopierat!",
     helpOr: "Hör av dig på",
     close: "Stäng",
     soonText: "Lördag 31 oktober kl 14–20 vaknar spökena, katterna rymmer, ett brott begås i skogen och Spökläraren väntar i skolmuseet. Ta med mobilen och kom ut och jaga!",
@@ -685,7 +687,7 @@ const T = {
     statsUpdated: "Uppdaterad",
     statsNote: "Den här mobilen räknas inte, eftersom den är en arrangörsmobil.",
     stPhones: "Mobiler", stViews: "Sidvisningar", stClaimed: "Belöningar hämtade", stHelp: "Hjälpa till",
-    stHelpDetail: (o, sms) => `${o} läste · ${sms} sms`,
+    stHelpDetail: (o, sms, cp) => `${o} läste · ${sms} sms · ${cp} kopierade`,
     stMission: "Uppdrag", stStarted: "Startade", stDone: "Klara", stRewards: "Belöningar",
     stItems: "Hittad av antal mobiler",
     styleDark: "🌙 Mörk",
@@ -715,6 +717,8 @@ const T = {
       "During the event, you can easily check in and out via the website whenever you're available."
     ],
     helpCta: "Send a text",
+    copyPhone: "Copy phone number",
+    copied: "Copied!",
     helpOr: "Get in touch on",
     close: "Close",
     soonText: "On Saturday 31 October, 2–8 pm, the ghosts wake up, the cats run away, a crime happens in the woods and the Ghost Teacher waits at the school museum. Bring your phone and come out hunting!",
@@ -815,7 +819,7 @@ const T = {
     statsUpdated: "Updated",
     statsNote: "This phone isn't counted, because it's an organizer phone.",
     stPhones: "Phones", stViews: "Page views", stClaimed: "Rewards collected", stHelp: "Volunteer",
-    stHelpDetail: (o, sms) => `${o} read · ${sms} texts`,
+    stHelpDetail: (o, sms, cp) => `${o} read · ${sms} texts · ${cp} copied`,
     stMission: "Mission", stStarted: "Started", stDone: "Finished", stRewards: "Rewards",
     stItems: "Found by number of phones",
     styleDark: "🌙 Dark",
@@ -837,7 +841,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "27 okt 13:35";
+const VERSION = "27 okt 13:50";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1410,7 +1414,7 @@ function organizer() {
 /* Sharp vector emojis everywhere (Noto Emoji, Apache 2.0 – see emoji/CREDITS.txt), so the
    app looks the same on every phone and matches the printed posters.
    NOTE: when adding a new emoji to the texts, also add its SVG to the emoji/ folder. */
-const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cd", "1f4d6", "1f4e1", "1f4f1", "1f4f7", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f634", "1f64b", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "2753", "2b50"]);
+const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cb", "1f4cd", "1f4d6", "1f4e1", "1f4f1", "1f4f7", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f634", "1f64b", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "2753", "2b50"]);
 function vectorEmojis(root) {
   const isEmo = c => { const o = c.codePointAt(0); return o >= 0x1f000 || (o >= 0x2300 && o <= 0x23ff) || (o >= 0x2600 && o <= 0x27bf) || (o >= 0x2b00 && o <= 0x2bff); };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -1475,7 +1479,7 @@ function renderStats(c) {
       ${tile(n("phones"), t("stPhones"))}
       ${tile(sum("view:"), t("stViews"))}
       ${tile(sum("claimed:"), t("stClaimed"))}
-      ${tile(n("help:sms"), t("stHelp"), t("stHelpDetail", n("help:open"), n("help:sms")))}
+      ${tile(n("help:sms") + n("help:copy"), t("stHelp"), t("stHelpDetail", n("help:open"), n("help:sms"), n("help:copy")))}
     </div>
     <table class="stable">
       <tr><th>${t("stMission")}</th><th>${t("stStarted")}</th><th>${t("stDone")}</th><th>${t("stRewards")}</th></tr>
@@ -1729,11 +1733,30 @@ document.addEventListener("click", e => {
         ${t("helpBody").map(x => `<p>${x}</p>`).join("")}
         ${ph ? `
         <p style="text-align:center;margin-top:14px">${t("helpOr")} <b class="phone">${ph}</b></p>
-        <a class="btn green" href="sms:${digits}">💬 ${t("helpCta")}</a>` : ""}
+        <a class="btn green" href="sms:${digits}">💬 ${t("helpCta")}</a>
+        <button class="btn ghost" type="button" data-act="copyPhone">📋 ${t("copyPhone")}</button>` : ""}
         <button class="btn ghost" type="button" data-act="closeModal">${t("close")}</button>
       </div>`);
   }
   if (act === "statsRefresh") loadStats();
+  if (act === "copyPhone") {
+    const ph = EVENT.helperPhone;
+    const done = ok => {
+      el.textContent = ok ? "✓ " + t("copied") : ph;
+      if (ok) setTimeout(() => { if (el.isConnected) { el.textContent = "📋 " + t("copyPhone"); } }, 2500);
+    };
+    const fallback = () => {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = ph; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, ph.length);
+        const ok = document.execCommand("copy"); ta.remove(); done(ok);
+      } catch (e) { done(false); }
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(ph).then(() => done(true), fallback);
+    else fallback();
+    track("help:copy");
+  }
   if (act === "orgStyle") {
     S.orgLight = el.dataset.style === "light"; save();
     document.querySelector(".org").dataset.style = el.dataset.style;
