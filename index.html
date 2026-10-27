@@ -218,6 +218,15 @@ button.s:active{transform:scale(.97)}
 .btn.lockedbtn{background:var(--card2);color:var(--muted);border:2px dashed var(--line);box-shadow:none;cursor:default}
 .helpcard{border:2px solid var(--orange);background:linear-gradient(180deg,rgba(255,138,31,.14),var(--card))}
 .helpcard h2{font-size:21px}
+.hmeter{margin:14px 0 4px}
+.hrow{display:grid;grid-template-columns:repeat(8,1fr);gap:2px}
+.hrow .h{font-size:38px;line-height:1;text-align:center;transition:filter .3s}
+.hrow .h img.emo{height:1em}
+.hrow .h.on{filter:drop-shadow(0 0 8px rgba(255,200,110,.75));animation:hpop .5s cubic-bezier(.2,1.6,.4,1) both;animation-delay:var(--d)}
+.hrow .h.off{filter:grayscale(1) brightness(.6);opacity:.35}
+@keyframes hpop{0%{transform:scale(.3)}100%{transform:scale(1)}}
+.htext{margin:10px 0 0;font-size:15px}
+.htext b{color:var(--orange2)}
 .helpmodal{text-align:left}
 .helpmodal p{margin:.6em 0}
 .helpmodal .phone{font-size:20px;white-space:nowrap}
@@ -380,6 +389,9 @@ const EVENT = {
   // STATISTICS: the "Web app" link from the Apps Script in your Google Sheet (ends with /exec).
   // Leave "" to switch counting off. Only numbers are counted – no names, no cookies.
   statsUrl: "https://script.google.com/macros/s/AKfycbxfualBF3BIR5V6T1S5hbsvTVSh9VvNgKAeJ2MDWAsuJODhtp5yKjhfU6LU8jk9IXuH/exec",
+  // Goal for the "how many reward houses" picture on the Coming soon page.
+  // The number signed up is counted from the rows (with a house name) in the reward-house sheet.
+  houseGoal: 8,
   sheetUrl: "https://docs.google.com/spreadsheets/d/1-ih75_cghyeV4l0LNj3S7iDS4vB8MxZ9GbFwelb8y9A/edit",
   // Only used if there is no sheet. Leave empty [] to hide.
   prizeHouses: [
@@ -576,6 +588,8 @@ const T = {
     soon: "Kommer snart!",
     helpTitle: "Kan du tänka dig att hjälpa till?",
     helpTeaser: "Vi söker fler grannar som vill vara belöningshus 🏠",
+    hmText: (n, more) => `<b>${n}</b> är redan med – vi hoppas på <b>${more}</b> till!`,
+    hmDone: n => `<b>${n}</b> är redan med – tack! 🎉`,
     helpMore: "Läs mer",
     helpBody: [
       "Halloweenjakten är ett ideellt evenemang som drivs av oss grannar – för att ge barnen en magisk Halloween. 🎃",
@@ -709,6 +723,8 @@ const T = {
     soon: "Coming soon!",
     helpTitle: "Would you like to help?",
     helpTeaser: "We're looking for more neighbors to be reward houses 🏠",
+    hmText: (n, more) => `<b>${n}</b> ${n === 1 ? "has" : "have"} already joined – we're hoping for <b>${more}</b> more!`,
+    hmDone: n => `<b>${n}</b> have already joined – thank you! 🎉`,
     helpMore: "Read more",
     helpBody: [
       "The Halloween Hunt is a non-profit event run by us neighbors – to give the kids a magical Halloween. 🎃",
@@ -841,7 +857,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "27 okt 13:50";
+const VERSION = "27 okt 14:00";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -934,6 +950,7 @@ function comingSoon() {
     <section class="card helpcard">
       <h2>🙋 ${t("helpTitle")}</h2>
       <p>${t("helpTeaser")}</p>
+      <div class="hmeter" data-housemeter>${houseMeterHTML()}</div>
       <button class="btn" type="button" data-act="helpInfo">${t("helpMore")}</button>
     </section>
     <h2 class="section-h">${t("missions")}</h2>
@@ -1234,6 +1251,14 @@ async function loadHouses() {
       .filter(h => h.name);
   } catch (e) { if (HOUSES === null) HOUSES = "error"; }
   document.querySelectorAll("[data-houses]").forEach(el => el.innerHTML = housesHTML());
+  document.querySelectorAll("[data-housemeter]").forEach(el => el.innerHTML = houseMeterHTML());
+}
+function houseMeterHTML() {
+  const goal = EVENT.houseGoal || 8;
+  if (!Array.isArray(HOUSES)) return "";
+  const n = HOUSES.length, shown = Math.max(goal, n);
+  return `<div class="hrow">${Array.from({ length: shown }, (_, i) => `<span class="h ${i < n ? "on" : "off"}" style="--d:${i * 70}ms">🏠</span>`).join("")}</div>
+    <p class="htext">${n >= goal ? t("hmDone", n) : t("hmText", n, goal - n)}</p>`;
 }
 function housesHTML() {
   if (!EVENT.sheetUrl) {
