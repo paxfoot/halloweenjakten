@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#160d22">
+<!-- The app makes its own map links, so the phone shouldn't guess addresses or numbers -->
+<meta name="format-detection" content="telephone=no,address=no,email=no">
 <title>Halloweenjakten</title>
 <meta name="description" content="Fyra spännande uppdrag i kvarteret för barn: spöken, rymda katter, ett brott i skogen och Spökläraren. Kl 14–20 – ta med mobilen!">
 <!-- Link preview (WhatsApp, Messenger, Facebook, SMS …). Bump ?v= when the picture changes. -->
@@ -203,6 +205,14 @@ button.s:active{transform:scale(.97)}
 .house.off{opacity:.45}.house.off .dot{background:#777;box-shadow:none}
 .house.out .dot{background:var(--red)}
 .house small{display:block;color:var(--muted)}
+.house .hname{flex:1}
+.maplink{color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+.maplink::after{content:" ↗";font-size:.8em;opacity:.6}
+.hdist{white-space:nowrap;font-size:14px;font-weight:600;color:var(--orange2);margin-left:6px}
+.house.off .hdist{color:var(--muted)}
+.geobtn{font:inherit;font-weight:600;font-size:15px;padding:8px 14px;border-radius:999px;border:1px solid var(--orange2);background:transparent;color:var(--orange2);cursor:pointer;margin:6px 0 4px}
+.geobtn.small{font-size:13px;padding:4px 10px;margin:0 0 0 6px}
+.geonote{font-size:14px;color:var(--muted);margin:6px 0}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:16px;z-index:50}
 .modal .card{max-width:420px;width:100%;margin:0;text-align:center}
 .hurry{background:rgba(255,179,71,.18);border:1px solid var(--orange2);border-radius:12px;padding:10px 12px;margin:4px 0 12px;font-weight:600}
@@ -403,6 +413,8 @@ const EVENT = {
   // Goal for the "how many reward houses" picture on the Coming soon page.
   // The number signed up is counted from the rows (with a house name) in the reward-house sheet.
   houseGoal: 8,
+  // Town added to addresses for the map links.
+  town: "Sollentuna",
   // Secret link for user testing (on the "Starta användartest" poster).
   // A phone that opens it becomes a test phone: everything unlocked, nothing counted.
   testCode: "testa-k7q2",
@@ -647,6 +659,12 @@ const T = {
     loadingHouses: "Hämtar belöningshus…",
     housesError: "Kunde inte hämta listan med belöningshus just nu.",
     closed: "stängt",
+    geoBtn: "Visa hur långt det är",
+    geoAsking: "Hämtar din plats…",
+    geoDenied: "Mobilen fick inte använda platsen. Du kan slå på det i mobilens inställningar.",
+    geoError: "Kunde inte hitta din plats just nu.",
+    geoRetry: "Försök igen",
+    distAbout: d => `ca ${d}`,
     outLabel: "slut på belöningar",
     start: "Starta uppdraget",
     yourMission: "Ert uppdrag",
@@ -796,6 +814,12 @@ const T = {
     loadingHouses: "Loading reward houses…",
     housesError: "Couldn't load the reward house list right now.",
     closed: "closed",
+    geoBtn: "Show how far away",
+    geoAsking: "Finding your location…",
+    geoDenied: "The phone wasn't allowed to use your location. You can turn it on in the phone's settings.",
+    geoError: "Couldn't find your location right now.",
+    geoRetry: "Try again",
+    distAbout: d => `about ${d}`,
     outLabel: "out of rewards",
     start: "Start mission",
     yourMission: "Your mission",
@@ -899,7 +923,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "28 okt 15:05";
+const VERSION = "28 okt 16:40";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1292,10 +1316,10 @@ async function loadHouses() {
     const res = await fetch(sheetCsvUrl(EVENT.sheetUrl), { cache: "no-store" });
     if (!res.ok) throw new Error(res.status);
     HOUSES = parseCSV(await res.text()).slice(1)
-      .map(r => ({ name: (r[0] || "").trim(), status: houseStatus(r[1]), note: (r[2] || "").trim() }))
+      .map(r => ({ name: (r[0] || "").trim(), status: houseStatus(r[1]), note: (r[2] || "").trim(), pos: parseCoords(r[3]) }))
       .filter(h => h.name);
   } catch (e) { if (HOUSES === null) HOUSES = "error"; }
-  document.querySelectorAll("[data-houses]").forEach(el => el.innerHTML = housesHTML());
+  refreshHouses();
   document.querySelectorAll("[data-housemeter]").forEach(el => el.innerHTML = houseMeterHTML());
 }
 function houseMeterHTML() {
@@ -1305,16 +1329,83 @@ function houseMeterHTML() {
   return `<div class="hrow">${Array.from({ length: shown }, (_, i) => `<span class="h ${i < n ? "on" : "off"}" style="--d:${i * 70}ms">🏠</span>`).join("")}</div>
     <p class="htext">${n >= goal ? t("hmDone", n) : t("hmText", n, goal - n)}</p>`;
 }
+/* ---------- Map links and distances ---------- */
+// Column D in the sheet: coordinates copied from Google Maps, e.g. "59.4283, 17.9506".
+function parseCoords(v) {
+  const m = String(v || "").match(/(-?\d{1,3}[.,]\d+)\s*[,; ]\s*(-?\d{1,3}[.,]\d+)/);
+  if (!m) return null;
+  const lat = parseFloat(m[1].replace(",", ".")), lng = parseFloat(m[2].replace(",", "."));
+  return Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : null;
+}
+// A name with a house number is an address; otherwise use the note (e.g. Skolmuseet → Klasrovägen 61).
+function houseAddress(h) {
+  if (/\d/.test(h.name)) return h.name;
+  if (/\d/.test(h.note)) return h.note;
+  return h.name;
+}
+function mapUrl(h) {
+  if (h.pos) return `https://www.google.com/maps/search/?api=1&query=${h.pos.lat},${h.pos.lng}`;
+  const q = houseAddress(h) + (EVENT.town ? ", " + EVENT.town : "");
+  return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+}
+let GEO = { state: "off", pos: null, watch: null }; // off | asking | on | denied | error
+function metersBetween(a, b) {
+  const R = 6371000, r = x => x * Math.PI / 180;
+  const dLat = r(b.lat - a.lat), dLng = r(b.lng - a.lng);
+  const x = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+function fmtDistance(m) {
+  if (m < 1000) return t("distAbout", Math.max(10, Math.round(m / 10) * 10) + " m");
+  return t("distAbout", (m / 1000).toLocaleString(S.lang === "sv" ? "sv-SE" : "en-GB", { maximumFractionDigits: 1 }) + " km");
+}
+function refreshHouses() { document.querySelectorAll("[data-houses]").forEach(el => el.innerHTML = housesHTML()); }
+function startGeo() {
+  if (!navigator.geolocation || GEO.watch !== null) return;
+  GEO.state = "asking"; refreshHouses();
+  GEO.watch = navigator.geolocation.watchPosition(p => {
+    const pos = { lat: p.coords.latitude, lng: p.coords.longitude };
+    const moved = !GEO.pos || metersBetween(GEO.pos, pos) > 8;
+    GEO.pos = pos; GEO.state = "on";
+    if (!S.geoOn) { S.geoOn = true; save(); }
+    if (moved) refreshHouses();
+  }, err => {
+    GEO.state = err.code === 1 ? "denied" : (GEO.pos ? "on" : "error");
+    if (err.code === 1) { S.geoOn = false; save(); navigator.geolocation.clearWatch(GEO.watch); GEO.watch = null; }
+    refreshHouses();
+  }, { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 });
+}
+// If the player already allowed location earlier, show distances again without asking.
+try {
+  if (S.geoOn && navigator.permissions) navigator.permissions.query({ name: "geolocation" }).then(p => { if (p.state === "granted") startGeo(); }).catch(() => {});
+} catch (e) {}
+
 function housesHTML() {
   if (!EVENT.sheetUrl) {
     return `<p class="muted">${t("prizeHouses")}</p><ul class="times">${EVENT.prizeHouses.map(x => `<li>🏠 ${L(x)}</li>`).join("")}</ul>`;
   }
   if (HOUSES === null) return `<p class="muted">${t("loadingHouses")}</p>`;
   if (HOUSES === "error") return `<p class="muted">${t("housesError")}</p>`;
-  const by = st => HOUSES.filter(h => h.status === st);
+  const dist = h => (GEO.pos && h.pos) ? metersBetween(GEO.pos, h.pos) : null;
+  const by = st => HOUSES.filter(h => h.status === st)
+    .sort((a, b) => (dist(a) ?? 1e9) - (dist(b) ?? 1e9));
   const label = { open: "", out: ` (${t("outLabel")})`, closed: ` (${t("closed")})` };
-  const li = h => `<li class="house ${h.status === "open" ? "" : "off " + h.status}"><span class="dot"></span><span>${esc(h.name)}${label[h.status]}${h.note ? `<small>${esc(h.note)}</small>` : ""}</span></li>`;
+  const li = h => {
+    const d = dist(h);
+    return `<li class="house ${h.status === "open" ? "" : "off " + h.status}"><span class="dot"></span>
+      <span class="hname"><a class="maplink" href="${mapUrl(h)}" target="_blank" rel="noopener">${esc(h.name)}</a>${label[h.status]}${h.note ? `<small>${esc(h.note)}</small>` : ""}</span>
+      ${d !== null ? `<span class="hdist">${fmtDistance(d)}</span>` : ""}</li>`;
+  };
+  const canGeo = !!navigator.geolocation && HOUSES.some(h => h.pos);
+  let geo = "";
+  if (canGeo) {
+    if (GEO.state === "off") geo = `<button class="geobtn" type="button" data-act="geoStart">📍 ${t("geoBtn")}</button>`;
+    else if (GEO.state === "asking") geo = `<p class="geonote">${t("geoAsking")}</p>`;
+    else if (GEO.state === "denied") geo = `<p class="geonote">${t("geoDenied")}</p>`;
+    else if (GEO.state === "error") geo = `<p class="geonote">${t("geoError")} <button class="geobtn small" type="button" data-act="geoRetry">${t("geoRetry")}</button></p>`;
+  }
   return `<p class="muted">${t("openNow")}</p>
+    ${geo}
     ${by("open").length ? "" : `<p>${t("noneOpen")}</p>`}
     <ul class="times">${by("open").map(li).join("")}${by("out").map(li).join("")}${by("closed").map(li).join("")}</ul>`;
 }
@@ -1869,6 +1960,8 @@ document.addEventListener("click", e => {
       <button class="btn ghost" type="button" data-act="closeModal">${t("cancel")}</button>`);
   }
   if (act === "testExitYes") { S = fresh(S.lang, false); save(); go("#/"); }
+  if (act === "geoStart") startGeo();
+  if (act === "geoRetry") { if (GEO.watch !== null) { navigator.geolocation.clearWatch(GEO.watch); GEO.watch = null; } startGeo(); }
   if (act === "orgStyle") {
     S.orgLight = el.dataset.style === "light"; save();
     document.querySelector(".org").dataset.style = el.dataset.style;
