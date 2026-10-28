@@ -634,7 +634,7 @@ const T = {
     tooEarlyText: "Du hittade en hemlig kod! Men den vaknar inte förrän lördag 31 oktober kl 14. Kom tillbaka då!",
     previewLocked: "Visa ”Kommer snart”-sidan",
     unlockedNote: "🔓 Den här mobilen är upplåst så att du kan testa innan jakten börjar.",
-    intro: "Fyra spännande uppdrag väntar i kvarteret! Välj ett uppdrag, leta upp alla QR-koder och scanna dem med mobilen. Klarar ni ett uppdrag får ni en belöning i ett belöningshus.",
+    intro: n => `${["Inga", "Ett", "Två", "Tre", "Fyra", "Fem"][n] || n} spännande uppdrag väntar i kvarteret! Välj ett uppdrag, leta upp alla QR-koder och scanna dem med mobilen. Klarar ni ett uppdrag får ni en belöning i ett belöningshus.`,
     howTitle: "Så funkar det",
     steps: ["Välj ett uppdrag och läs berättelsen.", "Leta upp QR-koderna och scanna dem med mobilens kamera.", "Klart? Visa skärmen i ett belöningshus och hämta er belöning!"],
     samePhone: "Använd samma mobil hela tiden – det är mobilen som kommer ihåg vad ni hittat.",
@@ -779,7 +779,7 @@ const T = {
     tooEarlyText: "You found a secret code! But it won't wake up until Saturday 31 October at 2 pm. Come back then!",
     previewLocked: "Preview the “Coming soon” page",
     unlockedNote: "🔓 This phone is unlocked so you can test before the hunt starts.",
-    intro: "Four spooky missions are waiting in the neighbourhood! Pick a mission, find all the QR codes and scan them with your phone. Finish a mission and collect a reward at a reward house.",
+    intro: n => `${["No", "One", "Two", "Three", "Four", "Five"][n] || n} spooky missions are waiting in the neighbourhood! Pick a mission, find all the QR codes and scan them with your phone. Finish a mission and collect a reward at a reward house.`,
     howTitle: "How it works",
     steps: ["Pick a mission and read the story.", "Find the QR codes and scan them with your phone's camera.", "All done? Show the screen at a reward house and get your reward!"],
     samePhone: "Use the same phone the whole time – the phone is what remembers what you've found.",
@@ -891,7 +891,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "28 okt 12:50";
+const VERSION = "28 okt 12:55";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -931,6 +931,9 @@ function statusChip(m) {
 }
 
 /* ---------- Home ---------- */
+// Missions left out of user testing (the last Ghost Teacher question needs the museum staff).
+const TEST_HIDDEN = ["skolan"];
+const homeMissions = () => S.tester ? MISSIONS.filter(m => !TEST_HIDDEN.includes(m.id)) : MISSIONS;
 function home() {
   const times = EVENT.prizeTimes.map(x => `<li>🕔 ${L(x)}</li>`).join("");
   const houses = EVENT.sheetUrl ? "sheet" : EVENT.prizeHouses.map(x => `<li>🏠 ${L(x)}</li>`).join("");
@@ -939,7 +942,7 @@ function home() {
       <div class="moon"></div>
       <p class="kicker">${L(EVENT.date)}</p>
       <h1 class="spooky">${t("appTitle")}</h1>
-      <p class="lead">${t("intro")}</p>
+      <p class="lead">${t("intro", homeMissions().length)}</p>
     </section>
     <section class="card">
       <h2>${t("howTitle")}</h2>
@@ -948,7 +951,7 @@ function home() {
     </section>
     <h2 class="section-h">${t("missions")}</h2>
     <div class="missions">
-      ${MISSIONS.map(m => `
+      ${homeMissions().map(m => `
         <a class="mcard" href="#/m/${m.id}" style="--c:${m.color}">
           <div class="mrow">
             <div class="mem">${m.emoji}</div>
@@ -1065,7 +1068,7 @@ function tooEarly() {
 /* ---------- Mission ---------- */
 function missionPage(id) {
   const m = byId(id);
-  if (!m) return home();
+  if (!m || (S.tester && TEST_HIDDEN.includes(m.id))) return home();
   const head = `
     <a class="back" href="#/">${t("back")}</a>
     <div class="mhead">
