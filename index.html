@@ -249,6 +249,13 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 .sitems li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line);font-size:15px}
 .sitems li small{color:var(--muted)}
 .sitems li.low b{color:var(--red)}
+#testbar{position:sticky;top:53px;z-index:9;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;padding:8px 16px;background:#1f3a24;border-bottom:1px solid #7ee08a;color:#d9ffe0;font-size:14px}
+#testbar[hidden]{display:none}
+#testbar .tb{display:flex;gap:6px}
+#testbar button{font:inherit;font-weight:600;font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid #7ee08a;background:transparent;color:#d9ffe0;cursor:pointer}
+.testposters{margin-top:10px}
+.poster.testp .ptext{font-size:3.6cqw}
+.poster.testp .pinfo{font-size:3.4cqw}
 /* organizer */
 .org h1{font-size:28px}
 .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:10px 0 24px}
@@ -339,6 +346,9 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 @page{size:A4;margin:8mm}
 @media print{
   body[data-print=posters] .signs,body[data-print=signs] .posters{display:none!important}
+  body:not([data-print=testposter]) .testposters{display:none!important}
+  body[data-print=testposter] .posters,body[data-print=testposter] .signs{display:none!important}
+  .testposters{margin:0}
   body[data-print=signs] .sign-set:not(.print-on),
   body[data-print=signs] .big-signs:not(.print-on),
   body[data-print=signs] .small-signs:not(.print-on){display:none!important}
@@ -361,6 +371,7 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
   <a class="brand" href="#/">🎃 <span id="brandName">Halloweenjakten</span></a>
   <button class="lang" id="langBtn" type="button">EN</button>
 </header>
+<div id="testbar" hidden></div>
 <main id="app"></main>
 <div id="modalRoot"></div>
 
@@ -392,6 +403,9 @@ const EVENT = {
   // Goal for the "how many reward houses" picture on the Coming soon page.
   // The number signed up is counted from the rows (with a house name) in the reward-house sheet.
   houseGoal: 8,
+  // Secret link for user testing (on the "Starta användartest" poster).
+  // A phone that opens it becomes a test phone: everything unlocked, nothing counted.
+  testCode: "testa-k7q2",
   sheetUrl: "https://docs.google.com/spreadsheets/d/1-ih75_cghyeV4l0LNj3S7iDS4vB8MxZ9GbFwelb8y9A/edit",
   // Only used if there is no sheet. Leave empty [] to hide.
   prizeHouses: [
@@ -693,6 +707,17 @@ const T = {
     printSmall: "Små (flera per sida)",
     showSize: "Visa:",
     styleLabel: "Affischstil:",
+    testMode: "Testläge",
+    testNotCounted: "räknas inte i statistiken",
+    testRestart: "Börja om",
+    testExit: "Avsluta",
+    testRestartQ: "Börja om testet?",
+    testRestartText: "Allt du har hittat och klarat på den här mobilen tas bort, så att du kan testa från början igen.",
+    testExitQ: "Avsluta testläget?",
+    testExitText: "Mobilen blir en vanlig mobil igen: uppdragen låses tills Halloweenjakten öppnar, och det du gör räknas i statistiken. Det du har hittat i testet tas bort.",
+    testPosterTitle: "Användartest",
+    testPosterIntro: "Skriv ut den här affischen till dina testare. När de scannar den blir deras mobil en testmobil: allt är upplåst och inget räknas i statistiken.",
+    printTestPoster: "Skriv ut testaffischen",
     statsTitle: "Statistik",
     statsOff: "Statistiken är inte påslagen än.",
     statsLoading: "Hämtar statistik…",
@@ -827,6 +852,17 @@ const T = {
     printSmall: "Small (several per page)",
     showSize: "Show:",
     styleLabel: "Poster style:",
+    testMode: "Test mode",
+    testNotCounted: "not counted in the statistics",
+    testRestart: "Start over",
+    testExit: "Exit",
+    testRestartQ: "Start the test over?",
+    testRestartText: "Everything you've found and finished on this phone is removed, so you can test from the start again.",
+    testExitQ: "Exit test mode?",
+    testExitText: "The phone becomes a normal phone again: the missions lock until the Halloween Hunt opens, and what you do is counted in the statistics. What you found during the test is removed.",
+    testPosterTitle: "User test",
+    testPosterIntro: "Print this poster for your testers. When they scan it, their phone becomes a test phone: everything is unlocked and nothing is counted in the statistics.",
+    printTestPoster: "Print the test poster",
     statsTitle: "Statistics",
     statsOff: "Statistics are not switched on yet.",
     statsLoading: "Loading statistics…",
@@ -857,7 +893,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "27 okt 14:00";
+const VERSION = "28 okt 12:45";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1399,6 +1435,13 @@ function organizer() {
         <p class="muted no-print">${t("postersIntro")}</p>
         ${posters(base)}
       </div>
+      ${EVENT.testCode ? `
+      <div class="testposters">
+        <h2 class="no-print">🧪 ${t("testPosterTitle")}</h2>
+        <p class="muted no-print">${t("testPosterIntro")}</p>
+        <button class="btn no-print" type="button" data-act="print" data-what="testposter" style="margin-bottom:14px">🖨️ ${t("printTestPoster")}</button>
+        ${testPoster(base)}
+      </div>` : ""}
       <div class="signs">
       <h2 class="no-print">🏷️ ${t("signs")}</h2>
       <p class="muted no-print">${t("signsIntro")}</p>
@@ -1439,7 +1482,7 @@ function organizer() {
 /* Sharp vector emojis everywhere (Noto Emoji, Apache 2.0 – see emoji/CREDITS.txt), so the
    app looks the same on every phone and matches the printed posters.
    NOTE: when adding a new emoji to the texts, also add its SVG to the emoji/ folder. */
-const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cb", "1f4cd", "1f4d6", "1f4e1", "1f4f1", "1f4f7", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f634", "1f64b", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "2753", "2b50"]);
+const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cb", "1f4cd", "1f4d6", "1f4e1", "1f4f1", "1f4f7", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f634", "1f64b", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9ea", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "2753", "2b50"]);
 function vectorEmojis(root) {
   const isEmo = c => { const o = c.codePointAt(0); return o >= 0x1f000 || (o >= 0x2300 && o <= 0x23ff) || (o >= 0x2600 && o <= 0x27bf) || (o >= 0x2b00 && o <= 0x2bff); };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -1530,6 +1573,22 @@ function fitTitles() {
 }
 
 /* ---------- Posters ---------- */
+function testPoster(base) {
+  return `
+    <div class="poster-wrap"><div class="poster mission testp" style="--c:#7ee08a">
+      <span class="pdeco" style="top:3cqw;left:4cqw">🎃</span>
+      <span class="pdeco" style="top:5cqw;right:5cqw">👻</span>
+      <span class="pdeco" style="bottom:4cqw;left:5cqw">🐈‍⬛</span>
+      <span class="pdeco" style="bottom:4cqw;right:5cqw">🔍</span>
+      <p class="pkick">Halloweenjakten</p>
+      <div class="pbig">🧪</div>
+      <h1 class="ptitle">User test</h1>
+      <p class="psub">The Halloween Hunt</p>
+      <p class="ptext">Scan to try the Halloween Hunt before it opens. Everything is unlocked, and nothing you do is counted in the statistics.</p>
+      <p class="pinfo">Then scan the mission posters and QR codes as usual.</p>
+      <div class="pqr"><div class="qr" data-qr="${base}#/${EVENT.testCode}"></div><b>Start the test</b></div>
+    </div></div>`;
+}
 function posters(base) {
   const both = o => (o.sv === o.en ? o.sv : `${o.sv} · ${o.en}`);
   const deco = (a, b, c, d) => `
@@ -1782,6 +1841,24 @@ document.addEventListener("click", e => {
     else fallback();
     track("help:copy");
   }
+  if (act === "testRestart") {
+    openModal(`
+      <div style="font-size:54px">🧪</div>
+      <h2>${t("testRestartQ")}</h2>
+      <p>${t("testRestartText")}</p>
+      <button class="btn" type="button" data-act="testRestartYes">${t("testRestart")}</button>
+      <button class="btn ghost" type="button" data-act="closeModal">${t("cancel")}</button>`);
+  }
+  if (act === "testRestartYes") { S = fresh(S.lang, true); S.tester = true; save(); go("#/"); }
+  if (act === "testExit") {
+    openModal(`
+      <div style="font-size:54px">👋</div>
+      <h2>${t("testExitQ")}</h2>
+      <p>${t("testExitText")}</p>
+      <button class="btn" type="button" data-act="testExitYes">${t("testExit")}</button>
+      <button class="btn ghost" type="button" data-act="closeModal">${t("cancel")}</button>`);
+  }
+  if (act === "testExitYes") { S = fresh(S.lang, false); save(); go("#/"); }
   if (act === "orgStyle") {
     S.orgLight = el.dataset.style === "light"; save();
     document.querySelector(".org").dataset.style = el.dataset.style;
@@ -1817,6 +1894,13 @@ function render() {
   document.getElementById("brandName").textContent = t("appTitle");
   document.title = t("appTitle");
   const parts = ROUTE.replace(/^#\/?/, "").split("/");
+  if (EVENT.testCode && parts[0] === EVENT.testCode) {
+    if (!S.tester) { S = fresh(S.lang, true); S.tester = true; save(); } // fresh start, unlocked, not counted
+    ROUTE = "#/";
+    try { history.replaceState(null, "", "#/"); } catch (e) {}
+    return render();
+  }
+  renderTestbar();
   if (parts[0] === "arrangor" || parts[0] === "organizer") return organizer();
   const now = Date.now();
   RERENDER_AT = [OPENS, CLOSES, GRACE_END].find(x => x > now) || 0;
@@ -1830,6 +1914,13 @@ function render() {
   if (parts[0] === "m" && parts[1]) return missionPage(parts[1]);
   if (parts[0] === "arrangor" || parts[0] === "organizer") return organizer();
   home();
+}
+function renderTestbar() {
+  const bar = document.getElementById("testbar");
+  if (!bar) return;
+  bar.hidden = !S.tester;
+  if (S.tester) bar.innerHTML = `<span>🧪 <b>${t("testMode")}</b> · ${t("testNotCounted")}</span>
+    <span class="tb"><button type="button" data-act="testRestart">${t("testRestart")}</button><button type="button" data-act="testExit">${t("testExit")}</button></span>`;
 }
 /* The app keeps track of the current page itself, so it also works
    inside previews where normal links are blocked. */
