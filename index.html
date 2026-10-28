@@ -708,13 +708,12 @@ const T = {
     showSize: "Visa:",
     styleLabel: "Affischstil:",
     testMode: "Testläge",
-    testNotCounted: "räknas inte i statistiken",
     testRestart: "Börja om",
     testExit: "Avsluta",
     testRestartQ: "Börja om testet?",
     testRestartText: "Allt du har hittat och klarat på den här mobilen tas bort, så att du kan testa från början igen.",
     testExitQ: "Avsluta testläget?",
-    testExitText: "Mobilen blir en vanlig mobil igen: uppdragen låses tills Halloweenjakten öppnar, och det du gör räknas i statistiken. Det du har hittat i testet tas bort.",
+    testExitText: "Mobilen blir en vanlig mobil igen, och uppdragen låses tills Halloweenjakten öppnar. Det du har hittat i testet tas bort.",
     testPosterTitle: "Användartest",
     testPosterIntro: "Skriv ut den här affischen till dina testare. När de scannar den blir deras mobil en testmobil: allt är upplåst och inget räknas i statistiken.",
     printTestPoster: "Skriv ut testaffischen",
@@ -853,13 +852,12 @@ const T = {
     showSize: "Show:",
     styleLabel: "Poster style:",
     testMode: "Test mode",
-    testNotCounted: "not counted in the statistics",
     testRestart: "Start over",
     testExit: "Exit",
     testRestartQ: "Start the test over?",
     testRestartText: "Everything you've found and finished on this phone is removed, so you can test from the start again.",
     testExitQ: "Exit test mode?",
-    testExitText: "The phone becomes a normal phone again: the missions lock until the Halloween Hunt opens, and what you do is counted in the statistics. What you found during the test is removed.",
+    testExitText: "The phone becomes a normal phone again, and the missions lock until the Halloween Hunt opens. What you found during the test is removed.",
     testPosterTitle: "User test",
     testPosterIntro: "Print this poster for your testers. When they scan it, their phone becomes a test phone: everything is unlocked and nothing is counted in the statistics.",
     printTestPoster: "Print the test poster",
@@ -893,7 +891,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "28 okt 12:45";
+const VERSION = "28 okt 12:50";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1584,7 +1582,7 @@ function testPoster(base) {
       <div class="pbig">🧪</div>
       <h1 class="ptitle">User test</h1>
       <p class="psub">The Halloween Hunt</p>
-      <p class="ptext">Scan to try the Halloween Hunt before it opens. Everything is unlocked, and nothing you do is counted in the statistics.</p>
+      <p class="ptext">Scan to try the Halloween Hunt before it opens.</p>
       <p class="pinfo">Then scan the mission posters and QR codes as usual.</p>
       <div class="pqr"><div class="qr" data-qr="${base}#/${EVENT.testCode}"></div><b>Start the test</b></div>
     </div></div>`;
@@ -1919,7 +1917,7 @@ function renderTestbar() {
   const bar = document.getElementById("testbar");
   if (!bar) return;
   bar.hidden = !S.tester;
-  if (S.tester) bar.innerHTML = `<span>🧪 <b>${t("testMode")}</b> · ${t("testNotCounted")}</span>
+  if (S.tester) bar.innerHTML = `<span>🧪 <b>${t("testMode")}</b></span>
     <span class="tb"><button type="button" data-act="testRestart">${t("testRestart")}</button><button type="button" data-act="testExit">${t("testExit")}</button></span>`;
 }
 /* The app keeps track of the current page itself, so it also works
