@@ -932,7 +932,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "28 okt 16:55";
+const VERSION = "28 okt 17:00";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1397,13 +1397,17 @@ function housesHTML() {
   if (HOUSES === null) return `<p class="muted">${t("loadingHouses")}</p>`;
   if (HOUSES === "error") return `<p class="muted">${t("housesError")}</p>`;
   const dist = h => (GEO.pos && h.pos) ? metersBetween(GEO.pos, h.pos) : null;
-  const by = st => HOUSES.filter(h => h.status === st)
-    .sort((a, b) => (dist(a) ?? 1e9) - (dist(b) ?? 1e9));
+  const by = st => {
+    const list = HOUSES.filter(h => h.status === st);
+    return st === "open" ? list.sort((a, b) => (dist(a) ?? 1e9) - (dist(b) ?? 1e9)) : list;
+  };
   const label = { open: "", out: ` (${t("outLabel")})`, closed: ` (${t("closed")})` };
   const li = h => {
-    const d = dist(h);
-    return `<li class="house ${h.status === "open" ? "" : "off " + h.status}"><span class="dot"></span>
-      <span class="hname"><a class="maplink" href="${mapUrl(h)}" target="_blank" rel="noopener">${esc(h.name)}</a>${label[h.status]}${h.note ? `<small>${esc(h.note)}</small>` : ""}</span>
+    // Only open houses get a map link and a distance.
+    const open = h.status === "open", d = open ? dist(h) : null;
+    const name = open ? `<a class="maplink" href="${mapUrl(h)}" target="_blank" rel="noopener">${esc(h.name)}</a>` : esc(h.name);
+    return `<li class="house ${open ? "" : "off " + h.status}"><span class="dot"></span>
+      <span class="hname">${name}${label[h.status]}${h.note ? `<small>${esc(h.note)}</small>` : ""}</span>
       ${d !== null ? `<span class="hdist">${fmtDistance(d)}</span>` : ""}</li>`;
   };
   const canGeo = !!navigator.geolocation && HOUSES.some(h => h.pos);
