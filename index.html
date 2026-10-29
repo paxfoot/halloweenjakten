@@ -271,6 +271,13 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 #testbar .tb{display:flex;gap:6px}
 #testbar button{font:inherit;font-weight:600;font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid #7ee08a;background:transparent;color:#d9ffe0;cursor:pointer}
 .testposters{margin-top:10px}
+.housecards{margin-top:28px}
+.hclink{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.hclink input{font:inherit;font-size:15px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--ink)}
+.hcard h3{margin-top:4px}
+.hcard .em{font-size:44px}
+.hcard small{margin-top:2px}
+.hcard .hcnote{margin-top:6px;font-size:11px;color:#888}
 .poster.testp .ptext{font-size:3.6cqw}
 .poster.testp .pinfo{font-size:3.4cqw}
 .ah{padding:20px 16px;margin:0 0 16px}
@@ -406,6 +413,9 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 @media print{
   body[data-print=posters] .signs,body[data-print=signs] .posters{display:none!important}
   body:not([data-print=testposter]) .testposters{display:none!important}
+  body:not([data-print=housecards]) .housecards{display:none!important}
+  body[data-print=housecards] .posters,body[data-print=housecards] .signs,body[data-print=housecards] .testposters{display:none!important}
+  .housecards{margin:0}
   body[data-print=testposter] .posters,body[data-print=testposter] .signs{display:none!important}
   .testposters{margin:0}
   body[data-print=signs] .sign-set:not(.print-on),
@@ -779,6 +789,14 @@ const T = {
     printSmall: "Små (flera per sida)",
     showSize: "Visa:",
     styleLabel: "Affischstil:",
+    hcTitle: "QR-lappar för belöningshusen",
+    hcIntro: "Lappar med den hemliga länken till belöningshusens sida, att lägga i deras kit. Samma storlek som de små QR-lapparna.",
+    hcPaste: "Klistra in länken för belöningshus",
+    hcWhere: "Du hittar den i belöningshus-arket: 🎃 Halloweenjakten → Visa länk för belöningshus. Länken sparas bara på den här enheten.",
+    hcCount: "Antal lappar:",
+    hcMake: "Skapa lappar",
+    hcPrint: "Skriv ut QR-lapparna",
+    hcBad: "Det ser inte ut som rätt länk. Den ska sluta med #/hus/ och en kod. Kopiera den från arkets meny.",
     st_open: "Öppet", st_out: "Slut", st_closed: "Stängt",
     adTitle: "Belöningshus",
     adNotSetUp: "Den här sidan är inte påslagen än.",
@@ -957,6 +975,14 @@ const T = {
     printSmall: "Small (several per page)",
     showSize: "Show:",
     styleLabel: "Poster style:",
+    hcTitle: "QR cards for the reward houses",
+    hcIntro: "Cards with the secret link to the reward-house page, to put in their kits. Same size as the small QR signs.",
+    hcPaste: "Paste the reward-house link",
+    hcWhere: "Find it in the reward-house sheet: 🎃 Halloweenjakten → Visa länk för belöningshus. The link is only saved on this device.",
+    hcCount: "Number of cards:",
+    hcMake: "Make cards",
+    hcPrint: "Print the QR cards",
+    hcBad: "That doesn't look like the right link. It should end with #/hus/ and a code. Copy it from the sheet menu.",
     st_open: "Open", st_out: "Out of rewards", st_closed: "Closed",
     adTitle: "Reward houses",
     adNotSetUp: "This page isn't switched on yet.",
@@ -1024,7 +1050,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 11:45";
+const VERSION = "29 okt 11:50";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1779,6 +1805,11 @@ function organizer() {
         <button class="btn no-print" type="button" data-act="print" data-what="testposter" style="margin-bottom:14px">🖨️ ${t("printTestPoster")}</button>
         ${testPoster(base)}
       </div>` : ""}
+      <div class="housecards">
+        <h2 class="no-print">🏠 ${t("hcTitle")}</h2>
+        <p class="muted no-print">${t("hcIntro")}</p>
+        <div id="houseCardsBox">${houseCardsHTML()}</div>
+      </div>
       <div class="signs">
       <h2 class="no-print">🏷️ ${t("signs")}</h2>
       <p class="muted no-print">${t("signsIntro")}</p>
@@ -1807,13 +1838,49 @@ function organizer() {
   loadStats();
   fitTitles();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitles);
-  document.querySelectorAll("[data-qr]").forEach(el => {
+  drawQRs(document);
+}
+function drawQRs(root) {
+  root.querySelectorAll("[data-qr]").forEach(el => {
+    if (el.dataset.drawn) return;
+    el.dataset.drawn = "1";
     if (window.QRCode) {
       new QRCode(el, { text: el.dataset.qr, width: 380, height: 380, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
     } else {
       el.innerHTML = `<small style="word-break:break-all">${el.dataset.qr}</small>`;
     }
   });
+}
+
+/* ---------- QR cards for the reward-house kits ---------- */
+// The secret link is pasted here by the organizer and only remembered on this device.
+function houseCardsHTML() {
+  const link = S.houseLink || "";
+  const n = Math.min(24, Math.max(1, Number(S.houseCardCount) || 8));
+  return `
+    <div class="hclink no-print">
+      <label for="houseLinkInput"><b>${t("hcPaste")}</b></label>
+      <p class="muted" style="font-size:13px;margin:2px 0 8px">${t("hcWhere")}</p>
+      <input id="houseLinkInput" type="url" inputmode="url" autocomplete="off" placeholder="https://paxfoot.github.io/halloweenjakten/#/hus/…" value="${esc(link)}">
+      <div class="row" style="margin-top:10px;align-items:center">
+        <label class="muted" for="houseCardCount" style="flex:0 0 auto">${t("hcCount")}</label>
+        <input id="houseCardCount" type="number" min="1" max="24" value="${n}" style="width:80px;flex:0 0 auto">
+        <button class="btn" type="button" data-act="hcMake" style="margin:0">${t("hcMake")}</button>
+      </div>
+      <div id="hcMsg"></div>
+    </div>
+    ${link ? `
+    <button class="btn no-print" type="button" data-act="print" data-what="housecards" style="margin:14px 0">🖨️ ${t("hcPrint")}</button>
+    <div class="qr-grid hcgrid">${Array.from({ length: n }, () => `
+      <div class="qr-card hcard">
+        <div class="em">🏠</div>
+        <h3>Belöningshus</h3>
+        <small>Scanna för att ändra status för ditt hus</small>
+        <div class="qr" data-qr="${esc(link)}"></div>
+        <small>Reward house · Scan to change your house's status</small>
+        <small class="hcnote">Dela inte – bara för belöningshusen</small>
+      </div>`).join("")}
+    </div>` : ""}`;
 }
 
 /* Sharp vector emojis everywhere (Noto Emoji, Apache 2.0 – see emoji/CREDITS.txt), so the
@@ -2234,6 +2301,18 @@ document.addEventListener("click", e => {
     window.print();
   }
   if (act === "lockPreview") { S.organizer = false; save(); go("#/"); }
+  if (act === "hcMake") {
+    const v = (document.getElementById("houseLinkInput").value || "").trim();
+    const c = Math.min(24, Math.max(1, parseInt(document.getElementById("houseCardCount").value, 10) || 8));
+    if (!/^https:\/\/\S+#\/hus\/[A-Za-z0-9]+$/.test(v)) {
+      document.getElementById("hcMsg").innerHTML = `<p class="notice">${t("hcBad")}</p>`;
+      return;
+    }
+    S.houseLink = v; S.houseCardCount = c; save();
+    const box = document.getElementById("houseCardsBox");
+    box.innerHTML = houseCardsHTML();
+    vectorEmojis(box); drawQRs(box);
+  }
   if (act === "print") { document.body.dataset.print = el.dataset.what || ""; window.print(); }
   if (act === "reset") { if (confirm(t("resetConfirm"))) { S = fresh(S.lang, S.organizer); save(); alert(t("resetDone")); } }
 });
