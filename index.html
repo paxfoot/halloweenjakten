@@ -827,6 +827,7 @@ const T = {
     adOk: "OK",
     adFailed: "Det gick inte att spara",
     adErrNet: "Kontrollera att mobilen har internet och försök igen.",
+    adErrSlow: "Det tog för lång tid. Kontrollera att mobilen har internet och försök igen.",
     adErrHouse: "Huset finns inte i listan längre. Ladda om sidan och försök igen.",
     testMode: "Testläge",
     testStartedTitle: "Användartestet har startat!",
@@ -1014,6 +1015,7 @@ const T = {
     adOk: "OK",
     adFailed: "Couldn't save",
     adErrNet: "Check that the phone has internet and try again.",
+    adErrSlow: "It took too long. Check that the phone has internet and try again.",
     adErrHouse: "The house isn't in the list anymore. Reload the page and try again.",
     testMode: "Test mode",
     testStartedTitle: "User test started!",
@@ -1059,7 +1061,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 11:55";
+const VERSION = "29 okt 12:05";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1543,15 +1545,25 @@ function confirmStatus(i, st) {
     <button class="btn green" type="button" data-act="ahConfirm" data-i="${i}" data-st="${st}">${t("adYes")}</button>
     <button class="btn ghost" type="button" data-act="ahPickCancel">${t("abort")}</button>`, true);
 }
+// Saving can be cancelled, and gives up by itself after 15 seconds.
+let SAVING = null; // { id, ctrl, timer }
 async function adminSave(i, st) {
   const h = HOUSES[i];
-  openModal(`<div style="font-size:48px">⏳</div><h2>${t("adSaving")}</h2>`, true);
+  const id = Date.now(), ctrl = ("AbortController" in window) ? new AbortController() : null;
+  const timer = setTimeout(() => { if (SAVING && SAVING.id === id) { SAVING.timedOut = true; if (ctrl) ctrl.abort(); } }, 15000);
+  SAVING = { id, ctrl, timer, timedOut: false };
+  openModal(`<div style="font-size:48px">⏳</div><h2>${t("adSaving")}</h2>
+    <button class="btn ghost" type="button" data-act="ahSaveCancel">${t("abort")}</button>`, true);
   let res = null;
   try {
     const r = await fetch(EVENT.houseAdminUrl, { method: "POST", headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ kod: ADMIN.kod, hus: h.name, status: ST_SHEET[st] }) });
+      body: JSON.stringify({ kod: ADMIN.kod, hus: h.name, status: ST_SHEET[st] }), signal: ctrl ? ctrl.signal : undefined });
     res = await r.json();
   } catch (e) { res = null; }
+  clearTimeout(timer);
+  if (!SAVING || SAVING.id !== id) return;          // cancelled by the user: ignore the late answer
+  const timedOut = SAVING.timedOut;
+  SAVING = null;
   if (res && res.ok) {
     h.status = st; ADMIN.open = null;
     openModal(`<div style="font-size:54px">✅</div><h2>${t("adDone")}</h2>
@@ -1559,10 +1571,17 @@ async function adminSave(i, st) {
       <button class="btn" type="button" data-act="closeAndRender">${t("adOk")}</button>`, true);
     setTimeout(loadHouses, 4000);
   } else {
-    const msg = !res ? t("adErrNet") : res.fel === "kod" ? t("adBadLink") : res.fel === "hus" ? t("adErrHouse") : t("adErrNet");
+    const msg = timedOut ? t("adErrSlow") : !res ? t("adErrNet") : res.fel === "kod" ? t("adBadLink") : res.fel === "hus" ? t("adErrHouse") : t("adErrNet");
     openModal(`<div style="font-size:54px">😕</div><h2>${t("adFailed")}</h2><p>${msg}</p>
       <button class="btn" type="button" data-act="closeAndRender">${t("adOk")}</button>`, true);
+    loadHouses(); // show what the sheet really says
   }
+}
+function cancelSave() {
+  if (SAVING) { clearTimeout(SAVING.timer); if (SAVING.ctrl) SAVING.ctrl.abort(); SAVING = null; }
+  closeModal(); render();
+  loadHouses();                                     // the change may or may not have reached the sheet – show the truth
+  setTimeout(loadHouses, 4000);
 }
 
 /* ---------- Map links and distances ---------- */
@@ -2296,6 +2315,7 @@ document.addEventListener("click", e => {
   if (act === "ahChooseYes") { S.myHouse = HOUSES[Number(el.dataset.i)].name; save(); closeModal(); render(); window.scrollTo(0, 0); }
   if (act === "ahSwitch") { delete S.myHouse; save(); render(); window.scrollTo(0, 0); }
   if (act === "ahPickCancel") { closeModal(); render(); }
+  if (act === "ahSaveCancel") cancelSave();
   if (act === "ahPick") confirmStatus(Number(el.dataset.i), el.dataset.st);
   if (act === "ahConfirm") adminSave(Number(el.dataset.i), el.dataset.st);
   if (act === "geoStart") startGeo();
