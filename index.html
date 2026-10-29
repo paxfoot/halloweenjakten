@@ -307,6 +307,15 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 .myhead{display:flex;justify-content:space-between;align-items:center;margin:10px 0 10px}
 .ah.mine{padding:22px 18px}
 .adhelp{border:2px solid var(--orange2)}
+.faq{margin:28px 0 10px}
+.faq h2{font-size:20px;margin-bottom:10px}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:0 0 8px;overflow:hidden}
+.faq summary{cursor:pointer;list-style:none;padding:14px 44px 14px 16px;font-weight:600;position:relative}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:22px;color:var(--muted)}
+.faq details[open] summary::after{content:"–"}
+.faq details[open] summary{color:var(--orange2)}
+.faq details p{margin:0;padding:0 16px 14px;color:var(--ink)}
 .adhelp h3{margin:0 0 4px}
 .adhelp .btn{margin-top:12px}
 .stsel{position:relative;display:flex;align-items:center;border:2px solid var(--ink);border-radius:14px;background:rgba(255,255,255,.08)}
@@ -693,7 +702,7 @@ const T = {
     helpBody: [
       "Halloweenjakten är ett ideellt evenemang som drivs av oss grannar – för att ge barnen en magisk Halloween. 🎃",
       "Vi söker fler grannar som vill vara <b>belöningshus</b>, där barnen kan hämta en belöning när de har klarat ett uppdrag.",
-      "Belöningarna är redan inköpta och kan hämtas på morgonen samma dag.",
+      "Belöningarna är redan inköpta, och du får dem hem till dig samma dag.",
       "Under evenemanget checkar du enkelt in och ut via hemsidan när du har tid."
     ],
     helpCta: "Skicka ett sms",
@@ -830,6 +839,17 @@ const T = {
     adOk: "OK",
     adFailed: "Det gick inte att spara",
     adErrNet: "Kontrollera att mobilen har internet och försök igen.",
+    faqTitle: "Vanliga frågor",
+    faq: [
+      ["När får jag belönings-kitet?", "Emelie lämnar kitet hem till dig på lördagen, innan Halloweenjakten börjar."],
+      ["När börjar Halloweenjakten?", "Lördag 31 oktober kl 14. Den pågår till kl 20."],
+      ["Hur fungerar Halloweenjakten?", "Barnen scannar QR-koder runt om i kvarteret och klarar fyra uppdrag: Spökjägarna, Häxans katter, Brottet i skogen och Spökläraren. När de klarar ett uppdrag får de en belöningsskärm i mobilen, som de visar i ett belöningshus. På startsidan ser barnen vilka belöningshus som är öppna just nu."],
+      ["Vad ska jag göra när Halloweenjakten börjar?", "Ändra status till <b>Öppet</b> här på sidan när du är hemma och redo. Då visas ditt hus som öppet för barnen."],
+      ["Vad ska jag göra när någon vill ha en belöning?", "Titta på skärmen: det ska stå <b>”Uppdrag klart!”</b>, vilket uppdrag det gäller och en nedräkning som tickar – då vet du att det inte är en skärmdump. Ge <b>en belöning per barn</b> i gruppen. Be dem sedan trycka på <b>”Belöningen är hämtad”</b> och <b>”Ja, vi har fått den!”</b>, så kan samma skärm inte användas igen."],
+      ["Jag är inte hemma hela Halloweenjakten, vad gör jag då?", "Inga problem! Ändra till <b>Stängt</b> när du går, och tillbaka till <b>Öppet</b> när du är hemma igen. Barnen ser vilka hus som är öppna just då."],
+      ["Vad gör jag om jag får slut på belöningar?", "Ändra status till <b>Slut</b> här på sidan. Då ser barnen att ditt hus inte har fler belöningar, och går till ett annat belöningshus."],
+      ["Vad gör jag om det finns belöningar kvar efter kl 20?", "Halloweenjakten stänger kl 20, men barn som hunnit klara ett uppdrag har fem extra minuter på sig, så det kan komma någon fram till kl 20.05. Ändra sedan till <b>Stängt</b> och lämna tillbaka belöningarna som blev över till Emelie."]
+    ],
     adHelpTitle: "Går det inte att ändra?",
     adHelpText: "Skicka ett sms till Emelie, så ändrar hon statusen åt dig.",
     adErrSlow: "Det tog för lång tid. Kontrollera att mobilen har internet och försök igen.",
@@ -884,7 +904,7 @@ const T = {
     helpBody: [
       "The Halloween Hunt is a non-profit event run by us neighbors – to give the kids a magical Halloween. 🎃",
       "We're looking for more neighbors to be <b>reward houses</b>, where kids can pick up a reward after completing a mission.",
-      "The rewards are already purchased and can be picked up on the morning of the event.",
+      "The rewards are already purchased and will be delivered to your door on the day.",
       "During the event, you can easily check in and out via the website whenever you're available."
     ],
     helpCta: "Send a text",
@@ -1020,6 +1040,17 @@ const T = {
     adOk: "OK",
     adFailed: "Couldn't save",
     adErrNet: "Check that the phone has internet and try again.",
+    faqTitle: "Questions and answers",
+    faq: [
+      ["When do I get the reward kit?", "Emelie will drop the kit off at your house on Saturday, before the Halloween Hunt starts."],
+      ["When does the Halloween Hunt start?", "Saturday 31 October at 2 pm. It runs until 8 pm."],
+      ["How does the Halloween Hunt work?", "The kids scan QR codes around the neighbourhood and complete four missions: Ghost Hunters, The Witch's Cats, The Crime in the Woods and The Ghost Teacher. When they finish a mission, they get a reward screen on the phone, which they show at a reward house. On the start page the kids can see which reward houses are open right now."],
+      ["What do I do when the Halloween Hunt starts?", "Change the status to <b>Open</b> here on this page when you're home and ready. Your house then shows as open to the kids."],
+      ["What do I do when someone wants a reward?", "Look at the screen: it should say <b>“Mission complete!”</b>, which mission it is, and a countdown that keeps ticking – then you know it's not a screenshot. Give <b>one reward per child</b> in the group. Then ask them to tap <b>“Reward has been collected”</b> and <b>“Yes, we got it!”</b>, so the same screen can't be used again."],
+      ["I won't be home the whole time. What do I do?", "No problem! Change to <b>Closed</b> when you leave, and back to <b>Open</b> when you're home again. The kids see which houses are open at the moment."],
+      ["What do I do if I run out of rewards?", "Change the status to <b>Out of rewards</b> here on this page. The kids then see that your house has no more rewards and go to another reward house."],
+      ["What do I do if there are rewards left after 8 pm?", "The Halloween Hunt closes at 8 pm, but kids who managed to finish a mission get five extra minutes, so someone may come by until 8:05 pm. Then change to <b>Closed</b> and give the leftover rewards back to Emelie."]
+    ],
     adHelpTitle: "Can't change the status?",
     adHelpText: "Send a text to Emelie and she'll change it for you.",
     adErrSlow: "It took too long. Check that the phone has internet and try again.",
@@ -1068,7 +1099,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 12:10";
+const VERSION = "29 okt 13:10";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1530,7 +1561,11 @@ function adminListHTML() {
         <h3>${t("adHelpTitle")}</h3>
         <p>${t("adHelpText")}</p>
         <a class="btn green" href="sms:${EVENT.helperPhone.replace(/[^\d+]/g, "")}">💬 ${t("helpCta")}</a>
-      </section>` : ""}`;
+      </section>` : ""}
+      <section class="faq">
+        <h2>❓ ${t("faqTitle")}</h2>
+        ${t("faq").map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}
+      </section>`;
   }
   // Not chosen yet (or my house is gone from the list): pick a house
   return head + `
