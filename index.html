@@ -306,6 +306,9 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 .ahgo{font-size:28px;color:var(--muted);flex:0 0 auto;line-height:1}
 .myhead{display:flex;justify-content:space-between;align-items:center;margin:10px 0 10px}
 .ah.mine{padding:22px 18px}
+.adhelp{border:2px solid var(--orange2)}
+.adhelp h3{margin:0 0 4px}
+.adhelp .btn{margin-top:12px}
 .stsel{position:relative;display:flex;align-items:center;border:2px solid var(--ink);border-radius:14px;background:rgba(255,255,255,.08)}
 .stsel select{appearance:none;-webkit-appearance:none;width:100%;font:inherit;font-size:20px;font-weight:700;color:var(--ink);background:transparent;border:0;padding:16px 48px 16px 46px;border-radius:14px;cursor:pointer}
 .stsel select:focus{outline:3px solid var(--orange);outline-offset:2px}
@@ -827,6 +830,8 @@ const T = {
     adOk: "OK",
     adFailed: "Det gick inte att spara",
     adErrNet: "Kontrollera att mobilen har internet och försök igen.",
+    adHelpTitle: "Går det inte att ändra?",
+    adHelpText: "Skicka ett sms till Emelie, så ändrar hon statusen åt dig.",
     adErrSlow: "Det tog för lång tid. Kontrollera att mobilen har internet och försök igen.",
     adErrHouse: "Huset finns inte i listan längre. Ladda om sidan och försök igen.",
     testMode: "Testläge",
@@ -1015,6 +1020,8 @@ const T = {
     adOk: "OK",
     adFailed: "Couldn't save",
     adErrNet: "Check that the phone has internet and try again.",
+    adHelpTitle: "Can't change the status?",
+    adHelpText: "Send a text to Emelie and she'll change it for you.",
     adErrSlow: "It took too long. Check that the phone has internet and try again.",
     adErrHouse: "The house isn't in the list anymore. Reload the page and try again.",
     testMode: "Test mode",
@@ -1061,7 +1068,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 12:05";
+const VERSION = "29 okt 12:10";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1517,7 +1524,13 @@ function adminListHTML() {
           </select>
           <span class="chev">▾</span>
         </div>
-      </section>`;
+      </section>
+      ${ADMIN.failed && EVENT.helperPhone ? `
+      <section class="card adhelp">
+        <h3>${t("adHelpTitle")}</h3>
+        <p>${t("adHelpText")}</p>
+        <a class="btn green" href="sms:${EVENT.helperPhone.replace(/[^\d+]/g, "")}">💬 ${t("helpCta")}</a>
+      </section>` : ""}`;
   }
   // Not chosen yet (or my house is gone from the list): pick a house
   return head + `
@@ -1565,12 +1578,13 @@ async function adminSave(i, st) {
   const timedOut = SAVING.timedOut;
   SAVING = null;
   if (res && res.ok) {
-    h.status = st; ADMIN.open = null;
+    h.status = st; ADMIN.open = null; ADMIN.failed = false;
     openModal(`<div style="font-size:54px">✅</div><h2>${t("adDone")}</h2>
       <p class="adbig"><b>${esc(h.name)}</b></p><p class="adbig">${stLabel(st)}</p>
       <button class="btn" type="button" data-act="closeAndRender">${t("adOk")}</button>`, true);
     setTimeout(loadHouses, 4000);
   } else {
+    ADMIN.failed = true;
     const msg = timedOut ? t("adErrSlow") : !res ? t("adErrNet") : res.fel === "kod" ? t("adBadLink") : res.fel === "hus" ? t("adErrHouse") : t("adErrNet");
     openModal(`<div style="font-size:54px">😕</div><h2>${t("adFailed")}</h2><p>${msg}</p>
       <button class="btn" type="button" data-act="closeAndRender">${t("adOk")}</button>`, true);
