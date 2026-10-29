@@ -273,14 +273,20 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 .testposters{margin-top:10px}
 .poster.testp .ptext{font-size:3.6cqw}
 .poster.testp .pinfo{font-size:3.4cqw}
-.ah{padding:14px 16px;margin:10px 0}
+.ah{padding:20px 16px;margin:0 0 16px}
 .ah.editing{border:2px solid var(--orange)}
-.ahrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.ahname b{font-size:18px}
-.ahname small{display:block;color:var(--muted)}
-.ahst{white-space:nowrap;font-weight:600;font-size:14px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08)}
+.ahrow{display:flex;align-items:center;gap:12px;min-width:0}
+.ahicon{font-size:30px;line-height:1;flex:0 0 auto}
+.ahname{flex:1;min-width:0}
+.ahline{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0}
+.ahname b{font-size:clamp(15px,4.4vw,20px);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ahname small{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+@media (max-width:370px){.ah{padding:18px 12px}.ahrow{gap:9px}.ahicon{font-size:26px}.ahchange{padding:7px 11px}}
+.ahst{white-space:nowrap;font-weight:600;font-size:13px;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.08)}
 .ahst.st-open{color:var(--green)}.ahst.st-out{color:var(--red)}.ahst.st-closed{color:var(--muted)}
-.ahchange{margin-top:10px;padding:10px}
+.ahchange{flex:0 0 auto;font:inherit;font-weight:600;font-size:14px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.ahchange:active{background:rgba(255,255,255,.08)}
+.ah .ahq{margin:16px 0 8px}
 .ahq{margin:12px 0 6px}
 .ahbtns{display:grid;gap:8px}
 .ahbtn{font:inherit;font-weight:600;font-size:18px;padding:14px 16px;border-radius:14px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;text-align:left;gap:8px}
@@ -990,7 +996,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 10:45";
+const VERSION = "29 okt 11:10";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1429,8 +1435,12 @@ function adminListHTML() {
     const isOpen = ADMIN.open === i;
     return `<section class="card ah${isOpen ? " editing" : ""}">
       <div class="ahrow">
-        <div class="ahname"><b>${esc(h.name)}</b>${h.note ? `<small>${esc(h.note)}</small>` : ""}</div>
-        <span class="ahst st-${h.status}">${stLabel(h.status)}</span>
+        <span class="ahicon">🏠</span>
+        <div class="ahname">
+          <div class="ahline"><b>${esc(h.name)}</b><span class="ahst st-${h.status}">${stLabel(h.status)}</span></div>
+          ${h.note ? `<small>${esc(h.note)}</small>` : ""}
+        </div>
+        ${isOpen ? "" : `<button class="ahchange" type="button" data-act="ahOpen" data-i="${i}">${t("adChange")}</button>`}
       </div>
       ${isOpen ? `
         <p class="muted ahq">${t("adPick")}</p>
@@ -1439,7 +1449,7 @@ function adminListHTML() {
             <span>${stLabel(st)}</span>${st === h.status ? `<small>${t("adNow")} ✓</small>` : ""}</button>`).join("")}
         </div>
         <button class="btn ghost" type="button" data-act="ahCancel">${t("abort")}</button>`
-      : `<button class="btn ghost ahchange" type="button" data-act="ahOpen" data-i="${i}">✏️ ${t("adChange")}</button>`}
+      : ""}
     </section>`;
   }).join("");
 }
