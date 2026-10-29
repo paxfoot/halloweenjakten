@@ -283,11 +283,10 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 .ahchange{margin-top:10px;padding:10px}
 .ahq{margin:12px 0 6px}
 .ahbtns{display:grid;gap:8px}
-.ahbtn{font:inherit;font-weight:700;font-size:18px;padding:14px;border-radius:14px;border:2px solid var(--line);background:var(--card2);color:var(--ink);cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px}
-.ahbtn.st-open{border-color:var(--green)}.ahbtn.st-out{border-color:var(--red)}.ahbtn.st-closed{border-color:#888}
-.ahbtn.now{opacity:.45;cursor:default}
-.ahbtn small{font-size:13px;font-weight:600;color:var(--muted)}
-.ahbtn small::before{content:"(";}.ahbtn small::after{content:")"}
+.ahbtn{font:inherit;font-weight:600;font-size:18px;padding:14px 16px;border-radius:14px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;text-align:left;gap:8px}
+.ahbtn:active{background:rgba(255,255,255,.06)}
+.ahbtn.now{border-color:var(--ink);background:rgba(255,255,255,.12);font-weight:700;cursor:default}
+.ahbtn small{font-size:14px;font-weight:700;color:var(--ink)}
 .adbig{font-size:20px;margin:6px 0}
 .adchange{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;font-size:18px;font-weight:700;margin:12px 0 4px}
 .adchange span:first-child{opacity:.6;text-decoration:line-through}
@@ -766,7 +765,7 @@ const T = {
     adChange: "Ändra",
     abort: "Avbryt",
     adPick: "Välj ny status:",
-    adNow: "nu",
+    adNow: "Vald",
     adConfirmQ: "Ändra status?",
     adYes: "Ja, ändra",
     adSaving: "Sparar…",
@@ -938,7 +937,7 @@ const T = {
     adChange: "Change",
     abort: "Cancel",
     adPick: "Choose the new status:",
-    adNow: "now",
+    adNow: "Selected",
     adConfirmQ: "Change status?",
     adYes: "Yes, change",
     adSaving: "Saving…",
@@ -991,7 +990,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 10:15";
+const VERSION = "29 okt 10:40";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1437,7 +1436,7 @@ function adminListHTML() {
         <p class="muted ahq">${t("adPick")}</p>
         <div class="ahbtns">${["open", "out", "closed"].map(st => `
           <button class="ahbtn st-${st}${st === h.status ? " now" : ""}" type="button" data-act="ahPick" data-i="${i}" data-st="${st}" ${st === h.status ? "disabled" : ""}>
-            ${stLabel(st)}${st === h.status ? `<small>${t("adNow")}</small>` : ""}</button>`).join("")}
+            <span>${stLabel(st)}</span>${st === h.status ? `<small>${t("adNow")} ✓</small>` : ""}</button>`).join("")}
         </div>
         <button class="btn ghost" type="button" data-act="ahCancel">${t("abort")}</button>`
       : `<button class="btn ghost ahchange" type="button" data-act="ahOpen" data-i="${i}">✏️ ${t("adChange")}</button>`}
