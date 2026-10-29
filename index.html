@@ -273,6 +273,27 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 .testposters{margin-top:10px}
 .poster.testp .ptext{font-size:3.6cqw}
 .poster.testp .pinfo{font-size:3.4cqw}
+.ah{padding:14px 16px;margin:10px 0}
+.ah.editing{border:2px solid var(--orange)}
+.ahrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ahname b{font-size:18px}
+.ahname small{display:block;color:var(--muted)}
+.ahst{white-space:nowrap;font-weight:600;font-size:14px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08)}
+.ahst.st-open{color:var(--green)}.ahst.st-out{color:var(--red)}.ahst.st-closed{color:var(--muted)}
+.ahchange{margin-top:10px;padding:10px}
+.ahq{margin:12px 0 6px}
+.ahbtns{display:grid;gap:8px}
+.ahbtn{font:inherit;font-weight:700;font-size:18px;padding:14px;border-radius:14px;border:2px solid var(--line);background:var(--card2);color:var(--ink);cursor:pointer;display:flex;justify-content:center;align-items:center;gap:8px}
+.ahbtn.st-open{border-color:var(--green)}.ahbtn.st-out{border-color:var(--red)}.ahbtn.st-closed{border-color:#888}
+.ahbtn.now{opacity:.45;cursor:default}
+.ahbtn small{font-size:13px;font-weight:600;color:var(--muted)}
+.ahbtn small::before{content:"(";}.ahbtn small::after{content:")"}
+.adbig{font-size:20px;margin:6px 0}
+.adchange{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;font-size:18px;font-weight:700;margin:12px 0 4px}
+.adchange span:first-child{opacity:.6;text-decoration:line-through}
+.adchange .arrow{opacity:.7}
+.adchange .to{padding:4px 12px;border-radius:999px;border:2px solid var(--line)}
+.adchange .to.st-open{border-color:var(--green)}.adchange .to.st-out{border-color:var(--red)}.adchange .to.st-closed{border-color:#888}
 /* organizer */
 .org h1{font-size:28px}
 .qr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:10px 0 24px}
@@ -420,6 +441,10 @@ const EVENT = {
   // Goal for the "how many reward houses" picture on the Coming soon page.
   // The number signed up is counted from the rows (with a house name) in the reward-house sheet.
   houseGoal: 8,
+  // RESTRICTED HOUSE PAGE: the "Web app" link of the script in the reward-house sheet
+  // (apps-script/beloningshus.gs). The secret code is NOT stored here – it's in the link
+  // you get from the sheet menu "🎃 Halloweenjakten → Visa länk för belöningshus".
+  houseAdminUrl: "",
   // Town added to addresses for the map links.
   town: "Sollentuna",
   // Secret link for user testing (on the "Starta användartest" poster).
@@ -733,6 +758,23 @@ const T = {
     printSmall: "Små (flera per sida)",
     showSize: "Visa:",
     styleLabel: "Affischstil:",
+    st_open: "Öppet", st_out: "Slut", st_closed: "Stängt",
+    adTitle: "Belöningshus",
+    adIntro: "Här ändrar du status för ditt belöningshus. Tryck på <b>Ändra</b> vid ditt hus.",
+    adNotSetUp: "Den här sidan är inte påslagen än.",
+    adBadLink: "Länken fungerar inte längre. Hör av dig till Emelie så får du en ny.",
+    adChange: "Ändra",
+    abort: "Avbryt",
+    adPick: "Välj ny status:",
+    adNow: "nu",
+    adConfirmQ: "Ändra status?",
+    adYes: "Ja, ändra",
+    adSaving: "Sparar…",
+    adDone: "Klart!",
+    adOk: "OK",
+    adFailed: "Det gick inte att spara",
+    adErrNet: "Kontrollera att mobilen har internet och försök igen.",
+    adErrHouse: "Huset finns inte i listan längre. Ladda om sidan och försök igen.",
     testMode: "Testläge",
     testStartedTitle: "Användartestet har startat!",
     testStartedText: "Tack för att du testar Halloweenjakten! Spela precis som ett barn skulle göra.",
@@ -888,6 +930,23 @@ const T = {
     printSmall: "Small (several per page)",
     showSize: "Show:",
     styleLabel: "Poster style:",
+    st_open: "Open", st_out: "Out of rewards", st_closed: "Closed",
+    adTitle: "Reward houses",
+    adIntro: "Change the status of your reward house here. Tap <b>Change</b> next to your house.",
+    adNotSetUp: "This page isn't switched on yet.",
+    adBadLink: "This link doesn't work anymore. Contact Emelie for a new one.",
+    adChange: "Change",
+    abort: "Cancel",
+    adPick: "Choose the new status:",
+    adNow: "now",
+    adConfirmQ: "Change status?",
+    adYes: "Yes, change",
+    adSaving: "Saving…",
+    adDone: "Done!",
+    adOk: "OK",
+    adFailed: "Couldn't save",
+    adErrNet: "Check that the phone has internet and try again.",
+    adErrHouse: "The house isn't in the list anymore. Reload the page and try again.",
     testMode: "Test mode",
     testStartedTitle: "User test started!",
     testStartedText: "Thank you for testing the Halloween Hunt! Play just like a kid would.",
@@ -932,7 +991,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "28 okt 17:00";
+const VERSION = "29 okt 10:15";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1284,9 +1343,9 @@ function markStarted(id) {
   if (!S.started[id]) { S.started[id] = true; save(); track("start:" + id); }
 }
 function trackView() {
-  if (!S.counted && !S.organizer) { S.counted = true; save(); track("phones"); }
   const parts = ROUTE.replace(/^#\/?/, "").split("/");
-  if (parts[0] === "arrangor" || parts[0] === "organizer") return;
+  if (parts[0] === "arrangor" || parts[0] === "organizer" || parts[0] === "hus") return; // not counted at all
+  if (!S.counted && !S.organizer) { S.counted = true; save(); track("phones"); }
   const now = Date.now();
   const page = !isOpen() ? "soon" : (now >= CLOSES ? "closed" : parts[0] === "q" ? "scan" : parts[0] === "m" && byId(parts[1]) ? parts[1] : "home");
   track("view:" + page);
@@ -1339,6 +1398,74 @@ function houseMeterHTML() {
   return `<div class="hrow">${Array.from({ length: shown }, (_, i) => `<span class="h ${i < n ? "on" : "off"}" style="--d:${i * 70}ms">🏠</span>`).join("")}</div>
     <p class="htext">${n >= goal ? t("hmDone", n) : t("hmText", n, goal - n)}</p>`;
 }
+/* ---------- Reward-house page: neighbors change their status (#/hus/<code>) ---------- */
+const ST_SHEET = { open: "Öppet", out: "Slut", closed: "Stängt" };
+const ST_ICON = { open: "🟢", out: "🔴", closed: "⚪" };
+let ADMIN = { kod: "", valid: null, open: null };
+const stLabel = st => `${ST_ICON[st]} ${t("st_" + st)}`;
+function adminHouses(kod) {
+  if (ADMIN.kod !== kod) { ADMIN = { kod, valid: null, open: null }; checkAdminCode(); }
+  app.innerHTML = `
+    <div class="mhead"><div class="mem">🏠</div><h1>${t("adTitle")}</h1></div>
+    <section class="card">
+      <p>${t("adIntro")}</p>
+      ${!EVENT.houseAdminUrl ? `<p class="notice">${t("adNotSetUp")}</p>` : ADMIN.valid === false ? `<p class="notice">${t("adBadLink")}</p>` : ""}
+    </section>
+    <div data-adminhouses>${adminListHTML()}</div>`;
+}
+async function checkAdminCode() {
+  if (!EVENT.houseAdminUrl) return;
+  if (!ADMIN.kod) { ADMIN.valid = false; return; }
+  try {
+    const r = await fetch(EVENT.houseAdminUrl + "?kod=" + encodeURIComponent(ADMIN.kod) + "&t=" + Date.now());
+    ADMIN.valid = !!(await r.json()).ok;
+  } catch (e) { ADMIN.valid = null; }
+  if (ROUTE.startsWith("#/hus")) render();
+}
+function adminListHTML() {
+  if (HOUSES === null) return `<p class="muted">${t("loadingHouses")}</p>`;
+  if (HOUSES === "error") return `<p class="muted">${t("housesError")}</p>`;
+  if (!EVENT.houseAdminUrl || ADMIN.valid === false) return "";
+  return HOUSES.map((h, i) => {
+    const isOpen = ADMIN.open === i;
+    return `<section class="card ah${isOpen ? " editing" : ""}">
+      <div class="ahrow">
+        <div class="ahname"><b>${esc(h.name)}</b>${h.note ? `<small>${esc(h.note)}</small>` : ""}</div>
+        <span class="ahst st-${h.status}">${stLabel(h.status)}</span>
+      </div>
+      ${isOpen ? `
+        <p class="muted ahq">${t("adPick")}</p>
+        <div class="ahbtns">${["open", "out", "closed"].map(st => `
+          <button class="ahbtn st-${st}${st === h.status ? " now" : ""}" type="button" data-act="ahPick" data-i="${i}" data-st="${st}" ${st === h.status ? "disabled" : ""}>
+            ${stLabel(st)}${st === h.status ? `<small>${t("adNow")}</small>` : ""}</button>`).join("")}
+        </div>
+        <button class="btn ghost" type="button" data-act="ahCancel">${t("abort")}</button>`
+      : `<button class="btn ghost ahchange" type="button" data-act="ahOpen" data-i="${i}">✏️ ${t("adChange")}</button>`}
+    </section>`;
+  }).join("");
+}
+async function adminSave(i, st) {
+  const h = HOUSES[i];
+  openModal(`<div style="font-size:48px">⏳</div><h2>${t("adSaving")}</h2>`, true);
+  let res = null;
+  try {
+    const r = await fetch(EVENT.houseAdminUrl, { method: "POST", headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ kod: ADMIN.kod, hus: h.name, status: ST_SHEET[st] }) });
+    res = await r.json();
+  } catch (e) { res = null; }
+  if (res && res.ok) {
+    h.status = st; ADMIN.open = null;
+    openModal(`<div style="font-size:54px">✅</div><h2>${t("adDone")}</h2>
+      <p class="adbig"><b>${esc(h.name)}</b></p><p class="adbig">${stLabel(st)}</p>
+      <button class="btn" type="button" data-act="closeAndRender">${t("adOk")}</button>`, true);
+    setTimeout(loadHouses, 4000);
+  } else {
+    const msg = !res ? t("adErrNet") : res.fel === "kod" ? t("adBadLink") : res.fel === "hus" ? t("adErrHouse") : t("adErrNet");
+    openModal(`<div style="font-size:54px">😕</div><h2>${t("adFailed")}</h2><p>${msg}</p>
+      <button class="btn" type="button" data-act="closeAndRender">${t("adOk")}</button>`, true);
+  }
+}
+
 /* ---------- Map links and distances ---------- */
 // Column D in the sheet: coordinates copied from Google Maps, e.g. "59.4283, 17.9506".
 function parseCoords(v) {
@@ -1369,7 +1496,11 @@ function fmtDistance(m) {
   if (m < 1000) return t("distAbout", Math.max(10, Math.round(m / 10) * 10) + " m");
   return t("distAbout", (m / 1000).toLocaleString(S.lang === "sv" ? "sv-SE" : "en-GB", { maximumFractionDigits: 1 }) + " km");
 }
-function refreshHouses() { document.querySelectorAll("[data-houses]").forEach(el => el.innerHTML = housesHTML()); }
+function refreshHouses() {
+  document.querySelectorAll("[data-houses]").forEach(el => el.innerHTML = housesHTML());
+  const ad = document.querySelector("[data-adminhouses]");
+  if (ad && ADMIN.open === null && !document.querySelector(".modal")) ad.innerHTML = adminListHTML();
+}
 function startGeo() {
   if (!navigator.geolocation || GEO.watch !== null) return;
   GEO.state = "asking"; refreshHouses();
@@ -1624,7 +1755,7 @@ function organizer() {
 /* Sharp vector emojis everywhere (Noto Emoji, Apache 2.0 – see emoji/CREDITS.txt), so the
    app looks the same on every phone and matches the printed posters.
    NOTE: when adding a new emoji to the texts, also add its SVG to the emoji/ folder. */
-const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f446", "1f44b", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cb", "1f4cd", "1f4d6", "1f4e1", "1f4f1", "1f4f7", "1f4f8", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f634", "1f64b", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9ea", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "2753", "2b50"]);
+const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f446", "1f44b", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cb", "1f4cd", "1f4d6", "1f4e1", "1f4f1", "1f4f7", "1f4f8", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f534", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f615", "1f634", "1f64b", "1f7e2", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9ea", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "26aa", "26ab", "2705", "270f", "2753", "2b50"]);
 function vectorEmojis(root) {
   const isEmo = c => { const o = c.codePointAt(0); return o >= 0x1f000 || (o >= 0x2300 && o <= 0x23ff) || (o >= 0x2600 && o <= 0x27bf) || (o >= 0x2b00 && o <= 0x2bff); };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -2003,6 +2134,18 @@ document.addEventListener("click", e => {
   }
   if (act === "testExitYes") { S = fresh(S.lang, false); save(); go("#/"); }
   if (act === "itemInfo") itemInfo(el.dataset.code);
+  if (act === "ahOpen") { ADMIN.open = Number(el.dataset.i); render(); }
+  if (act === "ahCancel") { ADMIN.open = null; render(); }
+  if (act === "ahPick") {
+    const i = Number(el.dataset.i), h = HOUSES[i], st = el.dataset.st;
+    openModal(`
+      <h2>${t("adConfirmQ")}</h2>
+      <p class="adbig"><b>${esc(h.name)}</b></p>
+      <div class="adchange"><span>${stLabel(h.status)}</span><span class="arrow">➜</span><span class="to st-${st}">${stLabel(st)}</span></div>
+      <button class="btn green" type="button" data-act="ahConfirm" data-i="${i}" data-st="${st}">${t("adYes")}</button>
+      <button class="btn ghost" type="button" data-act="closeModal">${t("abort")}</button>`);
+  }
+  if (act === "ahConfirm") adminSave(Number(el.dataset.i), el.dataset.st);
   if (act === "geoStart") startGeo();
   if (act === "geoRetry") { if (GEO.watch !== null) { navigator.geolocation.clearWatch(GEO.watch); GEO.watch = null; } startGeo(); }
   if (act === "orgStyle") {
@@ -2054,6 +2197,7 @@ function render() {
     return;
   }
   renderTestbar();
+  if (parts[0] === "hus") return adminHouses(parts[1] || "");
   if (parts[0] === "arrangor" || parts[0] === "organizer") return organizer();
   const now = Date.now();
   RERENDER_AT = [OPENS, CLOSES, GRACE_END].find(x => x > now) || 0;
