@@ -286,12 +286,21 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 .ahst.st-open{color:var(--green)}.ahst.st-out{color:var(--red)}.ahst.st-closed{color:var(--muted)}
 .ahchange{flex:0 0 auto;font:inherit;font-weight:600;font-size:14px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
 .ahchange:active{background:rgba(255,255,255,.08)}
-.ah .ahq{margin:18px 0 8px}
+.ah .ahq{display:block;margin:20px 0 8px}
 .pickh{display:block;width:100%;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .pickh:active{transform:scale(.98)}
 .ahgo{font-size:28px;color:var(--muted);flex:0 0 auto;line-height:1}
 .myhead{display:flex;justify-content:space-between;align-items:center;margin:10px 0 10px}
 .ah.mine{padding:22px 18px}
+.stsel{position:relative;display:flex;align-items:center;border:2px solid var(--ink);border-radius:14px;background:rgba(255,255,255,.08)}
+.stsel select{appearance:none;-webkit-appearance:none;width:100%;font:inherit;font-size:20px;font-weight:700;color:var(--ink);background:transparent;border:0;padding:16px 48px 16px 46px;border-radius:14px;cursor:pointer}
+.stsel select:focus{outline:3px solid var(--orange);outline-offset:2px}
+.stsel select option{color:#111;background:#fff}
+.stsel .stdot{position:absolute;left:18px;width:16px;height:16px;border-radius:50%;pointer-events:none}
+.stsel.st-open .stdot{background:var(--green);box-shadow:0 0 10px var(--green)}
+.stsel.st-out .stdot{background:var(--red)}
+.stsel.st-closed .stdot{background:#ddd}
+.stsel .chev{position:absolute;right:18px;font-size:22px;pointer-events:none;color:var(--ink)}
 .ahicon.big{font-size:46px}
 .bigname{font-size:clamp(20px,6vw,26px)!important;white-space:normal!important}
 .ahq{margin:12px 0 6px}
@@ -783,7 +792,7 @@ const T = {
     adChangeHouse: "Byt hus",
     adGone: "Ditt hus finns inte i listan längre. Välj ditt hus igen.",
     abort: "Avbryt",
-    adPick: "Tryck för att ändra status:",
+    adPick: "Status – tryck för att ändra:",
     adNow: "Vald",
     adConfirmQ: "Ändra status?",
     adYes: "Ja, ändra",
@@ -961,7 +970,7 @@ const T = {
     adChangeHouse: "Change house",
     adGone: "Your house isn't in the list anymore. Please choose your house again.",
     abort: "Cancel",
-    adPick: "Tap to change the status:",
+    adPick: "Status – tap to change:",
     adNow: "Selected",
     adConfirmQ: "Change status?",
     adYes: "Yes, change",
@@ -1015,7 +1024,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 11:30";
+const VERSION = "29 okt 11:45";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1463,10 +1472,13 @@ function adminListHTML() {
           <span class="ahicon big">🏠</span>
           <div class="ahname"><b class="bigname">${esc(h.name)}</b>${h.note ? `<small>${esc(h.note)}</small>` : ""}</div>
         </div>
-        <p class="muted ahq">${t("adPick")}</p>
-        <div class="ahbtns">${["open", "out", "closed"].map(st => `
-          <button class="ahbtn${st === h.status ? " now" : ""}" type="button" data-act="ahPick" data-i="${mine}" data-st="${st}" ${st === h.status ? "disabled" : ""}>
-            <span>${stLabel(st)}</span>${st === h.status ? `<small>${t("adNow")} ✓</small>` : ""}</button>`).join("")}
+        <label class="muted ahq" for="statusSelect">${t("adPick")}</label>
+        <div class="stsel st-${h.status}">
+          <span class="stdot"></span>
+          <select id="statusSelect" data-i="${mine}">
+            ${["open", "out", "closed"].map(st => `<option value="${st}"${st === h.status ? " selected" : ""}>${t("st_" + st)}</option>`).join("")}
+          </select>
+          <span class="chev">▾</span>
         </div>
       </section>`;
   }
@@ -1485,6 +1497,16 @@ function adminListHTML() {
           <span class="ahgo">›</span>
         </span>
       </button>`).join("")}`;
+}
+// "Ändra status?" – can't be closed by tapping outside; Avbryt puts the dropdown back
+function confirmStatus(i, st) {
+  const h = HOUSES[i];
+  openModal(`
+    <h2>${t("adConfirmQ")}</h2>
+    <p class="adbig"><b>${esc(h.name)}</b></p>
+    <div class="adchange"><span>${stLabel(h.status)}</span><span class="arrow">➜</span><span class="to st-${st}">${stLabel(st)}</span></div>
+    <button class="btn green" type="button" data-act="ahConfirm" data-i="${i}" data-st="${st}">${t("adYes")}</button>
+    <button class="btn ghost" type="button" data-act="ahPickCancel">${t("abort")}</button>`, true);
 }
 async function adminSave(i, st) {
   const h = HOUSES[i];
@@ -2187,15 +2209,8 @@ document.addEventListener("click", e => {
   }
   if (act === "ahChooseYes") { S.myHouse = HOUSES[Number(el.dataset.i)].name; save(); closeModal(); render(); window.scrollTo(0, 0); }
   if (act === "ahSwitch") { delete S.myHouse; save(); render(); window.scrollTo(0, 0); }
-  if (act === "ahPick") {
-    const i = Number(el.dataset.i), h = HOUSES[i], st = el.dataset.st;
-    openModal(`
-      <h2>${t("adConfirmQ")}</h2>
-      <p class="adbig"><b>${esc(h.name)}</b></p>
-      <div class="adchange"><span>${stLabel(h.status)}</span><span class="arrow">➜</span><span class="to st-${st}">${stLabel(st)}</span></div>
-      <button class="btn green" type="button" data-act="ahConfirm" data-i="${i}" data-st="${st}">${t("adYes")}</button>
-      <button class="btn ghost" type="button" data-act="closeModal">${t("abort")}</button>`);
-  }
+  if (act === "ahPickCancel") { closeModal(); render(); }
+  if (act === "ahPick") confirmStatus(Number(el.dataset.i), el.dataset.st);
   if (act === "ahConfirm") adminSave(Number(el.dataset.i), el.dataset.st);
   if (act === "geoStart") startGeo();
   if (act === "geoRetry") { if (GEO.watch !== null) { navigator.geolocation.clearWatch(GEO.watch); GEO.watch = null; } startGeo(); }
@@ -2221,6 +2236,14 @@ document.addEventListener("click", e => {
   if (act === "lockPreview") { S.organizer = false; save(); go("#/"); }
   if (act === "print") { document.body.dataset.print = el.dataset.what || ""; window.print(); }
   if (act === "reset") { if (confirm(t("resetConfirm"))) { S = fresh(S.lang, S.organizer); save(); alert(t("resetDone")); } }
+});
+
+// Dropdown on "my house": picking a new status opens the same confirmation
+document.addEventListener("change", e => {
+  if (e.target.id !== "statusSelect") return;
+  const i = Number(e.target.dataset.i), st = e.target.value;
+  if (!Array.isArray(HOUSES) || !HOUSES[i] || st === HOUSES[i].status) return;
+  confirmStatus(i, st);
 });
 
 document.getElementById("langBtn").addEventListener("click", () => {
