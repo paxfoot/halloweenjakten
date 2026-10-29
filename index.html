@@ -272,6 +272,13 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 #testbar button{font:inherit;font-weight:600;font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid #7ee08a;background:transparent;color:#d9ffe0;cursor:pointer}
 .testposters{margin-top:10px}
 .housecards{margin-top:28px}
+.outbanner:empty{display:none}
+.ob{display:flex;gap:12px;align-items:flex-start;margin:10px 0 6px;padding:14px 16px;border-radius:14px;background:rgba(255,107,107,.16);border:2px solid var(--red)}
+.ob .obicon{font-size:22px;line-height:1.2}
+.ob b{display:block;font-size:17px}
+.ob ul{margin:6px 0 0;padding-left:18px}
+.ob li{font-size:16px;font-weight:600;margin:2px 0}
+.ob small{color:var(--muted);font-weight:400}
 .hclink{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
 .hclink input{font:inherit;font-size:15px;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--ink)}
 .hcard h3{margin-top:4px}
@@ -789,6 +796,7 @@ const T = {
     printSmall: "Små (flera per sida)",
     showSize: "Visa:",
     styleLabel: "Affischstil:",
+    obTitle: n => n === 1 ? "1 belöningshus har slut på belöningar:" : `${n} belöningshus har slut på belöningar:`,
     hcTitle: "QR-lappar för belöningshusen",
     hcIntro: "Lappar med den hemliga länken till belöningshusens sida, att lägga i deras kit. Samma storlek som de små QR-lapparna.",
     hcPaste: "Klistra in länken för belöningshus",
@@ -975,6 +983,7 @@ const T = {
     printSmall: "Small (several per page)",
     showSize: "Show:",
     styleLabel: "Poster style:",
+    obTitle: n => n === 1 ? "1 reward house is out of rewards:" : `${n} reward houses are out of rewards:`,
     hcTitle: "QR cards for the reward houses",
     hcIntro: "Cards with the secret link to the reward-house page, to put in their kits. Same size as the small QR signs.",
     hcPaste: "Paste the reward-house link",
@@ -1050,7 +1059,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 11:50";
+const VERSION = "29 okt 11:55";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1586,8 +1595,17 @@ function fmtDistance(m) {
   if (m < 1000) return t("distAbout", Math.max(10, Math.round(m / 10) * 10) + " m");
   return t("distAbout", (m / 1000).toLocaleString(S.lang === "sv" ? "sv-SE" : "en-GB", { maximumFractionDigits: 1 }) + " km");
 }
+// Organizer banner: which reward houses have run out of rewards
+function outBannerHTML() {
+  if (!Array.isArray(HOUSES)) return "";
+  const out = HOUSES.filter(h => h.status === "out");
+  if (!out.length) return "";
+  return `<div class="ob"><span class="obicon">🔴</span><div><b>${t("obTitle", out.length)}</b>
+    <ul>${out.map(h => `<li>${esc(h.name)}${h.note ? ` <small>(${esc(h.note)})</small>` : ""}</li>`).join("")}</ul></div></div>`;
+}
 function refreshHouses() {
   document.querySelectorAll("[data-houses]").forEach(el => el.innerHTML = housesHTML());
+  document.querySelectorAll("[data-outbanner]").forEach(el => el.innerHTML = outBannerHTML());
   const ad = document.querySelector("[data-adminhouses]");
   if (ad && ADMIN.open === null && !document.querySelector(".modal")) ad.innerHTML = adminListHTML();
 }
@@ -1770,6 +1788,7 @@ function organizer() {
     </div>`;
   app.innerHTML = `
     <div class="org" data-size="${ORG_SIZE}" data-style="${S.orgLight ? "light" : "dark"}">
+      <div class="outbanner no-print" data-outbanner>${outBannerHTML()}</div>
       <a class="back no-print" href="#/">${t("back")}</a>
       <h1 class="no-print">${t("orgTitle")}</h1>
       <p class="muted no-print">${t("orgIntro")}</p>
