@@ -286,7 +286,14 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 .ahst.st-open{color:var(--green)}.ahst.st-out{color:var(--red)}.ahst.st-closed{color:var(--muted)}
 .ahchange{flex:0 0 auto;font:inherit;font-weight:600;font-size:14px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
 .ahchange:active{background:rgba(255,255,255,.08)}
-.ah .ahq{margin:16px 0 8px}
+.ah .ahq{margin:18px 0 8px}
+.pickh{display:block;width:100%;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.pickh:active{transform:scale(.98)}
+.ahgo{font-size:28px;color:var(--muted);flex:0 0 auto;line-height:1}
+.myhead{display:flex;justify-content:space-between;align-items:center;margin:10px 0 10px}
+.ah.mine{padding:22px 18px}
+.ahicon.big{font-size:46px}
+.bigname{font-size:clamp(20px,6vw,26px)!important;white-space:normal!important}
 .ahq{margin:12px 0 6px}
 .ahbtns{display:grid;gap:8px}
 .ahbtn{font:inherit;font-weight:600;font-size:18px;padding:14px 16px;border-radius:14px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;text-align:left;gap:8px}
@@ -765,12 +772,18 @@ const T = {
     styleLabel: "Affischstil:",
     st_open: "Öppet", st_out: "Slut", st_closed: "Stängt",
     adTitle: "Belöningshus",
-    adIntro: "Här ändrar du status för ditt belöningshus. Tryck på <b>Ändra</b> vid ditt hus.",
     adNotSetUp: "Den här sidan är inte påslagen än.",
     adBadLink: "Länken fungerar inte längre. Hör av dig till Emelie så får du en ny.",
     adChange: "Ändra",
+    adPickHouse: "Vilket hus är ditt?",
+    adPickIntro: "Tryck på ditt hus. Mobilen kommer ihåg ditt val, så nästa gång kommer du direkt till ditt hus.",
+    adIsThisYours: "Är det här ditt hus?",
+    adYesMine: "Ja, det är mitt hus",
+    adYourHouse: "Ditt belöningshus",
+    adChangeHouse: "Byt hus",
+    adGone: "Ditt hus finns inte i listan längre. Välj ditt hus igen.",
     abort: "Avbryt",
-    adPick: "Välj ny status:",
+    adPick: "Tryck för att ändra status:",
     adNow: "Vald",
     adConfirmQ: "Ändra status?",
     adYes: "Ja, ändra",
@@ -937,12 +950,18 @@ const T = {
     styleLabel: "Poster style:",
     st_open: "Open", st_out: "Out of rewards", st_closed: "Closed",
     adTitle: "Reward houses",
-    adIntro: "Change the status of your reward house here. Tap <b>Change</b> next to your house.",
     adNotSetUp: "This page isn't switched on yet.",
     adBadLink: "This link doesn't work anymore. Contact Emelie for a new one.",
     adChange: "Change",
+    adPickHouse: "Which house is yours?",
+    adPickIntro: "Tap your house. The phone remembers your choice, so next time you'll go straight to your house.",
+    adIsThisYours: "Is this your house?",
+    adYesMine: "Yes, it's my house",
+    adYourHouse: "Your reward house",
+    adChangeHouse: "Change house",
+    adGone: "Your house isn't in the list anymore. Please choose your house again.",
     abort: "Cancel",
-    adPick: "Choose the new status:",
+    adPick: "Tap to change the status:",
     adNow: "Selected",
     adConfirmQ: "Change status?",
     adYes: "Yes, change",
@@ -996,7 +1015,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 11:10";
+const VERSION = "29 okt 11:30";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1410,13 +1429,7 @@ let ADMIN = { kod: "", valid: null, open: null };
 const stLabel = st => `${ST_ICON[st]} ${t("st_" + st)}`;
 function adminHouses(kod) {
   if (ADMIN.kod !== kod) { ADMIN = { kod, valid: null, open: null }; checkAdminCode(); }
-  app.innerHTML = `
-    <div class="mhead"><div class="mem">🏠</div><h1>${t("adTitle")}</h1></div>
-    <section class="card">
-      <p>${t("adIntro")}</p>
-      ${!EVENT.houseAdminUrl ? `<p class="notice">${t("adNotSetUp")}</p>` : ADMIN.valid === false ? `<p class="notice">${t("adBadLink")}</p>` : ""}
-    </section>
-    <div data-adminhouses>${adminListHTML()}</div>`;
+  app.innerHTML = `<div data-adminhouses>${adminListHTML()}</div>`;
 }
 async function checkAdminCode() {
   if (!EVENT.houseAdminUrl) return;
@@ -1427,31 +1440,51 @@ async function checkAdminCode() {
   } catch (e) { ADMIN.valid = null; }
   if (ROUTE.startsWith("#/hus")) render();
 }
+// The phone remembers which house is "mine" (S.myHouse), so the link opens straight to it.
+function myHouseIndex() {
+  if (!S.myHouse || !Array.isArray(HOUSES)) return -1;
+  return HOUSES.findIndex(h => h.name === S.myHouse);
+}
 function adminListHTML() {
-  if (HOUSES === null) return `<p class="muted">${t("loadingHouses")}</p>`;
-  if (HOUSES === "error") return `<p class="muted">${t("housesError")}</p>`;
-  if (!EVENT.houseAdminUrl || ADMIN.valid === false) return "";
-  return HOUSES.map((h, i) => {
-    const isOpen = ADMIN.open === i;
-    return `<section class="card ah${isOpen ? " editing" : ""}">
-      <div class="ahrow">
-        <span class="ahicon">🏠</span>
-        <div class="ahname">
-          <div class="ahline"><b>${esc(h.name)}</b><span class="ahst st-${h.status}">${stLabel(h.status)}</span></div>
-          ${h.note ? `<small>${esc(h.note)}</small>` : ""}
+  const head = `<div class="mhead"><div class="mem">🏠</div><h1>${t("adTitle")}</h1></div>`;
+  if (!EVENT.houseAdminUrl) return head + `<section class="card"><p class="notice">${t("adNotSetUp")}</p></section>`;
+  if (ADMIN.valid === false) return head + `<section class="card"><p class="notice">${t("adBadLink")}</p></section>`;
+  if (HOUSES === null) return head + `<p class="muted">${t("loadingHouses")}</p>`;
+  if (HOUSES === "error") return head + `<p class="muted">${t("housesError")}</p>`;
+  const mine = myHouseIndex();
+  if (mine >= 0) {
+    // Focused: only my house
+    const h = HOUSES[mine];
+    return `
+      <div class="myhead"><span class="muted">${t("adYourHouse")}</span>
+        <button class="ahchange" type="button" data-act="ahSwitch">${t("adChangeHouse")}</button></div>
+      <section class="card ah mine">
+        <div class="ahrow">
+          <span class="ahicon big">🏠</span>
+          <div class="ahname"><b class="bigname">${esc(h.name)}</b>${h.note ? `<small>${esc(h.note)}</small>` : ""}</div>
         </div>
-        ${isOpen ? "" : `<button class="ahchange" type="button" data-act="ahOpen" data-i="${i}">${t("adChange")}</button>`}
-      </div>
-      ${isOpen ? `
         <p class="muted ahq">${t("adPick")}</p>
         <div class="ahbtns">${["open", "out", "closed"].map(st => `
-          <button class="ahbtn st-${st}${st === h.status ? " now" : ""}" type="button" data-act="ahPick" data-i="${i}" data-st="${st}" ${st === h.status ? "disabled" : ""}>
+          <button class="ahbtn${st === h.status ? " now" : ""}" type="button" data-act="ahPick" data-i="${mine}" data-st="${st}" ${st === h.status ? "disabled" : ""}>
             <span>${stLabel(st)}</span>${st === h.status ? `<small>${t("adNow")} ✓</small>` : ""}</button>`).join("")}
         </div>
-        <button class="btn ghost" type="button" data-act="ahCancel">${t("abort")}</button>`
-      : ""}
-    </section>`;
-  }).join("");
+      </section>`;
+  }
+  // Not chosen yet (or my house is gone from the list): pick a house
+  return head + `
+    <section class="card">
+      ${S.myHouse ? `<p class="notice">${t("adGone")}</p>` : ""}
+      <h2>${t("adPickHouse")}</h2>
+      <p>${t("adPickIntro")}</p>
+    </section>
+    ${HOUSES.map((h, i) => `
+      <button class="card ah pickh" type="button" data-act="ahChoose" data-i="${i}">
+        <span class="ahrow">
+          <span class="ahicon">🏠</span>
+          <span class="ahname"><b>${esc(h.name)}</b>${h.note ? `<small>${esc(h.note)}</small>` : ""}</span>
+          <span class="ahgo">›</span>
+        </span>
+      </button>`).join("")}`;
 }
 async function adminSave(i, st) {
   const h = HOUSES[i];
@@ -2143,8 +2176,17 @@ document.addEventListener("click", e => {
   }
   if (act === "testExitYes") { S = fresh(S.lang, false); save(); go("#/"); }
   if (act === "itemInfo") itemInfo(el.dataset.code);
-  if (act === "ahOpen") { ADMIN.open = Number(el.dataset.i); render(); }
-  if (act === "ahCancel") { ADMIN.open = null; render(); }
+  if (act === "ahChoose") {
+    const i = Number(el.dataset.i), h = HOUSES[i];
+    openModal(`
+      <div style="font-size:54px">🏠</div>
+      <h2>${t("adIsThisYours")}</h2>
+      <p class="adbig"><b>${esc(h.name)}</b></p>
+      <button class="btn green" type="button" data-act="ahChooseYes" data-i="${i}">${t("adYesMine")}</button>
+      <button class="btn ghost" type="button" data-act="closeModal">${t("abort")}</button>`);
+  }
+  if (act === "ahChooseYes") { S.myHouse = HOUSES[Number(el.dataset.i)].name; save(); closeModal(); render(); window.scrollTo(0, 0); }
+  if (act === "ahSwitch") { delete S.myHouse; save(); render(); window.scrollTo(0, 0); }
   if (act === "ahPick") {
     const i = Number(el.dataset.i), h = HOUSES[i], st = el.dataset.st;
     openModal(`
