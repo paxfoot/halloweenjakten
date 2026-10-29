@@ -316,6 +316,15 @@ img.emo[alt="🇬🇧"],img.emo[alt="🇸🇪"]{height:.8em;vertical-align:-.04e
 .faq details[open] summary::after{content:"–"}
 .faq details[open] summary{color:var(--orange2)}
 .faq details p{margin:0;padding:0 16px 14px;color:var(--ink)}
+.faq .exbtn{width:auto;display:inline-block;margin:0 16px 16px;padding:10px 16px;font-size:15px}
+.example{position:relative;text-align:center}
+.exbadge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#2a1200;background:var(--orange2);border-radius:999px;padding:3px 10px;margin-bottom:10px}
+.exclaim{padding:18px 14px 14px;margin:0}
+.exclaim h1{font-size:34px}
+.exclaim .mem{font-size:56px}
+.exfake{pointer-events:none;margin-top:10px}
+.exlist{list-style:none;padding:0;margin:14px 0 4px;text-align:left;font-size:15px}
+.exlist li{margin:6px 0}
 .adhelp h3{margin:0 0 4px}
 .adhelp .btn{margin-top:12px}
 .stsel{position:relative;display:flex;align-items:center;border:2px solid var(--ink);border-radius:14px;background:rgba(255,255,255,.08)}
@@ -840,12 +849,17 @@ const T = {
     adFailed: "Det gick inte att spara",
     adErrNet: "Kontrollera att mobilen har internet och försök igen.",
     faqTitle: "Vanliga frågor",
+    exShow: "Visa exempel",
+    exBadge: "Exempel",
+    exCheck1: "Det står ”Uppdrag klart!” och vilket uppdrag det gäller.",
+    exCheck2: "Nedräkningen tickar hela tiden – en skärmdump står still.",
+    exCheck3: "När barnen fått sin belöning trycker de på den gröna knappen.",
     faq: [
       ["När får jag belönings-kitet?", "Emelie lämnar kitet hem till dig på lördagen, innan Halloweenjakten börjar."],
       ["När börjar Halloweenjakten?", "Lördag 31 oktober kl 14. Den pågår till kl 20."],
       ["Hur fungerar Halloweenjakten?", "Barnen scannar QR-koder runt om i kvarteret och klarar fyra uppdrag: Spökjägarna, Häxans katter, Brottet i skogen och Spökläraren. När de klarar ett uppdrag får de en belöningsskärm i mobilen, som de visar i ett belöningshus. På startsidan ser barnen vilka belöningshus som är öppna just nu."],
       ["Vad ska jag göra när Halloweenjakten börjar?", "Ändra status till <b>Öppet</b> här på sidan när du är hemma och redo. Då visas ditt hus som öppet för barnen."],
-      ["Vad ska jag göra när någon vill ha en belöning?", "Titta på skärmen: det ska stå <b>”Uppdrag klart!”</b>, vilket uppdrag det gäller och en nedräkning som tickar – då vet du att det inte är en skärmdump. Ge <b>en belöning per barn</b> i gruppen. Be dem sedan trycka på <b>”Belöningen är hämtad”</b> och <b>”Ja, vi har fått den!”</b>, så kan samma skärm inte användas igen."],
+      ["Vad ska jag göra när någon vill ha en belöning?", "Titta på skärmen: det ska stå <b>”Uppdrag klart!”</b>, vilket uppdrag det gäller och en nedräkning som tickar – då vet du att det inte är en skärmdump. Ge <b>en belöning per barn</b> i gruppen. Be dem sedan trycka på <b>”Belöningen är hämtad”</b> och <b>”Ja, vi har fått den!”</b>, så kan samma skärm inte användas igen.", "example"],
       ["Jag är inte hemma hela Halloweenjakten, vad gör jag då?", "Inga problem! Ändra till <b>Stängt</b> när du går, och tillbaka till <b>Öppet</b> när du är hemma igen. Barnen ser vilka hus som är öppna just då."],
       ["Vad gör jag om jag får slut på belöningar?", "Ändra status till <b>Slut</b> här på sidan. Då ser barnen att ditt hus inte har fler belöningar, och går till ett annat belöningshus."],
       ["Vad gör jag om det finns belöningar kvar efter kl 20?", "Halloweenjakten stänger kl 20, men barn som hunnit klara ett uppdrag har fem extra minuter på sig, så det kan komma någon fram till kl 20.05. Ändra sedan till <b>Stängt</b> och lämna tillbaka belöningarna som blev över till Emelie."]
@@ -1041,12 +1055,17 @@ const T = {
     adFailed: "Couldn't save",
     adErrNet: "Check that the phone has internet and try again.",
     faqTitle: "Questions and answers",
+    exShow: "Show example",
+    exBadge: "Example",
+    exCheck1: "It says “Mission complete!” and which mission it is.",
+    exCheck2: "The countdown keeps ticking – a screenshot stands still.",
+    exCheck3: "When the kids have their rewards, they tap the green button.",
     faq: [
       ["When do I get the reward kit?", "Emelie will drop the kit off at your house on Saturday, before the Halloween Hunt starts."],
       ["When does the Halloween Hunt start?", "Saturday 31 October at 2 pm. It runs until 8 pm."],
       ["How does the Halloween Hunt work?", "The kids scan QR codes around the neighbourhood and complete four missions: Ghost Hunters, The Witch's Cats, The Crime in the Woods and The Ghost Teacher. When they finish a mission, they get a reward screen on the phone, which they show at a reward house. On the start page the kids can see which reward houses are open right now."],
       ["What do I do when the Halloween Hunt starts?", "Change the status to <b>Open</b> here on this page when you're home and ready. Your house then shows as open to the kids."],
-      ["What do I do when someone wants a reward?", "Look at the screen: it should say <b>“Mission complete!”</b>, which mission it is, and a countdown that keeps ticking – then you know it's not a screenshot. Give <b>one reward per child</b> in the group. Then ask them to tap <b>“Reward has been collected”</b> and <b>“Yes, we got it!”</b>, so the same screen can't be used again."],
+      ["What do I do when someone wants a reward?", "Look at the screen: it should say <b>“Mission complete!”</b>, which mission it is, and a countdown that keeps ticking – then you know it's not a screenshot. Give <b>one reward per child</b> in the group. Then ask them to tap <b>“Reward has been collected”</b> and <b>“Yes, we got it!”</b>, so the same screen can't be used again.", "example"],
       ["I won't be home the whole time. What do I do?", "No problem! Change to <b>Closed</b> when you leave, and back to <b>Open</b> when you're home again. The kids see which houses are open at the moment."],
       ["What do I do if I run out of rewards?", "Change the status to <b>Out of rewards</b> here on this page. The kids then see that your house has no more rewards and go to another reward house."],
       ["What do I do if there are rewards left after 8 pm?", "The Halloween Hunt closes at 8 pm, but kids who managed to finish a mission get five extra minutes, so someone may come by until 8:05 pm. Then change to <b>Closed</b> and give the leftover rewards back to Emelie."]
@@ -1099,7 +1118,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 13:10";
+const VERSION = "29 okt 13:20";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1564,7 +1583,7 @@ function adminListHTML() {
       </section>` : ""}
       <section class="faq">
         <h2>❓ ${t("faqTitle")}</h2>
-        ${t("faq").map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}
+        ${t("faq").map(([q, a, ex]) => `<details><summary>${q}</summary><p>${a}</p>${ex ? `<button class="btn ghost exbtn" type="button" data-act="faqExample">👀 ${t("exShow")}</button>` : ""}</details>`).join("")}
       </section>`;
   }
   // Not chosen yet (or my house is gone from the list): pick a house
@@ -1595,6 +1614,36 @@ function confirmStatus(i, st) {
 }
 // Saving can be cancelled, and gives up by itself after 15 seconds.
 let SAVING = null; // { id, ctrl, timer }
+let EXTIMER = null;
+function showRewardExample() {
+  const m = MISSIONS[0];
+  openModal(`
+    <div class="example">
+      <span class="exbadge">${t("exBadge")}</span>
+      <section class="claim exclaim" style="--c:${m.color}">
+        <div class="mem pulse">${m.emoji}</div>
+        <h1>${t("missionComplete")}</h1>
+        <h2>${L(m.title)}</h2>
+        <div class="clock"><span>${t("timeLeft")}</span><b id="exClock">28:40</b></div>
+        <p>${t("showAtHouse")}</p>
+        <span class="btn green exfake">${t("claimBtn")}</span>
+      </section>
+      <ul class="exlist">
+        <li>✅ ${t("exCheck1")}</li>
+        <li>✅ ${t("exCheck2")}</li>
+        <li>✅ ${t("exCheck3")}</li>
+      </ul>
+      <button class="btn" type="button" data-act="closeModal">${t("close")}</button>
+    </div>`);
+  let sec = 28 * 60 + 40;
+  clearInterval(EXTIMER);
+  EXTIMER = setInterval(() => {
+    const el = document.getElementById("exClock");
+    if (!el) { clearInterval(EXTIMER); return; }
+    sec = sec > 0 ? sec - 1 : 28 * 60 + 40;
+    el.textContent = String(Math.floor(sec / 60)).padStart(2, "0") + ":" + String(sec % 60).padStart(2, "0");
+  }, 1000);
+}
 async function adminSave(i, st) {
   const h = HOUSES[i];
   const id = Date.now(), ctrl = ("AbortController" in window) ? new AbortController() : null;
@@ -2365,6 +2414,7 @@ document.addEventListener("click", e => {
   if (act === "ahSwitch") { delete S.myHouse; save(); render(); window.scrollTo(0, 0); }
   if (act === "ahPickCancel") { closeModal(); render(); }
   if (act === "ahSaveCancel") cancelSave();
+  if (act === "faqExample") showRewardExample();
   if (act === "ahPick") confirmStatus(Number(el.dataset.i), el.dataset.st);
   if (act === "ahConfirm") adminSave(Number(el.dataset.i), el.dataset.st);
   if (act === "geoStart") startGeo();
