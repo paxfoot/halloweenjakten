@@ -235,6 +235,19 @@ button.s:active{transform:scale(.97)}
 .btn.lockedbtn{background:var(--card2);color:var(--muted);border:2px dashed var(--line);box-shadow:none;cursor:default}
 .helpcard{border:2px solid var(--orange);background:linear-gradient(180deg,rgba(255,138,31,.14),var(--card))}
 .helpcard h2{font-size:21px}
+.swpill{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin:12px 0 4px;padding:12px 14px;font:inherit;color:var(--ink);background:var(--card2);border:2px dashed rgba(255,179,71,.55);border-radius:14px;cursor:pointer}
+.swpill .swnum{font-size:26px;font-weight:700;letter-spacing:1px;color:var(--orange2);font-variant-numeric:tabular-nums}
+.swpill .swcopy{font-size:14px;color:var(--muted)}
+.swpill.ok{border-style:solid;border-color:var(--green)}
+.swpill.ok .swcopy{color:var(--green)}
+.keepcard h2{font-size:21px}
+.keepswish{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.keepswish h3{font-size:19px;margin-bottom:10px}
+.keepswish>p{font-size:15px;color:var(--muted)}
+.costbar{height:14px;border-radius:999px;background:var(--card2);border:1px solid var(--line);overflow:hidden}
+.costbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--orange),var(--orange2))}
+.keepswish .costnum{margin:6px 0 12px;font-size:15px;color:var(--muted)}
+.keepswish .costnum b{color:var(--ink);font-size:17px}
 .hmeter{margin:14px 0 4px}
 .hrow{display:grid;grid-template-columns:repeat(8,1fr);gap:2px}
 .hrow .h{font-size:38px;line-height:1;text-align:center;transition:filter .3s}
@@ -493,6 +506,8 @@ const EVENT = {
   // The sheet must be shared so "Anyone with the link" can view it.
   // Shown on the "Coming soon" page so neighbors can volunteer as reward houses.
   // Write it as it should be shown, e.g. "070-123 45 67". Leave "" to hide the text button.
+  cost: 2500,   // what the event cost (kr)
+  raised: 200,  // Swish donations received so far (kr) – update by hand
   helperPhone: "+46706672321",
   // STATISTICS: the "Web app" link from the Apps Script in your Google Sheet (ends with /exec).
   // Leave "" to switch counting off. Only numbers are counted – no names, no cookies.
@@ -810,6 +825,16 @@ const T = {
     cancel: "Inte än",
     claimedTitle: "Belöningen är hämtad 🎉",
     claimedText: "Bra jobbat! Varför inte testa ett annat uppdrag?",
+    swishOpen: "Öppna Swish",
+    costTitle: "Hjälp till med kostnaden",
+    costOf: (a, b) => `<b>${a}</b> av ${b} insamlat`,
+    costDone: "Allt är täckt – tack! 🎉",
+    tapToCopy: "Tryck för att kopiera",
+    keepTitle: "Jakten fortsätter!",
+    keepText: n => `Ni har ${n} uppdrag kvar, jakten slutar kl&nbsp;20.`,
+    allDoneTitle: "Alla uppdrag klara!",
+    allDoneText: "Grymt jobbat! Tack för att ni var med.",
+    keepSwish: "Swisha gärna en slant till Emelie:",
     // organizer
     orgTitle: "Arrangörssidan",
     orgIntro: "Här är alla QR-koder. Skriv ut sidan och sätt upp varje lapp vid rätt spöke, katt eller bevis. Startlappen kan sitta där uppdraget börjar.",
@@ -1019,6 +1044,16 @@ const T = {
     cancel: "Not yet",
     claimedTitle: "Reward collected 🎉",
     claimedText: "Great job! Why not try another mission?",
+    swishOpen: "Open Swish",
+    costTitle: "Help with the cost",
+    costOf: (a, b) => `<b>${a}</b> of ${b} raised`,
+    costDone: "Everything is covered – thank you! 🎉",
+    tapToCopy: "Tap to copy",
+    keepTitle: "The hunt continues!",
+    keepText: n => `You have ${n} ${n === 1 ? "mission" : "missions"} left, the hunt ends at 8&nbsp;pm.`,
+    allDoneTitle: "All missions done!",
+    allDoneText: "Amazing work! Thanks for joining in.",
+    keepSwish: "Feel free to Swish a little to Emelie:",
     orgTitle: "Organizer page",
     orgIntro: "Here are all the QR codes. Print this page and put each sign next to the right ghost, cat or clue. The start sign can go where the mission begins.",
     orgFileWarn: "This page is opened as a file on your computer. Put it online first – otherwise the QR codes will point to the wrong place.",
@@ -1122,7 +1157,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "30 okt 22:00";
+const VERSION = "30 okt 22:15";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1176,11 +1211,12 @@ function home() {
       <h1 class="spooky">${t("appTitle")}</h1>
       <p class="lead">${t("intro", homeMissions().length)}</p>
     </section>
+    ${homeMissions().some(m => S.claimed[m.id]) ? keepPlayingHTML() : `
     <section class="card">
       <h2>${t("howTitle")}</h2>
       <ol class="steps">${t("steps").map(s => `<li><span>${s}</span></li>`).join("")}</ol>
       <p class="tip">📱 ${t("samePhone")}</p>
-    </section>
+    </section>`}
     <h2 class="section-h">${t("missions")}</h2>
     <div class="missions">
       ${homeMissions().map(m => `
@@ -1200,6 +1236,46 @@ function home() {
       ${houses ? `<div style="margin-top:12px" data-houses>${housesHTML()}</div>` : ""}
     </section>` : ""}
   `;
+}
+
+/* ---------- Swish (help with the cost) ---------- */
+// Swish's documented app link: payee starts with 46, no leading 0, message with plain letters only.
+function swishLink() {
+  const d = (EVENT.helperPhone || "").replace(/\D/g, "");
+  return "https://app.swish.nu/1/p/sw/?sw=" + d + "&msg=Haggween";
+}
+function swishLocal() { // +46706672321 -> 070-667 23 21
+  const d = (EVENT.helperPhone || "").replace(/\D/g, "").replace(/^46/, "0");
+  return d.length === 10 ? `${d.slice(0, 3)}-${d.slice(3, 6)} ${d.slice(6, 8)} ${d.slice(8)}` : d;
+}
+function swishPill() {
+  return `<button class="swpill" type="button" data-act="copySwish" aria-label="${t("tapToCopy")}">
+    <span class="swnum">${swishLocal()}</span><span class="swcopy">📋 <span data-copylabel>${t("tapToCopy")}</span></span></button>`;
+}
+const kr = n => n.toLocaleString("sv-SE").replace(/\s/g, "\u00a0") + "\u00a0kr";
+function costHTML() {
+  const cost = EVENT.cost || 0, raised = EVENT.raised || 0, done = cost > 0 && raised >= cost;
+  const pct = cost ? Math.min(100, Math.round(raised / cost * 100)) : 0;
+  return `
+      <div class="keepswish">
+        <h3>🧡 ${t("costTitle")}</h3>
+        ${cost ? `
+        <div class="costbar"><i style="width:${Math.max(pct, 3)}%"></i></div>
+        <p class="costnum">${done ? t("costDone") : t("costOf", kr(raised), kr(cost))}</p>` : ""}
+        ${done ? "" : `
+        <p>${t("keepSwish")}</p>
+        ${swishPill()}
+        <a class="btn" href="${swishLink()}" data-act="swishOpen">${t("swishOpen")}</a>`}
+      </div>`;
+}
+function keepPlayingHTML() {
+  const all = homeMissions().every(m => S.claimed[m.id]);
+  return `
+    <section class="card keepcard">
+      <h2>${all ? t("allDoneTitle") : t("keepTitle")}</h2>
+      <p>${all ? t("allDoneText") : t("keepText", homeMissions().filter(m => !S.claimed[m.id]).length)}</p>
+      ${EVENT.helperPhone ? costHTML() : ""}
+    </section>`;
 }
 
 /* ---------- Before the hunt opens ---------- */
@@ -2027,7 +2103,7 @@ function houseCardsHTML() {
 /* Sharp vector emojis everywhere (Noto Emoji, Apache 2.0 – see emoji/CREDITS.txt), so the
    app looks the same on every phone and matches the printed posters.
    NOTE: when adding a new emoji to the texts, also add its SVG to the emoji/ folder. */
-const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f446", "1f44b", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cb", "1f4cd", "1f4d6", "1f4e1", "1f4f1", "1f4f7", "1f4f8", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f534", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f615", "1f634", "1f64b", "1f7e2", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e9", "1f9ea", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "26aa", "26ab", "2705", "270f", "2753", "2b50"]);
+const EMOJI_FILES = new Set(["1f1ec_1f1e7", "1f1f8_1f1ea", "1f319", "1f342", "1f36c", "1f36d", "1f381", "1f382", "1f383", "1f389", "1f393", "1f3e0", "1f3eb", "1f3f7", "1f408_200d_2b1b", "1f43a", "1f43e", "1f440", "1f442", "1f446", "1f44b", "1f463", "1f47b", "1f480", "1f4a1", "1f4ac", "1f4ca", "1f4cb", "1f4cd", "1f4d6", "1f4e1", "1f4f1", "1f4f7", "1f4f8", "1f504", "1f50a", "1f50d", "1f512", "1f513", "1f526", "1f534", "1f554", "1f575", "1f577", "1f578", "1f5a8", "1f5bc", "1f5d2", "1f615", "1f634", "1f64b", "1f7e2", "1f914", "1f915", "1f987", "1f989", "1f9c4", "1f9db", "1f9e1", "1f9e9", "1f9ea", "1f9f9", "1f9fb", "23f0", "23f3", "2600", "26a0", "26aa", "26ab", "2705", "270f", "2753", "2b50"]);
 function vectorEmojis(root) {
   const isEmo = c => { const o = c.codePointAt(0); return o >= 0x1f000 || (o >= 0x2300 && o <= 0x23ff) || (o >= 0x2600 && o <= 0x27bf) || (o >= 0x2b00 && o <= 0x2bff); };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -2369,6 +2445,28 @@ document.addEventListener("click", e => {
       </div>`);
   }
   if (act === "statsRefresh") loadStats();
+  if (act === "swishOpen") track("swish:open");
+  if (act === "copySwish") {
+    const num = swishLocal().replace(/\D/g, "");
+    const lab = el.querySelector("[data-copylabel]");
+    const done = ok => {
+      if (!lab) return;
+      lab.textContent = ok ? t("copied") : t("tapToCopy");
+      el.classList.toggle("ok", ok);
+      if (ok) setTimeout(() => { if (el.isConnected) { lab.textContent = t("tapToCopy"); el.classList.remove("ok"); } }, 2500);
+    };
+    const fallback = () => {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = num; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, num.length);
+        const ok = document.execCommand("copy"); ta.remove(); done(ok);
+      } catch (e) { done(false); }
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(num).then(() => done(true), fallback);
+    else fallback();
+    track("swish:copy");
+  }
   if (act === "copyPhone") {
     const ph = EVENT.helperPhone;
     const done = ok => {
