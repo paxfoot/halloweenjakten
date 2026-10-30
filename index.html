@@ -768,6 +768,8 @@ const T = {
     progress: (n, t) => `${n} av ${t} hittade`,
     readyToSolve: "Dags att lösa fallet!",
     done: "Klart! Hämta belöning",
+    doneOver: "Klart ✓",
+    allFoundOver: "Alla hittade ✓",
     claimed: "Belöning hämtad ✓",
     back: "← Alla uppdrag",
     where: "Plats",
@@ -975,6 +977,8 @@ const T = {
     progress: (n, t) => `${n} of ${t} found`,
     readyToSolve: "Time to solve the case!",
     done: "Done! Collect your reward",
+    doneOver: "Done ✓",
+    allFoundOver: "All found ✓",
     claimed: "Reward collected ✓",
     back: "← All missions",
     where: "Where",
@@ -1118,7 +1122,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "29 okt 13:20";
+const VERSION = "30 okt 22:00";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1150,9 +1154,10 @@ function findCode(code) {
 }
 
 function statusChip(m) {
+  const over = Date.now() >= GRACE_END; // after 20:05 there's nothing left to collect or solve
   if (S.claimed[m.id]) return `<span class="chip claimed">${t("claimed")}</span>`;
-  if (isComplete(m) && isSolved(m)) return `<span class="chip done">${t("done")}</span>`;
-  if (isComplete(m)) return `<span class="chip done">${t("readyToSolve")}</span>`;
+  if (isComplete(m) && isSolved(m)) return `<span class="chip done">${over ? t("doneOver") : t("done")}</span>`;
+  if (isComplete(m)) return `<span class="chip done">${over ? t("allFoundOver") : t("readyToSolve")}</span>`;
   if (!S.started[m.id] && count(m) === 0) return `<span class="chip">${t("notStarted")}</span>`;
   return `<span class="chip">${t("progress", count(m), m.items.length)}</span>`;
 }
