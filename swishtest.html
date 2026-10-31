@@ -9,12 +9,14 @@ a.t{display:block;margin:14px 0 0;padding:14px 16px;border-radius:14px;backgroun
 a.t small{display:block;font-weight:500;font-size:14px;color:#4a2400}
 </style></head><body><main>
 <h1>Swish-test</h1>
-<p>Tryck på knapparna en i taget. Skriv ner vilka nummer som öppnar Swish med <b>070-667 23 21</b> ifyllt. Du behöver inte betala – avbryt bara i Swish.</p>
+<p>Tryck på knapparna en i taget. <b>Nytt:</b> testa 1 och 2 först – de ska bara öppna Swish-appen, utan att fylla i något. Du behöver inte betala – avbryt bara i Swish.</p>
 <div id="list"></div>
 </main><script>
 const n = "46706672321";
 const data = o => "swish://payment?data=" + encodeURIComponent(JSON.stringify(o));
 const tests = [
+  ["Bara öppna Swish (A)", "swish://"],
+  ["Bara öppna Swish (B)", "https://app.swish.nu/"],
   ["Inget belopp, du väljer själv", "https://app.swish.nu/1/p/sw/?sw=" + n + "&cur=SEK&msg=Haggween&edit=amt,msg&src=qr"],
   ["Förifyllt 20 kr, går att ändra", "https://app.swish.nu/1/p/sw/?sw=" + n + "&amt=20&cur=SEK&msg=Haggween&edit=amt&src=qr"],
   ["Förifyllt 20 kr, låst", "https://app.swish.nu/1/p/sw/?sw=" + n + "&amt=20&cur=SEK&msg=Haggween&src=qr"],
