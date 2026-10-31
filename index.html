@@ -247,6 +247,20 @@ button.s:active{transform:scale(.97)}
 .keepswish .swlabel{text-align:center;text-transform:uppercase;letter-spacing:2px;font-size:14px;font-weight:600;color:var(--ink);margin:14px 0 0}
 .card>.keepswish:first-child{margin-top:0;padding-top:0;border-top:0}
 .swopen{display:none}
+.allsum{margin:0 0 10px;font-size:14px}
+.allh{list-style:none;margin:0;padding:0;text-align:left}
+.allh li{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.allh li:last-child{border-bottom:0}
+.allh li.me{background:rgba(255,138,31,.10);border-radius:10px;padding:10px 8px}
+.allh .adot{flex:0 0 12px;height:12px;border-radius:50%;background:#ddd}
+.allh .adot.st-open{background:var(--green);box-shadow:0 0 8px var(--green)}
+.allh .adot.st-out{background:var(--red)}
+.allname{flex:1;min-width:0}
+.allname em{font-style:normal;font-size:13px;color:var(--orange2)}
+.allname small{display:block;font-size:13px;color:var(--muted)}
+.allst{font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap}
+.allst.st-open{color:var(--green)}
+.allst.st-out{color:var(--red)}
 .swopen.show{display:block;animation:swin .35s ease-out}
 @keyframes swin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .costbar{height:14px;border-radius:999px;background:var(--card2);border:1px solid var(--line);overflow:hidden}
@@ -869,6 +883,10 @@ const T = {
     adIsThisYours: "Är det här ditt hus?",
     adYesMine: "Ja, det är mitt hus",
     adYourHouse: "Ditt belöningshus",
+    adAllBtn: "Visa alla belöningshus",
+    adAllTitle: "Alla belöningshus",
+    adAllSum: (o, u, c) => `${o} ${o === 1 ? "öppet" : "öppna"} · ${u} slut · ${c} ${c === 1 ? "stängt" : "stängda"}`,
+    adAllMine: "(ditt hus)",
     adChangeHouse: "Byt hus",
     adGone: "Ditt hus finns inte i listan längre. Välj ditt hus igen.",
     abort: "Avbryt",
@@ -1090,6 +1108,10 @@ const T = {
     adIsThisYours: "Is this your house?",
     adYesMine: "Yes, it's my house",
     adYourHouse: "Your reward house",
+    adAllBtn: "Show all reward houses",
+    adAllTitle: "All reward houses",
+    adAllSum: (o, u, c) => `${o} open · ${u} out · ${c} closed`,
+    adAllMine: "(your house)",
     adChangeHouse: "Change house",
     adGone: "Your house isn't in the list anymore. Please choose your house again.",
     abort: "Cancel",
@@ -1169,7 +1191,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "31 okt 07:45";
+const VERSION = "31 okt 07:55";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1627,6 +1649,22 @@ function adminHouses(kod, sub) {
   if (sub === "statistik") return adminStats(kod);
   app.innerHTML = `<div data-adminhouses>${adminListHTML()}</div>`;
 }
+// Read-only list of every reward house and its status (a modal on the house page).
+function allHousesHTML() {
+  if (!Array.isArray(HOUSES)) return `<p class="muted">${HOUSES === "error" ? t("housesError") : t("loadingHouses")}</p>`;
+  const order = { open: 0, out: 1, closed: 2 };
+  const list = HOUSES.slice().sort((a, b) => order[a.status] - order[b.status]);
+  const n = st => HOUSES.filter(h => h.status === st).length;
+  return `
+    <p class="muted allsum">${t("adAllSum", n("open"), n("out"), n("closed"))}</p>
+    <ul class="allh">${list.map(h => `
+      <li class="${h.name === S.myHouse ? "me" : ""}">
+        <span class="adot st-${h.status}"></span>
+        <span class="allname"><b>${esc(h.name)}</b>${h.name === S.myHouse ? ` <em>${t("adAllMine")}</em>` : ""}${h.note ? `<small>${esc(h.note)}</small>` : ""}</span>
+        <span class="allst st-${h.status}">${t("st_" + h.status)}</span>
+      </li>`).join("")}</ul>`;
+}
+
 // Statistics for the reward houses: same numbers as on the organizer page.
 function adminStats(kod) {
   const back = `<a class="back" href="#/hus/${encodeURIComponent(kod)}">${t("adStatsBack")}</a>`;
@@ -1687,6 +1725,7 @@ function adminListHTML() {
         <p>${t("adHelpText")}</p>
         <a class="btn green" href="sms:${EVENT.helperPhone.replace(/[^\d+]/g, "")}">💬 ${t("helpCta")}</a>
       </section>` : ""}
+      <button class="btn ghost" type="button" data-act="allHouses">🏠 ${t("adAllBtn")}</button>
       <section class="faq">
         <h2>❓ ${t("faqTitle")}</h2>
         ${t("faq").map(([q, a, ex]) => `<details><summary>${q}</summary><p>${a}</p>${ex ? `<button class="btn ghost exbtn" type="button" data-act="faqExample">👀 ${t("exShow")}</button>` : ""}</details>`).join("")}
@@ -1830,6 +1869,7 @@ function outBannerHTML() {
 function refreshHouses() {
   document.querySelectorAll("[data-houses]").forEach(el => el.innerHTML = housesHTML());
   document.querySelectorAll("[data-outbanner]").forEach(el => el.innerHTML = outBannerHTML());
+  document.querySelectorAll("[data-allhouses]").forEach(el => el.innerHTML = allHousesHTML());
   const ad = document.querySelector("[data-adminhouses]");
   if (ad && ADMIN.open === null && !document.querySelector(".modal")) ad.innerHTML = adminListHTML();
 }
@@ -2472,6 +2512,12 @@ document.addEventListener("click", e => {
       </div>`);
   }
   if (act === "statsRefresh") loadStats();
+  if (act === "allHouses") {
+    openModal(`
+      <h2>🏠 ${t("adAllTitle")}</h2>
+      <div data-allhouses>${allHousesHTML()}</div>
+      <button class="btn ghost" type="button" data-act="closeModal">${t("close")}</button>`);
+  }
   if (act === "swishOpen") track("swish:open");
   if (act === "copySwish") {
     const num = swishLocal().replace(/\D/g, "");
