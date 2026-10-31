@@ -826,6 +826,7 @@ const T = {
     claimedTitle: "Belöningen är hämtad 🎉",
     claimedText: "Bra jobbat! Varför inte testa ett annat uppdrag?",
     swishCopied: "Kopierat! Öppna Swish och klistra in numret.",
+    swishOpen: "Öppna Swish",
     costTitle: "Hjälp till med kostnaden",
     costOf: (a, b) => `<b>${a}</b> av ${b} insamlat`,
     costDone: "Allt är täckt – tack! 🎉",
@@ -1045,6 +1046,7 @@ const T = {
     claimedTitle: "Reward collected 🎉",
     claimedText: "Great job! Why not try another mission?",
     swishCopied: "Copied! Open Swish and paste the number.",
+    swishOpen: "Open Swish",
     costTitle: "Help with the cost",
     costOf: (a, b) => `<b>${a}</b> of ${b} raised`,
     costDone: "Everything is covered – thank you! 🎉",
@@ -1157,7 +1159,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "31 okt 02:15";
+const VERSION = "31 okt 02:20";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1239,8 +1241,9 @@ function home() {
 }
 
 /* ---------- Swish (help with the cost) ---------- */
-// No "open Swish" button: the Swish app rejects prefilled links to a private number ("Felaktig länk"),
-// tested on iPhone 31 Oct. People copy the number and paste it in Swish instead.
+// The Swish app rejects prefilled links to a private number ("Felaktig länk", tested on iPhone 31 Oct),
+// so the button only opens the app and people paste the copied number. https:// (not swish://) so a
+// phone without Swish gets a web page instead of an error.
 function swishLocal() { // +46706672321 -> 070-667 23 21
   const d = (EVENT.helperPhone || "").replace(/\D/g, "").replace(/^46/, "0");
   return d.length === 10 ? `${d.slice(0, 3)}-${d.slice(3, 6)} ${d.slice(6, 8)} ${d.slice(8)}` : d;
@@ -1261,7 +1264,8 @@ function costHTML() {
         <p class="costnum">${done ? t("costDone") : t("costOf", kr(raised), kr(cost))}</p>` : ""}
         ${done ? "" : `
         <p>${t("keepSwish")}</p>
-        ${swishPill()}`}
+        ${swishPill()}
+        <a class="btn" href="https://app.swish.nu/" data-act="swishOpen">${t("swishOpen")}</a>`}
       </div>`;
 }
 function keepPlayingHTML() {
@@ -2441,6 +2445,7 @@ document.addEventListener("click", e => {
       </div>`);
   }
   if (act === "statsRefresh") loadStats();
+  if (act === "swishOpen") track("swish:open");
   if (act === "copySwish") {
     const num = swishLocal().replace(/\D/g, "");
     const lab = el.querySelector("[data-copylabel]");
