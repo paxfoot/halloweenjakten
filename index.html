@@ -883,7 +883,7 @@ const T = {
     adIsThisYours: "Är det här ditt hus?",
     adYesMine: "Ja, det är mitt hus",
     adYourHouse: "Ditt belöningshus",
-    adAllBtn: "Visa alla belöningshus",
+    adAllBtn: "Se alla hus statusar",
     adAllTitle: "Alla belöningshus",
     adAllSum: (o, u, c) => `${o} ${o === 1 ? "öppet" : "öppna"} · ${u} slut · ${c} ${c === 1 ? "stängt" : "stängda"}`,
     adAllMine: "(ditt hus)",
@@ -1108,7 +1108,7 @@ const T = {
     adIsThisYours: "Is this your house?",
     adYesMine: "Yes, it's my house",
     adYourHouse: "Your reward house",
-    adAllBtn: "Show all reward houses",
+    adAllBtn: "See all house statuses",
     adAllTitle: "All reward houses",
     adAllSum: (o, u, c) => `${o} open · ${u} out · ${c} closed`,
     adAllMine: "(your house)",
@@ -1191,7 +1191,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "31 okt 07:55";
+const VERSION = "31 okt 08:15";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1725,7 +1725,7 @@ function adminListHTML() {
         <p>${t("adHelpText")}</p>
         <a class="btn green" href="sms:${EVENT.helperPhone.replace(/[^\d+]/g, "")}">💬 ${t("helpCta")}</a>
       </section>` : ""}
-      <button class="btn ghost" type="button" data-act="allHouses">🏠 ${t("adAllBtn")}</button>
+      <button class="btn ghost" type="button" data-act="allHouses">📋 ${t("adAllBtn")}</button>
       <section class="faq">
         <h2>❓ ${t("faqTitle")}</h2>
         ${t("faq").map(([q, a, ex]) => `<details><summary>${q}</summary><p>${a}</p>${ex ? `<button class="btn ghost exbtn" type="button" data-act="faqExample">👀 ${t("exShow")}</button>` : ""}</details>`).join("")}
