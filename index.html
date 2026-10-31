@@ -245,6 +245,7 @@ button.s:active{transform:scale(.97)}
 .keepswish h3{font-size:19px;margin-bottom:10px}
 .keepswish>p{font-size:15px;color:var(--muted)}
 .keepswish .swlabel{text-align:center;text-transform:uppercase;letter-spacing:2px;font-size:14px;font-weight:600;color:var(--ink);margin:14px 0 0}
+.card>.keepswish:first-child{margin-top:0;padding-top:0;border-top:0}
 .swopen{display:none}
 .swopen.show{display:block;animation:swin .35s ease-out}
 @keyframes swin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
@@ -1162,7 +1163,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "31 okt 02:25";
+const VERSION = "31 okt 02:30";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1332,7 +1333,8 @@ function closedPage() {
       <div class="mcard" style="--c:${m.color}">
         <div class="mrow"><div class="mem">${m.emoji}</div><div><h3>${L(m.title)}</h3></div></div>
         <div style="margin-top:12px">${statusChip(m)}</div>
-      </div>`).join("")}</div>` : ""}`;
+      </div>`).join("")}</div>` : ""}
+    ${EVENT.helperPhone && MISSIONS.some(m => count(m) > 0 || S.claimed[m.id]) ? `<section class="card keepcard">${costHTML()}</section>` : ""}`;
 }
 function storyFirst(code, m) {
   app.innerHTML = `
