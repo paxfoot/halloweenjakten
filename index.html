@@ -578,9 +578,9 @@ const MISSIONS = [
         profile: { age: { sv: "312 år", en: "312 years" }, type: { sv: "Klassiskt lakansspöke", en: "Classic bedsheet ghost" }, likes: { sv: "Att säga BUU till brevbäraren", en: "Saying BOO to the postman" }, power: { sv: "Går genom väggar (men fastnar i dörrar)", en: "Walks through walls (but gets stuck in doors)" }, scare: 2 } },
       { code: "w3hx9t", where: "Solbackavägen 22F", name: "Kasper", line: { sv: "Jag gömde mig så bra! Hur hittade ni mig?", en: "I hid so well! How did you find me?" },
         profile: { age: { sv: "87 år", en: "87 years" }, type: { sv: "Kurragömma-spöke", en: "Hide-and-seek ghost" }, likes: { sv: "Mörka garderober", en: "Dark wardrobes" }, power: { sv: "Blir osynlig när någon räknar till tio", en: "Turns invisible when someone counts to ten" }, scare: 1 } },
-      { code: "r8bn4c", name: "Siv",    line: { sv: "Jag var bara ute och svävade lite.", en: "I was just out for a little float." },
+      { code: "r8bn4c", hint: { sv: "På vägen", en: "Along the road" }, name: "Siv",    line: { sv: "Jag var bara ute och svävade lite.", en: "I was just out for a little float." },
         profile: { age: { sv: "150 år", en: "150 years" }, type: { sv: "Svävspöke", en: "Floating ghost" }, likes: { sv: "Månsken och prasslande löv", en: "Moonlight and rustling leaves" }, power: { sv: "Svävar högre än hustaken", en: "Floats higher than the rooftops" }, scare: 3 } },
-      { code: "z2vp6e", name: "Otto",   line: { sv: "Akta, jag är kittlig!", en: "Careful, I'm ticklish!" },
+      { code: "z2vp6e", hint: { sv: "På vägen", en: "Along the road" }, name: "Otto",   line: { sv: "Akta, jag är kittlig!", en: "Careful, I'm ticklish!" },
         profile: { age: { sv: "96 år", en: "96 years" }, type: { sv: "Kittelspöke", en: "Tickle ghost" }, likes: { sv: "Att fnissa i mörkret", en: "Giggling in the dark" }, power: { sv: "Kittlar dig utan att röra dig", en: "Tickles you without touching you" }, scare: 1 } },
       { code: "m5tj8a", where: "Solbackavägen 17A", name: "Mimmi",  line: { sv: "Vill ni hälsa på min nalle?", en: "Do you want to say hi to my teddy?" },
         profile: { age: { sv: "203 år", en: "203 years" }, type: { sv: "Glittrande nattspöke", en: "Sparkly night ghost" }, likes: { sv: "Sin 200 år gamla nalle Bulle", en: "Her 200-year-old teddy bear, Bulle" }, power: { sv: "Lyser i mörkret när hon är glad", en: "Glows in the dark when she's happy" }, scare: 1 } }
@@ -1191,7 +1191,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "31 okt 08:15";
+const VERSION = "31 okt 14:55";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1455,7 +1455,7 @@ function missionPage(id) {
       <div class="slots">
         ${m.items.map(it => S.found[it.code]
           ? `<button class="slot found" type="button" data-act="itemInfo" data-code="${it.code}"><span class="em">${itemArt(m, it, true)}</span>${L(it.name)}</button>`
-          : `<div class="slot"><span class="em q">?</span>${t("notFound")}${it.where ? `<small class="addr">📍 ${t("houseNo")} ${it.where.replace(/^.*\s(?=\d)/, "")}</small>` : ""}</div>`).join("")}
+          : `<div class="slot"><span class="em q">?</span>${t("notFound")}${it.where ? `<small class="addr">📍 ${t("houseNo")} ${it.where.replace(/^.*\s(?=\d)/, "")}</small>` : it.hint ? `<small class="addr">📍 ${L(it.hint)}</small>` : ""}</div>`).join("")}
       </div>
     </section>`;
 
