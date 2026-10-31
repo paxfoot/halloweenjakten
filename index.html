@@ -882,6 +882,8 @@ const T = {
     adFailed: "Det gick inte att spara",
     adErrNet: "Kontrollera att mobilen har internet och försök igen.",
     faqTitle: "Vanliga frågor",
+    adStatsBtn: "Visa statistik",
+    adStatsBack: "← Tillbaka",
     exShow: "Visa exempel",
     exBadge: "Exempel",
     exCheck1: "Det står ”Uppdrag klart!” och vilket uppdrag det gäller.",
@@ -924,6 +926,7 @@ const T = {
     statsNote: "Den här mobilen räknas inte, eftersom den är en arrangörsmobil.",
     stPhones: "Mobiler", stViews: "Sidvisningar", stClaimed: "Belöningar hämtade", stHelp: "Hjälpa till",
     stHelpDetail: (o, sms, cp) => `${o} läste · ${sms} sms · ${cp} kopierade`,
+    stSwishDetail: (cp, op) => `${cp} kopierade numret · ${op} öppnade Swish`,
     stMission: "Uppdrag", stStarted: "Startade", stDone: "Klara", stRewards: "Belöningar",
     stItems: "Hittad av antal mobiler",
     styleDark: "🌙 Mörk",
@@ -1100,6 +1103,8 @@ const T = {
     adFailed: "Couldn't save",
     adErrNet: "Check that the phone has internet and try again.",
     faqTitle: "Questions and answers",
+    adStatsBtn: "Show statistics",
+    adStatsBack: "← Back",
     exShow: "Show example",
     exBadge: "Example",
     exCheck1: "It says “Mission complete!” and which mission it is.",
@@ -1142,6 +1147,7 @@ const T = {
     statsNote: "This phone isn't counted, because it's an organizer phone.",
     stPhones: "Phones", stViews: "Page views", stClaimed: "Rewards collected", stHelp: "Volunteer",
     stHelpDetail: (o, sms, cp) => `${o} read · ${sms} texts · ${cp} copied`,
+    stSwishDetail: (cp, op) => `${cp} copied the number · ${op} opened Swish`,
     stMission: "Mission", stStarted: "Started", stDone: "Finished", stRewards: "Rewards",
     stItems: "Found by number of phones",
     styleDark: "🌙 Dark",
@@ -1163,7 +1169,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "31 okt 02:40";
+const VERSION = "31 okt 07:45";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1616,9 +1622,23 @@ const ST_SHEET = { open: "Öppet", out: "Slut", closed: "Stängt" };
 const ST_ICON = { open: "🟢", out: "🔴", closed: "⚪" };
 let ADMIN = { kod: "", valid: null, open: null };
 const stLabel = st => `${ST_ICON[st]} ${t("st_" + st)}`;
-function adminHouses(kod) {
+function adminHouses(kod, sub) {
   if (ADMIN.kod !== kod) { ADMIN = { kod, valid: null, open: null }; checkAdminCode(); }
+  if (sub === "statistik") return adminStats(kod);
   app.innerHTML = `<div data-adminhouses>${adminListHTML()}</div>`;
+}
+// Statistics for the reward houses: same numbers as on the organizer page.
+function adminStats(kod) {
+  const back = `<a class="back" href="#/hus/${encodeURIComponent(kod)}">${t("adStatsBack")}</a>`;
+  if (ADMIN.valid === false) { app.innerHTML = back + `<section class="card"><p class="notice">${t("adBadLink")}</p></section>`; return; }
+  app.innerHTML = back + `
+    <div class="mhead"><div class="mem">📊</div><h1>${t("statsTitle")}</h1></div>
+    <section class="card stats">
+      <div id="statsBox">${EVENT.statsUrl ? t("statsLoading") : t("statsOff")}</div>
+      ${EVENT.statsUrl ? `<button class="btn ghost" type="button" data-act="statsRefresh">🔄 ${t("statsRefresh")}</button>` : ""}
+    </section>
+    <a class="btn ghost" href="#/hus/${encodeURIComponent(kod)}">${t("adStatsBack")}</a>`;
+  loadStats();
 }
 async function checkAdminCode() {
   if (!EVENT.houseAdminUrl) return;
@@ -1670,7 +1690,8 @@ function adminListHTML() {
       <section class="faq">
         <h2>❓ ${t("faqTitle")}</h2>
         ${t("faq").map(([q, a, ex]) => `<details><summary>${q}</summary><p>${a}</p>${ex ? `<button class="btn ghost exbtn" type="button" data-act="faqExample">👀 ${t("exShow")}</button>` : ""}</details>`).join("")}
-      </section>`;
+      </section>
+      ${EVENT.statsUrl ? `<a class="btn ghost" href="#/hus/${encodeURIComponent(ADMIN.kod)}/statistik">📊 ${t("adStatsBtn")}</a>` : ""}`;
   }
   // Not chosen yet (or my house is gone from the list): pick a house
   return head + `
@@ -2175,6 +2196,7 @@ function renderStats(c) {
       ${tile(sum("view:"), t("stViews"))}
       ${tile(sum("claimed:"), t("stClaimed"))}
       ${tile(n("help:sms") + n("help:copy"), t("stHelp"), t("stHelpDetail", n("help:open"), n("help:sms"), n("help:copy")))}
+      ${tile(n("swish:copy"), "Swish", t("stSwishDetail", n("swish:copy"), n("swish:open")))}
     </div>
     <table class="stable">
       <tr><th>${t("stMission")}</th><th>${t("stStarted")}</th><th>${t("stDone")}</th><th>${t("stRewards")}</th></tr>
@@ -2598,7 +2620,7 @@ function render() {
     return;
   }
   renderTestbar();
-  if (parts[0] === "hus") return adminHouses(parts[1] || "");
+  if (parts[0] === "hus") return adminHouses(parts[1] || "", parts[2]);
   if (parts[0] === "arrangor" || parts[0] === "organizer") return organizer();
   const now = Date.now();
   RERENDER_AT = [OPENS, CLOSES, GRACE_END].find(x => x > now) || 0;
