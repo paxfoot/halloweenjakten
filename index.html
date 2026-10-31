@@ -825,7 +825,7 @@ const T = {
     cancel: "Inte än",
     claimedTitle: "Belöningen är hämtad 🎉",
     claimedText: "Bra jobbat! Varför inte testa ett annat uppdrag?",
-    swishOpen: "Öppna Swish",
+    swishCopied: "Kopierat! Öppna Swish och klistra in numret.",
     costTitle: "Hjälp till med kostnaden",
     costOf: (a, b) => `<b>${a}</b> av ${b} insamlat`,
     costDone: "Allt är täckt – tack! 🎉",
@@ -1044,7 +1044,7 @@ const T = {
     cancel: "Not yet",
     claimedTitle: "Reward collected 🎉",
     claimedText: "Great job! Why not try another mission?",
-    swishOpen: "Open Swish",
+    swishCopied: "Copied! Open Swish and paste the number.",
     costTitle: "Help with the cost",
     costOf: (a, b) => `<b>${a}</b> of ${b} raised`,
     costDone: "Everything is covered – thank you! 🎉",
@@ -1157,7 +1157,7 @@ const T = {
 /* =========================================================
    The app (no need to change anything below)
    ========================================================= */
-const VERSION = "30 okt 22:15";
+const VERSION = "31 okt 02:15";
 const KEY = "halloweenjakten-2026";
 let S = {};
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
@@ -1239,11 +1239,8 @@ function home() {
 }
 
 /* ---------- Swish (help with the cost) ---------- */
-// Swish's documented app link: payee starts with 46, no leading 0, message with plain letters only.
-function swishLink() {
-  const d = (EVENT.helperPhone || "").replace(/\D/g, "");
-  return "https://app.swish.nu/1/p/sw/?sw=" + d + "&msg=Haggween";
-}
+// No "open Swish" button: the Swish app rejects prefilled links to a private number ("Felaktig länk"),
+// tested on iPhone 31 Oct. People copy the number and paste it in Swish instead.
 function swishLocal() { // +46706672321 -> 070-667 23 21
   const d = (EVENT.helperPhone || "").replace(/\D/g, "").replace(/^46/, "0");
   return d.length === 10 ? `${d.slice(0, 3)}-${d.slice(3, 6)} ${d.slice(6, 8)} ${d.slice(8)}` : d;
@@ -1264,8 +1261,7 @@ function costHTML() {
         <p class="costnum">${done ? t("costDone") : t("costOf", kr(raised), kr(cost))}</p>` : ""}
         ${done ? "" : `
         <p>${t("keepSwish")}</p>
-        ${swishPill()}
-        <a class="btn" href="${swishLink()}" data-act="swishOpen">${t("swishOpen")}</a>`}
+        ${swishPill()}`}
       </div>`;
 }
 function keepPlayingHTML() {
@@ -2445,15 +2441,14 @@ document.addEventListener("click", e => {
       </div>`);
   }
   if (act === "statsRefresh") loadStats();
-  if (act === "swishOpen") track("swish:open");
   if (act === "copySwish") {
     const num = swishLocal().replace(/\D/g, "");
     const lab = el.querySelector("[data-copylabel]");
     const done = ok => {
       if (!lab) return;
-      lab.textContent = ok ? t("copied") : t("tapToCopy");
+      lab.textContent = ok ? t("swishCopied") : t("tapToCopy");
       el.classList.toggle("ok", ok);
-      if (ok) setTimeout(() => { if (el.isConnected) { lab.textContent = t("tapToCopy"); el.classList.remove("ok"); } }, 2500);
+      if (ok) setTimeout(() => { if (el.isConnected) { lab.textContent = t("tapToCopy"); el.classList.remove("ok"); } }, 5000);
     };
     const fallback = () => {
       try {
